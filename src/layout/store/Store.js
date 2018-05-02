@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Container, Row, Col, Jumbotron, Table, Form, FormGroup, Label, Input, Button} from 'reactstrap';
+import {Button, Col, Container, Form, FormGroup, Input, Jumbotron, Label, Row, Table} from 'reactstrap';
 import StoreCard from '../../components/StoreCard'
 
 function SLA() {
@@ -46,51 +46,59 @@ function SLA() {
 }
 
 
-function DealClosing() {
+function DealClosing(props) {
+    let btn;
+    if (props.activeStoreCard === '') {
+        btn = <Button id="orderButton" disabled className="btn-lg" block>Buy</Button>;
+    } else {
+        btn = <Button id="orderButton" color="primary" className="btn-lg" block>Buy</Button>;
+    }
     //TODO: move rowGrid to CSS
     const rowGrid = {'margin-bottom': '15px'};
-    return <Container>
-        <Row><Col><h3>Details</h3></Col></Row>
-        <hr className="my-3"/>
-        <Form className="">
-            <FormGroup row className="justify-content-md-between">
-                <Col xs={12} sm={6} style={rowGrid}>
-                    <Row><Label for="email" xs={3}>Email</Label>
-                        <Col xs={9}><Input type="email" name="email" id="email" placeholder=""/></Col>
-                    </Row>
-                </Col>
-                <Col xs={12} sm={5} style={rowGrid}>
-                    <Row><Label for="duration" xs={3}>Duration</Label>
-                        <Col xs={9}>
-                            <Input type="select" name="duration" id="duration">
-                                <option>1 month</option>
-                                <option>1 week</option>
-                                <option>1 day</option>
-                            </Input></Col>
-                    </Row>
-                </Col>
-                <Col xs={12} sm={6} style={rowGrid}>
-                    <Row><Label for="sshkey" xs={3}>SSH Key</Label>
-                        <Col xs={9}>
-                            <Input type="textarea" name="sshkey" id="sshkey" placeholder=""/>
-                        </Col>
-                    </Row>
-                </Col>
-                <Col xs={12} sm={5} className="align-content-md-end" style={rowGrid}>
-                    <Button id="orderButton" color="primary" className="btn-lg" block>Buy</Button>
-                </Col>
-            </FormGroup>
-        </Form>
-    </Container>;
+    return (
+        <Container>
+            <Row><Col><h3>Details</h3></Col></Row>
+            <hr className="my-3"/>
+            <Form className="">
+                <FormGroup row className="justify-content-md-between">
+                    <Col xs={12} sm={6} style={rowGrid}>
+                        <Row><Label for="email" xs={3}>Email</Label>
+                            <Col xs={9}><Input type="email" name="email" id="email" placeholder=""/></Col>
+                        </Row>
+                    </Col>
+                    <Col xs={12} sm={5} style={rowGrid}>
+                        <Row><Label for="duration" xs={3}>Duration</Label>
+                            <Col xs={9}>
+                                <Input type="select" name="duration" id="duration">
+                                    <option>1 month</option>
+                                    <option>1 week</option>
+                                    <option>1 day</option>
+                                </Input></Col>
+                        </Row>
+                    </Col>
+                    <Col xs={12} sm={6} style={rowGrid}>
+                        <Row><Label for="sshkey" xs={3}>SSH Key</Label>
+                            <Col xs={9}>
+                                <Input type="textarea" name="sshkey" id="sshkey" placeholder=""/>
+                            </Col>
+                        </Row>
+                    </Col>
+                    <Col xs={12} sm={5} className="align-content-md-end" style={rowGrid}>
+                        {btn}
+                    </Col>
+                </FormGroup>
+            </Form>
+        </Container>
+    );
 }
 
 class Store extends Component {
     constructor(props) {
         super(props);
-        this.selectedID = null;
         this.handleClickStore = this.handleClickStore.bind(this);
-        this.state = {};
-        console.log(this.state);
+        this.state = {
+            activeStoreCard: '',
+        };
     }
 
     handleClickStore(id) {
@@ -122,15 +130,11 @@ class Store extends Component {
                 </Container>
 
                 <SLA/>
-                <DealClosing/>
+                <DealClosing activeStoreCard={this.state.activeStoreCard}/>
             </main>
         )
     }
 
 }
-
-Store.defaultState = {
-    activeStoreCard: "sm",
-};
 
 export default Store

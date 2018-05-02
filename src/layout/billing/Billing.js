@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Jumbotron, Container, Row, Col, Label, Input, Button, Badge, Table} from 'reactstrap';
+import {Button, Col, Container, Jumbotron, Row, Table} from 'reactstrap';
 import MonthSelector from "../../components/MonthSelector";
 import ServiceSelector from "../../components/ServiceSelector";
 
@@ -64,11 +64,13 @@ class Billing extends Component {
                     <hr className="my-3"/>
 
                     <Row style={rowGrid}>
-                        <Col sm={6} md={{size:4, offset:6}} lg={{size:3, offset:7}}>Total bill of all services: </Col>
+                        <Col xs={8} sm={6} md={{size: 4, offset: 6}} lg={{size: 3, offset: 7}}>Total bill of all
+                            services: </Col>
                         <Col className="ml-auto col-auto">72 ETH</Col>
                     </Row>
                     <Row style={rowGrid}>
-                        <Col sm={6} md={{size:4,offset:6}} lg={{size:3, offset:7}}>Available refund for payout: </Col>
+                        <Col xs={8} sm={6} md={{size: 4, offset: 6}} lg={{size: 3, offset: 7}}>Available refund for
+                            payout: </Col>
                         <Col className="ml-auto col-auto">18 ETH</Col>
                         <Col xs={12} sm={{size:6, offset:6}} md={{size:3}} xl={{size:2}} className="ml-auto"><Button color="primary" size="sm" block>Receive refund</Button></Col>
                     </Row>

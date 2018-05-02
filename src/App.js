@@ -1,23 +1,11 @@
 import React, {Component} from 'react';
-import {
-    Collapse,
-    Navbar,
-    NavbarToggler,
-    NavbarBrand,
-    Nav,
-    NavItem,
-    NavLink,
-    Jumbotron,
-} from 'reactstrap';
-import {Route, NavLink as NavLinkRRD} from 'react-router-dom';
-
+import {Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink,} from 'reactstrap';
+import {NavLink as NavLinkRRD, Route} from 'react-router-dom';
 // Import views
 import Home from "./layout/home/Home";
 import Billing from "./layout/billing/Billing";
 import Store from "./layout/store/Store";
 import Monitoring from "./layout/monitoring/Monitoring";
-
-
 // Import css
 import './App.css';
 
