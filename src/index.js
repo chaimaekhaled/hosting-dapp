@@ -2,14 +2,86 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
-import { BrowserRouter as Router } from 'react-router-dom';
 
 import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+const data = [
+    {
+        id: 0,
+        hash: '0x14ce80ec89e1ed33701299d833d8b691d34f2fd2',
+        month: '2018-04',
+        latency: 4,
+        dropPackets: 5,
+        availability: 97.8
+    },
+    {
+        id: 0,
+        hash: '0x14ce80ec89e1ed33701299d833d8b691d34f2fd2',
+        month: '2018-03',
+        latency: 2,
+        dropPackets: 12,
+        availability: 96
+    },
+    {
+        id: 0,
+        hash: '0x14ce80ec89e1ed33701299d833d8b691d34f2fd2',
+        month: '2018-02',
+        latency: 21,
+        dropPackets: 9,
+        availability: 99.999
+    },
+    {
+        id: 1,
+        hash: '0x13f93b519261bf56d58e6e5d2a028a04ac6fa691',
+        month: '2018-04',
+        latency: 55,
+        dropPackets: 2,
+        availability: 99.99
+    },
+    {
+        id: 1,
+        hash: '0x13f93b519261bf56d58e6e5d2a028a04ac6fa691',
+        month: '2018-03',
+        latency: 4,
+        dropPackets: 5,
+        availability: 97.8
+    },
+    {
+        id: 1,
+        hash: '0x13f93b519261bf56d58e6e5d2a028a04ac6fa691',
+        month: '2018-02',
+        latency: 60,
+        dropPackets: 8,
+        availability: 94.8
+    },
+    {
+        id: 2,
+        hash: '0xbe559c7a90427fb5b629b0703385480570190a36',
+        month: '2018-04',
+        latency: 4,
+        dropPackets: 5,
+        availability: 97.8
+    },
+    {
+        id: 2,
+        hash: '0xbe559c7a90427fb5b629b0703385480570190a36',
+        month: '2018-03',
+        latency: 60,
+        dropPackets: 8,
+        availability: 94.8
+    },
+    {
+        id: 2,
+        hash: '0xbe559c7a90427fb5b629b0703385480570190a36',
+        month: '2018-02',
+        latency: 55,
+        dropPackets: 2,
+        availability: 99.99
+    },
+];
 
 ReactDOM.render(
-    <Router>
-        <App />
-    </Router>, document.getElementById('root'));
+    <App data={data}/>
+    , document.getElementById('root'));
 registerServiceWorker();

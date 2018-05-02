@@ -56,9 +56,9 @@ class Billing extends Component {
             <main>
                 <Jumbotron><h1>Billing</h1></Jumbotron>
                 <Container>
-                    <ServiceSelector/>
+                    <ServiceSelector data={this.props.data}/>
                     <hr className="my-3"/>
-                    <MonthSelector/>
+                    <MonthSelector data={this.props.data}/>
                     <hr className="my-3"/>
                     <BillCalculation/>
                     <hr className="my-3"/>

@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink,} from 'reactstrap';
-import {NavLink as NavLinkRRD, Route} from 'react-router-dom';
+import {BrowserRouter as Router, NavLink as NavLinkRRD, Route} from 'react-router-dom';
 // Import views
 import Home from "./layout/home/Home";
 import Billing from "./layout/billing/Billing";
@@ -13,11 +13,10 @@ class App extends Component {
 
     constructor(props) {
         super(props);
-        document.title = "dApp Hosting";
 
         this.toggle = this.toggle.bind(this);
         this.state = {
-            isOpen: false
+            isOpen: false,
         };
     }
 
@@ -27,39 +26,46 @@ class App extends Component {
         });
     }
 
+
     render() {
         return (
-            <main>
+            <Router>
                 <div>
-                    <Navbar color="dark" dark expand="sm">
-                        <NavbarBrand href="/">dApp Hosting</NavbarBrand>
-                        <NavbarToggler onClick={this.toggle}/>
-                        <Collapse isOpen={this.state.isOpen} navbar>
-                            <Nav className="ml-auto" navbar>
-                                <NavItem>
-                                    <NavLink exact to="/" activeClassName='active' tag={NavLinkRRD}>Overview</NavLink>
-                                </NavItem>
-                                <NavItem>
-                                    <NavLink to="/store" activeClassName='active' tag={NavLinkRRD}>Store</NavLink>
-                                </NavItem>
-                                <NavItem>
-                                    <NavLink to="/monitoring" activeClassName='active'
-                                             tag={NavLinkRRD}>Monitoring</NavLink>
-                                </NavItem>
-                                <NavItem>
-                                    <NavLink to="/billing" activeClassName='active' tag={NavLinkRRD}>Billing</NavLink>
-                                </NavItem>
-                            </Nav>
-                        </Collapse>
-                    </Navbar>
+                    <div>
+                        <Navbar color="dark" dark expand="sm">
+                            <NavbarBrand href="/">dApp Hosting</NavbarBrand>
+                            <NavbarToggler onClick={this.toggle}/>
+                            <Collapse isOpen={this.state.isOpen} navbar>
+                                <Nav className="ml-auto" navbar>
+                                    <NavItem>
+                                        <NavLink exact to="/" activeClassName='active'
+                                                 tag={NavLinkRRD}>Overview</NavLink>
+                                    </NavItem>
+                                    <NavItem>
+                                        <NavLink to="/store" activeClassName='active' tag={NavLinkRRD}>Store</NavLink>
+                                    </NavItem>
+                                    <NavItem>
+                                        <NavLink to="/monitoring" activeClassName='active'
+                                                 tag={NavLinkRRD}>Monitoring</NavLink>
+                                    </NavItem>
+                                    <NavItem>
+                                        <NavLink to="/billing" activeClassName='active'
+                                                 tag={NavLinkRRD}>Billing</NavLink>
+                                    </NavItem>
+                                </Nav>
+                            </Collapse>
+                        </Navbar>
+                    </div>
+                    <div>
+                        <Route exact path="/" title="Home" component={Home}/>
+                        <Route path="/store" title="Store" component={Store}/>
+                        <Route path="/monitoring" title="Monitoring"
+                               render={(props) => <Monitoring {...props} data={this.props.data}/>}/>
+                        <Route path="/billing" title="Billing"
+                               render={(props) => <Billing {...props} data={this.props.data}/>}/>
+                    </div>
                 </div>
-                <div>
-                    <Route exact path="/" title="Home" component={Home}/>
-                    <Route path="/store" title="Store" component={Store}/>
-                    <Route path="/monitoring" title="Monitoring" component={Monitoring}/>
-                    <Route path="/billing" title="Billing" component={Billing}/>
-                </div>
-            </main>
+            </Router>
         );
     }
 }
