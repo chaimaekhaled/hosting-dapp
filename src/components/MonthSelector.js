@@ -7,7 +7,6 @@ class MonthSelector extends Component {
         this.handleChange = this.handleChange.bind(this);
         const today = (new Date()).getFullYear() + "-" + (new Date()).getMonth();
         this.state = {
-            uniqueMonths: [...new Set(this.props.data.map(item => item.month))],
             selectedMonth: this.props.selectedMonth ? this.props.selectedMonth : today,
         };
     };
@@ -23,6 +22,8 @@ class MonthSelector extends Component {
         //TODO: move badgeStyle and rowGrid to CSS
         const badgeStyle = {'font-size': '85%', 'margin-top': '5px', 'margin-bottom': '5px', 'float': 'right'};
         const rowGrid = {'margin-bottom': '15px'};
+
+        const uniqueMonths = [...new Set(this.props.data.map(item => item.month))];
         const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
         return (
@@ -30,16 +31,16 @@ class MonthSelector extends Component {
                 <Row className="align-items-center justify-content-between">
                     <Col xs={12} md={6} xl={4} style={rowGrid}>
                         <Row>
-                            <Label xs={5} for="monthSelector"><h4>Month:</h4></Label>
+                            <Label xs={5} lg={4} for="monthSelector"><h4>Month:</h4></Label>
                             <Col xs={7}>
                                 <Input type="select" id="monthSelector" onChange={this.handleChange}
                                        value={this.state.selectedMonth}>
-
-                                    {this.state.uniqueMonths.map(monthId =>
-                                        <option value={monthId}>
-                                            {(new Date(monthId)).getFullYear() + " "
-                                            + months[(new Date(monthId)).getMonth()]}
-                                        </option>)
+                                    {
+                                        uniqueMonths.map(monthId =>
+                                            <option value={monthId}>
+                                                {(new Date(monthId)).getFullYear() + " "
+                                                + months[(new Date(monthId)).getMonth()]}
+                                            </option>)
                                     }
                                 </Input>
                             </Col>
