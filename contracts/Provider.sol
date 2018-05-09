@@ -37,8 +37,13 @@ contract Provider {
 
     }
 
-    function buyService(ServiceOffer service) public payable returns (address) {
-        if (service.product == Products.StandardServer) {
+    modifier onlyOwner(){
+        require(msg.sender == owner);
+        _;
+    }
+
+    function buyService(ServiceOffer _service) public payable returns (address) {
+        if (_service.product == Products.StandardServer) {
             // create a new StandardServer smart contract
             // pay ETH into this new contract
             // add new contract to customerDB
@@ -48,15 +53,15 @@ contract Provider {
         }
     }
 
-    function addProduct(ServiceOffer product) public {//add modifier for access restriction to owner
+    function addProduct(ServiceOffer _product) public {//add modifier for access restriction to owner
         // Add product to available offers
-        products.push(product.name);
-        Products[product.name] = product;
+        products.push(_product.name);
+        Products[product.name] = _product;
     }
 
-    function removeProduct(string product) public {//add modifier for access restriction to owner
+    function removeProduct(string _product) public {//add modifier for access restriction to owner
         for (int i = 0; i < products.length; i++) {
-            if (products[i] == product) {
+            if (products[i] == _product) {
                 delete products[i];
                 break;
             }
