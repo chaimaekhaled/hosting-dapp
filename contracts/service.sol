@@ -16,7 +16,7 @@ contract ServiceContract is Hosting {
     string customerPublicKey;
 
     string name; // name of ServiceOffer
-    uint weeklyCost;
+    uint costPerDay;
     ServiceDetails specs;
     SLAPolicy sla;
 
@@ -33,13 +33,13 @@ contract ServiceContract is Hosting {
     "0xca35b7d915458ef540ade6068dfe2f44e8fa733c","0xca35b7d915458ef540ade6068dfe2f44e8fa733c","0xca35b7d915458ef540ade6068dfe2f44e8fa733c","pubKey","vServerSmall", 2
     */
 
-    constructor(address _provider, address _customer, address _providerContract, string _customerPublicKey, string _name, uint _weeklyCost) public payable {
+    constructor(address _provider, address _customer, address _providerContract, string _customerPublicKey, string _name, uint _costPerDay) public payable {
         provider = _provider;
         customer = _customer;
         providerContract = _providerContract;
         customerPublicKey = _customerPublicKey;
         name = _name;
-        weeklyCost = _weeklyCost;
+        costPerDay = _costPerDay;
     }
 
     modifier onlyPartners(){
@@ -81,9 +81,9 @@ contract ServiceContract is Hosting {
     }
 
     function recalculateServiceDuration() public {
-        uint durationInWeeks = 1 weeks * (uint(address(this).balance) / weeklyCost);
-        endDate = now + durationInWeeks;
-        emit LogNumber(durationInWeeks);
+        uint durationInDays = 1 days * (uint(address(this).balance) / costPerDay);
+        endDate = now + durationInDays;
+        emit LogNumber(durationInDays);
     }
 
     function getEndDate() public view onlyPartners returns (uint){
@@ -95,6 +95,6 @@ contract ServiceContract is Hosting {
     }
 
     function getAll() public view onlyPartners returns (address, address, address, string, string, uint, uint[], uint[]){
-        return (provider, customer, providerContract, customerPublicKey, name, weeklyCost, ServiceDetailsToArray(specs), SLAPolicyToArray(sla));
+        return (provider, customer, providerContract, customerPublicKey, name, costPerDay, ServiceDetailsToArray(specs), SLAPolicyToArray(sla));
     }
 }

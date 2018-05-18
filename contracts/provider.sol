@@ -62,7 +62,7 @@ contract Provider is Hosting {
         // create a new StandardServer smart contract
         ServiceContract serviceContract = (new ServiceContract).value(msg.value)(
             owner, msg.sender, this,
-            _customerPublicKey, products[_id].name, products[_id].weeklyCost
+    _customerPublicKey, products[_id].name, products[_id].costPerDay
         );
 
         emit NewServiceContract(serviceContract);
@@ -109,9 +109,9 @@ contract Provider is Hosting {
         ServiceContract(_serviceContract).setSla(metric, highGoal, middleGoal, refundMiddle, refundLow);
     }
 
-    //function addProduct(string _name, uint _weeklyCost, ServiceDetails _specs, SLAPolicy _sla) public onlyOwner {
+    //function addProduct(string _name, uint _costPerDay, ServiceDetails _specs, SLAPolicy _sla) public onlyOwner {
     function addProduct(
-        string _name, uint _weeklyCost, uint[] _specs, uint[] _sla) public onlyOwner {
+        string _name, uint _costPerDay, uint[] _specs, uint[] _sla) public onlyOwner {
 
         // Add product to available offers
         uint id = products.length;
@@ -131,7 +131,7 @@ contract Provider is Hosting {
         //(metric, highGoal, middleGoal, refundMiddle, refundLow) = SLAPolicyToVars(_sla);
         SLAPolicy memory slaPolicy = SLAPolicy(Metrics(_sla[0]), _sla[1], _sla[2], _sla[3], _sla[4]);
 
-        ServiceOffer memory newProduct = ServiceOffer(_name, id, true, _weeklyCost, specs, slaPolicy);
+        ServiceOffer memory newProduct = ServiceOffer(_name, id, true, _costPerDay, specs, slaPolicy);
         products.push(newProduct);
     }
     /*
@@ -148,7 +148,7 @@ contract Provider is Hosting {
         products[_i].name,
         products[_i].id,
         products[_i].isActive,
-        products[_i].weeklyCost,
+        products[_i].costPerDay,
         ServiceDetailsToArray(products[_i].specs),
         SLAPolicyToArray(products[_i].sla)
         );

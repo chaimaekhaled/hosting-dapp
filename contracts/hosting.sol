@@ -9,7 +9,7 @@ contract Hosting{
         string name; //name will be used for the Products Mapping
         uint id;
         bool isActive; // flag to indicate lifecycle status of product
-        uint weeklyCost; // month has 30 days
+        uint costPerDay; // month has 30 days
         ServiceDetails specs;
         SLAPolicy sla;
     }
