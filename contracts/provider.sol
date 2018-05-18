@@ -10,9 +10,15 @@ import "./service.sol";
 contract Provider is Hosting {
     // Provider's hosting system can listen to this event to start new servers.
     event NewProductBought(address serviceContract);
+    event NewServiceContract(address serviceContract);
+    event MsgValue(uint value);
 
     address owner; // Provider's eth address
     string public name; // Provider's name
+
+    // Withdrawal Pattern
+    mapping(address => uint) private pendingWithdrawals;
+    
     // Services
     ServiceOffer[] private products;
 
@@ -52,17 +58,21 @@ contract Provider is Hosting {
 
     function buyService(uint _id, string _customerPublicKey) public payable productIsActive(_id) returns (address) {
         // Product is only available for order is flagged as isActive = true
+
         // create a new StandardServer smart contract
-        ServiceContract serviceContract = new ServiceContract(
+        ServiceContract serviceContract = (new ServiceContract).value(msg.value)(
             owner, msg.sender, this,
             _customerPublicKey, products[_id].name, products[_id].weeklyCost
         );
+
+        emit NewServiceContract(serviceContract);
+        emit MsgValue(msg.value);
 
         extendServiceWithServiceDetails(serviceContract, _id);
         extendServiceWithSla(serviceContract, _id);
 
         // pay ETH into this new contract
-        address(serviceContract).transfer(msg.value);
+        //address(serviceContract).transfer(msg.value);
 
         // Calculate service duration based on msg.value
         serviceContract.recalculateServiceDuration();
@@ -125,20 +135,23 @@ contract Provider is Hosting {
         products.push(newProduct);
     }
     /*
-    "vServerSmall", 12, 1, 2, 10, 20, 0, 99, 95, 15, 100
-    */
+"vServerSmall", 12, [1, 2, 10, 20], [0, 99, 95, 15, 100]
+"vServerBig", 30, [4,16,100,200], [0, 99, 92, 20, 95]
+*/
     function countProducts() public view returns (uint){
         return products.length;
     }
 
     function getProduct(uint _i) public view returns (string, uint, bool, uint, uint[], uint[]){
         require(_i < products.length && _i >= 0);
-        return (products[_i].name,
+        return (
+        products[_i].name,
         products[_i].id,
         products[_i].isActive,
         products[_i].weeklyCost,
         ServiceDetailsToArray(products[_i].specs),
-        SLAPolicyToArray(products[_i].sla));
+        SLAPolicyToArray(products[_i].sla)
+        );
     }
 
 
@@ -146,7 +159,7 @@ contract Provider is Hosting {
         products[_id].isActive = true;
     }
 
-    function deactivateProduct(uint _id) public onlyOwner {//add modifier for access restriction to owner
+    function deactivateProduct(uint _id) public onlyOwner {
         products[_id].isActive = false;
     }
 

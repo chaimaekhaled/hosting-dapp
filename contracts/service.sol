@@ -7,6 +7,9 @@ import "./hosting.sol";
 
 contract ServiceContract is Hosting {
 
+    event LogNumber(uint n);
+    event Log(string text);
+
     address provider;
     address customer;
     address providerContract;
@@ -21,13 +24,16 @@ contract ServiceContract is Hosting {
     bool slaSet = false;
     bool specsSet = false;
 
+    // Billing
     uint endDate; // time until the service is active
+    uint lastCalculationDate; // Date when the costs have been calculated last and service has been paid
+    uint withdrawableForProvider; // service fee that is withdrawable for the provider
 
     /*
     "0xca35b7d915458ef540ade6068dfe2f44e8fa733c","0xca35b7d915458ef540ade6068dfe2f44e8fa733c","0xca35b7d915458ef540ade6068dfe2f44e8fa733c","pubKey","vServerSmall", 2
     */
 
-    constructor(address _provider, address _customer, address _providerContract, string _customerPublicKey, string _name, uint _weeklyCost) public {
+    constructor(address _provider, address _customer, address _providerContract, string _customerPublicKey, string _name, uint _weeklyCost) public payable {
         provider = _provider;
         customer = _customer;
         providerContract = _providerContract;
@@ -38,6 +44,11 @@ contract ServiceContract is Hosting {
 
     modifier onlyPartners(){
         require(msg.sender == provider || msg.sender == customer || msg.sender == providerContract);
+        _;
+    }
+
+    modifier onlyProvider(){
+        require(msg.sender == provider || msg.sender == providerContract);
         _;
     }
 
@@ -65,13 +76,25 @@ contract ServiceContract is Hosting {
         customer.transfer(_amount);
     }
 
+    function withdrawProvider() public onlyProvider {
+        msg.sender.transfer(withdrawableForProvider);
+    }
+
     function recalculateServiceDuration() public {
-        uint duration = uint(address(this).balance) / weeklyCost;
-        endDate = now + duration;
+        uint durationInWeeks = 1 weeks * (uint(address(this).balance) / weeklyCost);
+        endDate = now + durationInWeeks;
+        emit LogNumber(durationInWeeks);
     }
 
     function getEndDate() public view onlyPartners returns (uint){
         return endDate;
     }
 
+    function getBalance() public view onlyPartners returns (uint){
+        return address(this).balance;
+    }
+
+    function getAll() public view onlyPartners returns (address, address, address, string, string, uint, uint[], uint[]){
+        return (provider, customer, providerContract, customerPublicKey, name, weeklyCost, ServiceDetailsToArray(specs), SLAPolicyToArray(sla));
+    }
 }
