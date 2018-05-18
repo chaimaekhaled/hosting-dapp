@@ -4,8 +4,8 @@
 pragma solidity ^0.4.19;
 //pragma experimental ABIEncoderV2;
 
-import "./hosting.sol";
-import "./service.sol";
+import "./Hosting.sol";
+import "./Service.sol";
 
 contract Provider is Hosting {
     // Provider's hosting system can listen to this event to start new servers.

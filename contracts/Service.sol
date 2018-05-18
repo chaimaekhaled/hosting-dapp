@@ -3,7 +3,7 @@
 pragma solidity ^0.4.19;
 //pragma experimental ABIEncoderV2;
 
-import "./hosting.sol";
+import "./Hosting.sol";
 
 contract ServiceContract is Hosting {
 
