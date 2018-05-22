@@ -9,9 +9,6 @@ contract ServiceContract is Hosting {
 
     event LogNumber(uint n);
     event Log(string text);
-    event ContractEndDateUpdated(uint date);
-    event useableCustomerFundsEvent(uint forCustomer);
-    event ContractCalculationUpdated(uint time);
 
     address provider;
     address customer;
@@ -26,11 +23,6 @@ contract ServiceContract is Hosting {
     // Flag to prevent SLA and Specs to be changed after they have been set
     bool slaSet = false;
     bool specsSet = false;
-
-    // Billing
-    uint endDate; // time until the service is active
-    uint lastCalculationDate; // Date when the costs have been calculated last and service has been paid
-    uint withdrawableForProvider; // service fee that is withdrawable for the provider
 
     /*
     "0xca35b7d915458ef540ade6068dfe2f44e8fa733c","0xca35b7d915458ef540ade6068dfe2f44e8fa733c","0xca35b7d915458ef540ade6068dfe2f44e8fa733c","pubKey","vServerSmall", 2
@@ -75,60 +67,7 @@ contract ServiceContract is Hosting {
     }
 
     //required for truffle testing
-    function() external payable {
-
-    }
-
-    function withdraw(uint _amount) public onlyPartners {
-        // Transfers contract funds to customer's address
-        require(_amount <= (address(this).balance - withdrawableForProvider));
-        customer.transfer(_amount);
-    }
-
-    function withdrawProvider() public onlyProvider {
-        // Transfers payout to provider
-        msg.sender.transfer(withdrawableForProvider);
-    }
-
-    function recalculateServiceDuration() public {
-        // Restrict to daily contract updates for easier payout calculation;
-        uint daysSinceLastUpdate = (now - lastCalculationDate) / 1 days;
-        //uint daysSinceLastUpdate = 1;
-        require(daysSinceLastUpdate >= 1);
-
-        uint earningsProviderSinceLastUpdate = costPerDay * daysSinceLastUpdate;
-        withdrawableForProvider += earningsProviderSinceLastUpdate;
-
-        uint newDurationInDays = 1 days * (useableCustomerFunds() / costPerDay);
-        endDate = now + newDurationInDays;
-        updateLastCalculationDate(now);
-
-        emit ContractEndDateUpdated(endDate);
-    }
-
-    function useableCustomerFunds() public onlyPartners returns (uint){
-        uint forCustomer = (address(this).balance - withdrawableForProvider);
-        //emit useableCustomerFundsEvent(forCustomer);
-        return forCustomer;
-    }
-
-    //TODO make private after testing!
-    function updateLastCalculationDate(uint _date) public {
-        emit ContractCalculationUpdated(_date);
-        lastCalculationDate = _date;
-    }
-
-    function getEndDate() public view onlyPartners returns (uint){
-        return endDate;
-    }
-
-    function getBalance() public view onlyPartners returns (uint){
-        return address(this).balance;
-    }
-
-    function getWithdrawableForProvider() public view onlyProvider returns (uint){
-        return withdrawableForProvider;
-    }
+    function() external payable {}
 
     function getAll() public view onlyPartners returns (address, address, address, string, string, uint, uint[], uint[]){
         return (provider, customer, providerContract, customerPublicKey, name, costPerDay, ServiceDetailsToArray(specs), SLAPolicyToArray(sla));

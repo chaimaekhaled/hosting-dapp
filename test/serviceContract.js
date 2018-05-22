@@ -1,18 +1,18 @@
-var ServiceContract = artifacts.require("./ServiceContract.sol");
+var ServiceBilling = artifacts.require("./ServiceBilling.sol");
 
-contract("ServiceContract", async (accounts) => {
+contract("ServiceBilling", async (accounts) => {
     /*it("should prevent setting SLA twice", function () {
         let addr = "0xca35b7d915458ef540ade6068dfe2f44e8fa733c";
-        return  ServiceContract.new(addr, addr, addr, "pubKey", "vServerS", 30).then(function (instance){
-            serviceContract = instance;
-            serviceContract.setSla(0, 99, 95, 15, 100);
-            assert.equal(serviceContract.setSla(0, 99, 95, 15, 100), false, "Setting SLA a second time should return false!");
+        return  ServiceBilling.new(addr, addr, addr, "pubKey", "vServerS", 30).then(function (instance){
+            ServiceBilling = instance;
+            ServiceBilling.setSla(0, 99, 95, 15, 100);
+            assert.equal(ServiceBilling.setSla(0, 99, 95, 15, 100), false, "Setting SLA a second time should return false!");
         })
     });*/
     it("should calculate 7 days of contract duration", async () => {
         let pricePerDay = 8;
         let addr = "0x627306090abab3a6e1400e9345bc60c78a8bef57";
-        let contract = await ServiceContract.new(addr, accounts[0], addr, "pubKey", "vServers", pricePerDay);
+        let contract = await ServiceBilling.new(addr, accounts[0], addr, "pubKey", "vServers", pricePerDay);
         await contract.send(pricePerDay * 8);
         //console.log("Today: " + ~~(Date.now() / 1000) + "\nYesterday: " + ~~((Date.now() / 1000) - 87000));
         await contract.updateLastCalculationDate((Date.now() / 1000) - 87000);
@@ -45,7 +45,7 @@ contract("ServiceContract", async (accounts) => {
         6) assert if Withdrawable for Provider == cost for one day
          */
         let pricePerDay = 8;
-        let contract = await ServiceContract.new(accounts[0], accounts[0], accounts[0], "pubKey", "vServers", pricePerDay);
+        let contract = await ServiceBilling.new(accounts[0], accounts[0], accounts[0], "pubKey", "vServers", pricePerDay);
         let endDate = await contract.getEndDate();
         assert.equal(endDate, 0, "EndDate should be 0!");
         await contract.send(pricePerDay * 8);
@@ -53,6 +53,5 @@ contract("ServiceContract", async (accounts) => {
         await contract.recalculateServiceDuration();
         let withdrawableForProvider = await contract.getWithdrawableForProvider();
         assert.equal(withdrawableForProvider, pricePerDay, "Provider should be able to withdraw cost of one day (8)");
-
     });
 });
