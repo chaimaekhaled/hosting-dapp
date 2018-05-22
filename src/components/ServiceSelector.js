@@ -16,7 +16,7 @@ class ServiceSelector extends Component {
     handleChange(e) {
         const val = parseInt(e.target.value, 10);
         this.setState({selectedService: val});
-        console.log("New Service selected: " + val);
+        console.log("New ServiceContract selected: " + val);
         this.props.onChange(val);
     }
 

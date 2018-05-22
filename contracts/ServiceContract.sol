@@ -55,7 +55,7 @@ contract ServiceContract is Hosting {
     function setSla(Metrics _metric,
         uint _highGoal, uint _middleGoal,
         uint _refundMiddle, uint _refundLow) public onlyPartners {
-        require(!slaSet);
+        require(!slaSet, "SLA cannot be set again!");
         sla = SLAPolicy(_metric, _highGoal, _middleGoal, _refundMiddle, _refundLow);
         slaSet = true;
     }
@@ -69,6 +69,11 @@ contract ServiceContract is Hosting {
 
     function deposit() public payable returns (uint){
         return address(this).balance;
+    }
+
+    //required for truffle testing
+    function() external payable {
+
     }
 
     function withdraw(uint _amount) public onlyPartners {
