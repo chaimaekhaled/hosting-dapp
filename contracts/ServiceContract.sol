@@ -11,6 +11,7 @@ contract ServiceContract is Hosting {
     event Log(string text);
     event ContractEndDateUpdated(uint date);
     event useableCustomerFundsEvent(uint forCustomer);
+    event ContractCalculationUpdated(uint time);
 
     address provider;
     address customer;
@@ -91,9 +92,8 @@ contract ServiceContract is Hosting {
 
     function recalculateServiceDuration() public {
         // Restrict to daily contract updates for easier payout calculation;
-        //uint daysSinceLastUpdate = (now - lastCalculationDate) / 1 days;
-        uint daysSinceLastUpdate = 1;
-        emit LogNumber(daysSinceLastUpdate);
+        uint daysSinceLastUpdate = (now - lastCalculationDate) / 1 days;
+        //uint daysSinceLastUpdate = 1;
         require(daysSinceLastUpdate >= 1);
 
         uint earningsProviderSinceLastUpdate = costPerDay * daysSinceLastUpdate;
@@ -114,7 +114,7 @@ contract ServiceContract is Hosting {
 
     //TODO make private after testing!
     function updateLastCalculationDate(uint _date) public {
-        emit LogNumber(_date);
+        emit ContractCalculationUpdated(_date);
         lastCalculationDate = _date;
     }
 

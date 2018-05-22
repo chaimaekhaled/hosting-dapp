@@ -11,16 +11,16 @@ contract("ServiceContract", async (accounts) => {
     });*/
     it("should calculate 7 days of contract duration", async () => {
         let pricePerDay = 8;
-        let addr = "0xca35b7d915458ef540ade6068dfe2f44e8fa733c";
+        let addr = "0x627306090abab3a6e1400e9345bc60c78a8bef57";
         let contract = await ServiceContract.new(addr, accounts[0], addr, "pubKey", "vServers", pricePerDay);
         await contract.send(pricePerDay * 8);
-        console.log("Today: " + ~~(Date.now() / 1000) + "\nYesterday: " + ~~((Date.now() / 1000) - 87000));
+        //console.log("Today: " + ~~(Date.now() / 1000) + "\nYesterday: " + ~~((Date.now() / 1000) - 87000));
         await contract.updateLastCalculationDate((Date.now() / 1000) - 87000);
-        console.log("Balance: " + await web3.eth.getBalance(contract.address));
+        //console.log("Balance: " + await web3.eth.getBalance(contract.address));
 
         await contract.recalculateServiceDuration();
         let useableCustomerFunds = (await contract.useableCustomerFunds.call());
-        console.log("Customer Funds: " + useableCustomerFunds);
+        //console.log("Customer Funds: " + useableCustomerFunds);
 
         assert.equal(useableCustomerFunds, pricePerDay * 7, "Contract did not receive 56 wei");
 
@@ -44,5 +44,15 @@ contract("ServiceContract", async (accounts) => {
         5) calculate Service Duration
         6) assert if Withdrawable for Provider == cost for one day
          */
+        let pricePerDay = 8;
+        let contract = await ServiceContract.new(accounts[0], accounts[0], accounts[0], "pubKey", "vServers", pricePerDay);
+        let endDate = await contract.getEndDate();
+        assert.equal(endDate, 0, "EndDate should be 0!");
+        await contract.send(pricePerDay * 8);
+        await contract.updateLastCalculationDate((Date.now() / 1000) - 87000);
+        await contract.recalculateServiceDuration();
+        let withdrawableForProvider = await contract.getWithdrawableForProvider();
+        assert.equal(withdrawableForProvider, pricePerDay, "Provider should be able to withdraw cost of one day (8)");
+
     });
 });
