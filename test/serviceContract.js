@@ -54,4 +54,17 @@ contract("ServiceBilling", async (accounts) => {
         let withdrawableForProvider = await contract.getWithdrawableForProvider();
         assert.equal(withdrawableForProvider, pricePerDay, "Provider should be able to withdraw cost of one day (8)");
     });
+
+    it("should be able for the provider to withdraw ether", async () => {
+        let pricePerDay = 8;
+        let contract = await ServiceBilling.new(accounts[0], accounts[0], accounts[0], "pubKey", "vServers", pricePerDay);
+        let endDate = await contract.getEndDate();
+        assert.equal(endDate, 0, "EndDate should be 0!");
+        await contract.send(pricePerDay * 8);
+        await contract.updateLastCalculationDate((Date.now() / 1000) - 87000);
+        await contract.recalculateServiceDuration();
+        let withdrawableForProvider = await contract.getWithdrawableForProvider();
+        assert.equal(withdrawableForProvider, pricePerDay, "Provider should be able to withdraw cost of one day (8)");
+        console.log("Balance a[0]: " + web.eth.getBalance(accounts[0]));
+    });
 });
