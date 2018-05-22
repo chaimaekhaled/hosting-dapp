@@ -56,7 +56,7 @@ contract("ServiceBilling", async (accounts) => {
     });
 
     it("should be able for the provider to withdraw ether", async () => {
-        let pricePerDay = 8;
+        let pricePerDay = parseInt(web3.toWei(8, 'ether'));
         let contract = await ServiceBilling.new(accounts[0], accounts[0], accounts[0], "pubKey", "vServers", pricePerDay);
         let endDate = await contract.getEndDate();
         assert.equal(endDate, 0, "EndDate should be 0!");
@@ -65,6 +65,14 @@ contract("ServiceBilling", async (accounts) => {
         await contract.recalculateServiceDuration();
         let withdrawableForProvider = await contract.getWithdrawableForProvider();
         assert.equal(withdrawableForProvider, pricePerDay, "Provider should be able to withdraw cost of one day (8)");
-        console.log("Balance a[0]: " + web.eth.getBalance(accounts[0]));
+        let balanceBeforeWithdraw = parseInt(web3.fromWei(web3.eth.getBalance(accounts[0]), 'ether'));
+        console.log("Balance a[0]: " + balanceBeforeWithdraw + " \tType: " + typeof balanceBeforeWithdraw);
+        await contract.withdrawProvider();
+        let balanceAfterWithdraw = parseInt(web3.fromWei(web3.eth.getBalance(accounts[0]), 'ether'));
+        console.log("Balance a[0]: " + balanceAfterWithdraw);
+        //assert.approximately(balanceAfterWithdraw, (balanceBeforeWithdraw + pricePerDay), 1, "Withdraw did not work!");
+        let expected = balanceBeforeWithdraw + parseInt(web3.fromWei(pricePerDay, 'ether'));
+        assert.approximately(balanceAfterWithdraw, expected, 1, "Withdraw did not work!");
+
     });
 });
