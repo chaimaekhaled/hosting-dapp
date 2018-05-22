@@ -16,7 +16,6 @@ contract ServiceContract is Hosting {
     string customerPublicKey;
 
     string name; // name of ServiceOffer
-    uint costPerDay;
     ServiceDetails specs;
     SLAPolicy sla;
 
@@ -69,9 +68,9 @@ contract ServiceContract is Hosting {
     //required for truffle testing
     function() external payable {}
 
-    function getAll() public view onlyPartners returns (address, address, address, string, string, uint, uint[], uint[]){
+    /*function getAll() public view onlyPartners returns (address, address, address, string, string, uint, uint[], uint[]){
         return (provider, customer, providerContract, customerPublicKey, name, costPerDay, ServiceDetailsToArray(specs), SLAPolicyToArray(sla));
-    }
+    }*/
 
 
 }
