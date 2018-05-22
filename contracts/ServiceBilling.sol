@@ -14,6 +14,11 @@ contract ServiceBilling is ServiceContract {
     uint withdrawableForProvider; // service fee that is withdrawable for the provider
 
     constructor(address _provider, address _customer, address _providerContract, string _customerPublicKey, string _name, uint _costPerDay) ServiceContract(_provider, _customer, _providerContract, _customerPublicKey, _name) public payable {
+        provider = _provider;
+        customer = _customer;
+        providerContract = _providerContract;
+        customerPublicKey = _customerPublicKey;
+        name = _name;
         costPerDay = _costPerDay;
     }
 

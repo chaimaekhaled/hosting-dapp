@@ -27,14 +27,9 @@ contract ServiceContract is Hosting {
     "0xca35b7d915458ef540ade6068dfe2f44e8fa733c","0xca35b7d915458ef540ade6068dfe2f44e8fa733c","0xca35b7d915458ef540ade6068dfe2f44e8fa733c","pubKey","vServerSmall", 2
     */
 
-    constructor(address _provider, address _customer, address _providerContract, string _customerPublicKey, string _name, uint _costPerDay) public payable {
-        provider = _provider;
-        customer = _customer;
-        providerContract = _providerContract;
-        customerPublicKey = _customerPublicKey;
-        name = _name;
-        costPerDay = _costPerDay;
-    }
+    /*constructor(address _provider, address _customer, address _providerContract, string _customerPublicKey, string _name, uint _costPerDay) public payable {
+
+    }*/
 
     modifier onlyPartners(){
         require(msg.sender == provider || msg.sender == customer || msg.sender == providerContract);
