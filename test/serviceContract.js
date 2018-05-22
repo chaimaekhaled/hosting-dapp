@@ -13,19 +13,36 @@ contract("ServiceContract", async (accounts) => {
         let pricePerDay = 8;
         let addr = "0xca35b7d915458ef540ade6068dfe2f44e8fa733c";
         let contract = await ServiceContract.new(addr, accounts[0], addr, "pubKey", "vServers", pricePerDay);
-        await contract.send(pricePerDay * 7);
-        let balance = await web3.eth.getBalance(contract.address);
-        /*console.log("Contract Address: " + (contract.address)
-            + "\nContract Balance: " + balance);*/
-        contract.recalculateServiceDuration();
-        assert.equal(balance, pricePerDay * 7, "Contract did not receive 56wei");
+        await contract.send(pricePerDay * 8);
+        console.log("Today: " + ~~(Date.now() / 1000) + "\nYesterday: " + ~~((Date.now() / 1000) - 87000));
+        await contract.updateLastCalculationDate((Date.now() / 1000) - 87000);
+        console.log("Balance: " + await web3.eth.getBalance(contract.address));
+
+        await contract.recalculateServiceDuration();
+        let useableCustomerFunds = (await contract.useableCustomerFunds.call());
+        console.log("Customer Funds: " + useableCustomerFunds);
+
+        assert.equal(useableCustomerFunds, pricePerDay * 7, "Contract did not receive 56 wei");
 
         let endDate = new Date(await contract.getEndDate().valueOf() * 1000);
         let now = new Date(Date.now());
         let sevenDays = 60 * 60 * 24 * 7;
         let diff = (endDate - now) / 1000;
+
+
         /*console.log("endDate:\t" + endDate + "\nnow:\t\t" + now);
         console.log("Difference:\t" + diff + "\n\t\t\t" + sevenDays);*/
         assert.approximately(diff, sevenDays, 10, "Calculated endDate is not correct!");
-    })
+    });
+
+    it("should reserve the payout amount for the provider", async () => {
+        /*
+        1) create contract
+        2) assert endDate = 0 (has not been set)
+        3) transfer funds to contract
+        4) set last updated to 1 day back
+        5) calculate Service Duration
+        6) assert if Withdrawable for Provider == cost for one day
+         */
+    });
 });
