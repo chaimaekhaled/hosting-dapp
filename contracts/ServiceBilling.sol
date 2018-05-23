@@ -7,11 +7,11 @@ contract ServiceBilling is ServiceMonitoring {
     event ContractEndDateUpdated(uint date);
     event useableCustomerFundsEvent(uint forCustomer);
     event ContractCalculationUpdated(uint time);
+    event DaysSinceLastUpdate(uint _days);
 
     // Billing
-    uint costPerDay;
     uint endDate; // time until the service is active
-    uint lastCalculationDate; // Date when the costs have been calculated last and service has been paid
+    uint lastCalculationDate = now; // Date when the costs have been calculated last and service has been paid
     uint withdrawableForProvider; // service fee that is withdrawable for the provider
 
 
@@ -24,13 +24,18 @@ contract ServiceBilling is ServiceMonitoring {
     function withdrawProvider() public onlyProvider {
         // Transfers payout to provider
         msg.sender.transfer(withdrawableForProvider);
+        withdrawableForProvider = 0;
     }
 
     function recalculateServiceDuration() public {
+        require(isActive, "Require _contract to be active!");
         // Restrict to daily contract updates for easier payout calculation;
+
         uint daysSinceLastUpdate = (now - lastCalculationDate) / 1 days;
+        emit DaysSinceLastUpdate(daysSinceLastUpdate);
+
         //uint daysSinceLastUpdate = 1;
-        require(daysSinceLastUpdate >= 1);
+        require(daysSinceLastUpdate >= 1, "Calculation is only daily, please wait");
 
         uint earningsProviderSinceLastUpdate = costPerDay * daysSinceLastUpdate;
         withdrawableForProvider += earningsProviderSinceLastUpdate;
@@ -42,7 +47,7 @@ contract ServiceBilling is ServiceMonitoring {
         emit ContractEndDateUpdated(endDate);
     }
 
-    function useableCustomerFunds() public onlyPartners returns (uint){
+    function useableCustomerFunds() public view onlyPartners returns (uint){
         uint forCustomer = (address(this).balance - withdrawableForProvider);
         //emit useableCustomerFundsEvent(forCustomer);
         return forCustomer;
@@ -56,6 +61,10 @@ contract ServiceBilling is ServiceMonitoring {
 
     function getEndDate() public view onlyPartners returns (uint){
         return endDate;
+    }
+
+    function getLastUpdated() public view onlyPartners returns (uint){
+        return lastCalculationDate;
     }
 
     function getBalance() public view onlyPartners returns (uint){

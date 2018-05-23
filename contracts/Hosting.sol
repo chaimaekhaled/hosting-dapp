@@ -1,8 +1,10 @@
-pragma solidity ^0.4.19;
-pragma experimental ABIEncoderV2;
+pragma solidity ^0.4.21;
+//pragma experimental ABIEncoderV2;
 
 library Hosting {
-    enum Metrics {Availability}
+    //DELenum Metrics {Availability}
+    //string[] constant Metrics = ["Availability"];
+
 
     // ServiceOffer is a product of a provider (such as a Small V-Server)
     struct ServiceOffer {
@@ -10,13 +12,16 @@ library Hosting {
         uint id;
         bool isActive; // flag to indicate lifecycle status of product
         uint costPerDay; // month has 30 days
-        ServiceDetails specs;
-        SLAPolicy sla;
+        uint[] specs;
+        //DELServiceDetails specs;
+        uint[] sla;
+        //DELSLAPolicy sla;
     }
 
     // SLAPolicy contains metrics with goals and refundpolicy
     struct SLAPolicy {
-        Metrics metric;
+        //DELMetrics metric;
+        uint metric;
         uint highGoal;
         uint middleGoal;
         uint refundMiddle;
@@ -30,32 +35,34 @@ library Hosting {
         uint traffic; //in TB
         uint ssd; // in GB
     }
+    /*
+       function ServiceDetailsToVars(uint[] _details) public pure returns (uint, uint, uint, uint){
+           return (_details[0], _details[1], _details[2], _details[3]);
+           //return (_details.cpu, _details.ram, _details.traffic, _details.ssd);
+       }
 
-    function ServiceDetailsToVars(ServiceDetails _details) public pure returns (uint, uint, uint, uint){
-        return (_details.cpu, _details.ram, _details.traffic, _details.ssd);
+          function ServiceDetailsToArray(uint[] _details) public pure returns (uint[]){
+               uint[] memory arr = new uint[](4);
+               arr[0] = _details.cpu;
+               arr[1] = _details.ram;
+               arr[2] = _details.traffic;
+               arr[3] = _details.ssd;
+               return arr;
+           }
+
+
+    function SLAPolicyToVars(uint[] _slaPolicy) public pure returns (uint, uint, uint, uint, uint){
+        return (_slaPolicy[0], _slaPolicy[1], _slaPolicy[2], _slaPolicy[3], _slaPolicy[4]);
     }
 
-    function ServiceDetailsToArray(ServiceDetails _details) public pure returns (uint[]){
-        uint[] memory arr = new uint[](4);
-        arr[0] = _details.cpu;
-        arr[1] = _details.ram;
-        arr[2] = _details.traffic;
-        arr[3] = _details.ssd;
-        return arr;
-    }
-
-    function SLAPolicyToVars(SLAPolicy _slaPolicy) public pure returns (Metrics, uint, uint, uint, uint){
-        return (_slaPolicy.metric, _slaPolicy.highGoal, _slaPolicy.middleGoal, _slaPolicy.refundMiddle, _slaPolicy.refundLow);
-    }
-
-    function SLAPolicyToArray(SLAPolicy _slaPolicy) public pure returns (uint[]){
-        uint[] memory arr = new uint[](5);
-        arr[0] = uint(_slaPolicy.metric);
-        arr[1] = _slaPolicy.highGoal;
-        arr[2] = _slaPolicy.middleGoal;
-        arr[3] = _slaPolicy.refundMiddle;
-        arr[4] = _slaPolicy.refundLow;
-        return arr;
-    }
-
+        function SLAPolicyToArray(uint[] _slaPolicy) public pure returns (uint[]){
+            uint[] memory arr = new uint[](5);
+            arr[0] = uint(_slaPolicy.metric);
+            arr[1] = _slaPolicy.highGoal;
+            arr[2] = _slaPolicy.middleGoal;
+            arr[3] = _slaPolicy.refundMiddle;
+            arr[4] = _slaPolicy.refundLow;
+            return arr;
+        }
+    */
 }

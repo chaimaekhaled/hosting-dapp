@@ -16,9 +16,13 @@ contract("ServiceMonitoring", async (accounts) => {
         for (let i = 17; i > 0; i--) {
             await monitor.testHeartbeat(now - i * hourInSeconds);
         }
-        assert.equal(await monitor.getHeartbeats().length, 17, "There should be 17 heartbeats!");
+        let hb = await monitor.getHeartbeats();
+        //console.log("Heartbeats: " + hb + "  | Type: " + typeof hb + " | Len: " + hb.length);
+        assert.equal(hb.length, 17, "There should be 17 heartbeats!");
         // now resetting the array
         await monitor.resetHeartbeats();
-        assert.equal(await monitor.getHeartbeats().length, 0, "There should be 0 heartbeats!");
+        let hb2 = await monitor.getHeartbeats();
+        //console.log("Heartbeats2: " + hb2 + "  | Type: " + typeof hb2 + " | Len: " + hb2.length);
+        assert.equal(hb2.length, 0, "There should be 0 heartbeats!");
     });
 });

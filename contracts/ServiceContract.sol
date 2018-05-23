@@ -1,6 +1,6 @@
 // TODO: convert between ether and wei!
 
-pragma solidity ^0.4.19;
+pragma solidity ^0.4.21;
 
 import "./Hosting.sol";
 
@@ -8,15 +8,19 @@ contract ServiceContract {
 
     event LogNumber(uint n);
     event Log(string text);
+    event ContractStateChanged(bool isActive);
+
+    uint costPerDay;
 
     address provider;
     address customer;
     address providerContract;
     string customerPublicKey;
+    bool isActive = false; 
 
     string name; // name of ServiceOffer
-    Hosting.ServiceDetails specs;
-    Hosting.SLAPolicy sla;
+    uint[] specs;
+    uint[] sla;
 
     // Flag to prevent SLA and Specs to be changed after they have been set
     bool slaSet = false;
@@ -40,22 +44,29 @@ contract ServiceContract {
         _;
     }
 
-    function setSla(Hosting.Metrics _metric,
+    function setSla(uint _metric,
         uint _highGoal, uint _middleGoal,
         uint _refundMiddle, uint _refundLow) public onlyPartners {
         require(!slaSet, "SLA cannot be set again!");
-        sla = Hosting.SLAPolicy(_metric, _highGoal, _middleGoal, _refundMiddle, _refundLow);
+        sla = [_metric, _highGoal, _middleGoal, _refundMiddle, _refundLow];
         slaSet = true;
     }
 
     function setServiceDetails(uint _cpu, uint _ram,
         uint _traffic, uint _ssd) public onlyPartners {
         require(!specsSet);
-        specs = Hosting.ServiceDetails(_cpu, _ram, _traffic, _ssd);
+        specs = [_cpu, _ram, _traffic, _ssd];
         specsSet = true;
     }
 
+    function setActive(bool state) internal {
+        isActive = state;
+        emit ContractStateChanged(state);
+    }
+
     function deposit() public payable returns (uint){
+        require(msg.value >= costPerDay, "Deposit > costPerDay is required!");
+        setActive(true);
         return address(this).balance;
     }
 

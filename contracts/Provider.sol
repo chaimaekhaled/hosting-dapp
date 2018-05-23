@@ -1,7 +1,7 @@
 // TODO: refactor all functions vars to _name
 
 
-pragma solidity ^0.4.19;
+pragma solidity ^0.4.21;
 //pragma experimental ABIEncoderV2;
 
 import "./Hosting.sol";
@@ -91,21 +91,19 @@ contract Provider {
     }
 
     function extendServiceWithServiceDetails(address _serviceContract, uint _id) internal {
-        uint cpu;
-        uint ram;
-        uint traffic;
-        uint ssd;
-        (cpu, ram, traffic, ssd) = Hosting.ServiceDetailsToVars(products[_id].specs);
+        uint cpu = products[_id].specs[0];
+        uint ram = products[_id].specs[1];
+        uint traffic = products[_id].specs[2];
+        uint ssd = products[_id].specs[3];
         ServiceContract(_serviceContract).setServiceDetails(cpu, ram, traffic, ssd);
     }
 
     function extendServiceWithSla(address _serviceContract, uint _id) internal {
-        Hosting.Metrics metric;
-        uint highGoal;
-        uint middleGoal;
-        uint refundMiddle;
-        uint refundLow;
-        (metric, highGoal, middleGoal, refundMiddle, refundLow) = Hosting.SLAPolicyToVars(products[_id].sla);
+        uint metric = products[_id].sla[0];
+        uint highGoal = products[_id].sla[1];
+        uint middleGoal = products[_id].sla[2];
+        uint refundMiddle = products[_id].sla[3];
+        uint refundLow = products[_id].sla[4];
         ServiceContract(_serviceContract).setSla(metric, highGoal, middleGoal, refundMiddle, refundLow);
     }
 
@@ -121,7 +119,6 @@ contract Provider {
         uint traffic;
         uint ssd;*/
         //(cpu, ram, traffic, ssd) = ServiceDetailsToVars(_specs);
-        Hosting.ServiceDetails memory specs = Hosting.ServiceDetails(_specs[0], _specs[1], _specs[2], _specs[3]);
 
         /*Metrics metric;
         uint highGoal;
@@ -129,9 +126,8 @@ contract Provider {
         uint refundMiddle;
         uint refundLow;*/
         //(metric, highGoal, middleGoal, refundMiddle, refundLow) = SLAPolicyToVars(_sla);
-        Hosting.SLAPolicy memory slaPolicy = Hosting.SLAPolicy(Hosting.Metrics(_sla[0]), _sla[1], _sla[2], _sla[3], _sla[4]);
 
-        Hosting.ServiceOffer memory newProduct = Hosting.ServiceOffer(_name, id, true, _costPerDay, specs, slaPolicy);
+        Hosting.ServiceOffer memory newProduct = Hosting.ServiceOffer(_name, id, true, _costPerDay, _specs, _sla);
         products.push(newProduct);
     }
     /*
@@ -149,8 +145,8 @@ contract Provider {
         products[_i].id,
         products[_i].isActive,
         products[_i].costPerDay,
-        Hosting.ServiceDetailsToArray(products[_i].specs),
-        Hosting.SLAPolicyToArray(products[_i].sla)
+        products[_i].specs,
+        products[_i].sla
         );
     }
 
