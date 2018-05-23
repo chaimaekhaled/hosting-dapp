@@ -1,8 +1,8 @@
 pragma solidity ^0.4.19;
-//pragma experimental ABIEncoderV2;
+pragma experimental ABIEncoderV2;
 
-contract Hosting{
-    enum Metrics {Latency}
+library Hosting {
+    enum Metrics {Availability}
 
     // ServiceOffer is a product of a provider (such as a Small V-Server)
     struct ServiceOffer {
@@ -31,11 +31,11 @@ contract Hosting{
         uint ssd; // in GB
     }
 
-    function ServiceDetailsToVars(ServiceDetails _details) internal pure returns (uint, uint, uint, uint){
+    function ServiceDetailsToVars(ServiceDetails _details) public pure returns (uint, uint, uint, uint){
         return (_details.cpu, _details.ram, _details.traffic, _details.ssd);
     }
 
-    function ServiceDetailsToArray(ServiceDetails _details) internal pure returns (uint[]){
+    function ServiceDetailsToArray(ServiceDetails _details) public pure returns (uint[]){
         uint[] memory arr = new uint[](4);
         arr[0] = _details.cpu;
         arr[1] = _details.ram;
@@ -44,11 +44,11 @@ contract Hosting{
         return arr;
     }
 
-    function SLAPolicyToVars(SLAPolicy _slaPolicy) internal pure returns (Metrics, uint, uint, uint, uint){
+    function SLAPolicyToVars(SLAPolicy _slaPolicy) public pure returns (Metrics, uint, uint, uint, uint){
         return (_slaPolicy.metric, _slaPolicy.highGoal, _slaPolicy.middleGoal, _slaPolicy.refundMiddle, _slaPolicy.refundLow);
     }
 
-    function SLAPolicyToArray(SLAPolicy _slaPolicy) internal pure returns (uint[]){
+    function SLAPolicyToArray(SLAPolicy _slaPolicy) public pure returns (uint[]){
         uint[] memory arr = new uint[](5);
         arr[0] = uint(_slaPolicy.metric);
         arr[1] = _slaPolicy.highGoal;

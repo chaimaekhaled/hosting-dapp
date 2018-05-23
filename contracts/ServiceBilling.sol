@@ -1,8 +1,9 @@
-pragma solidity ^0.4.0;
+pragma solidity ^0.4.19;
 
-import "./ServiceContract.sol";
+import "./ServiceMonitoring.sol";
+import "./Hosting.sol";
 
-contract ServiceBilling is ServiceContract {
+contract ServiceBilling is ServiceMonitoring {
     event ContractEndDateUpdated(uint date);
     event useableCustomerFundsEvent(uint forCustomer);
     event ContractCalculationUpdated(uint time);
@@ -13,14 +14,6 @@ contract ServiceBilling is ServiceContract {
     uint lastCalculationDate; // Date when the costs have been calculated last and service has been paid
     uint withdrawableForProvider; // service fee that is withdrawable for the provider
 
-    constructor(address _provider, address _customer, address _providerContract, string _customerPublicKey, string _name, uint _costPerDay)  public payable {
-        provider = _provider;
-        customer = _customer;
-        providerContract = _providerContract;
-        customerPublicKey = _customerPublicKey;
-        name = _name;
-        costPerDay = _costPerDay;
-    }
 
     function withdraw(uint _amount) public onlyPartners {
         // Transfers contract funds to customer's address

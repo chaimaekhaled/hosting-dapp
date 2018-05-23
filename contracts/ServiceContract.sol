@@ -1,11 +1,10 @@
 // TODO: convert between ether and wei!
 
 pragma solidity ^0.4.19;
-//pragma experimental ABIEncoderV2;
 
 import "./Hosting.sol";
 
-contract ServiceContract is Hosting {
+contract ServiceContract {
 
     event LogNumber(uint n);
     event Log(string text);
@@ -16,8 +15,8 @@ contract ServiceContract is Hosting {
     string customerPublicKey;
 
     string name; // name of ServiceOffer
-    ServiceDetails specs;
-    SLAPolicy sla;
+    Hosting.ServiceDetails specs;
+    Hosting.SLAPolicy sla;
 
     // Flag to prevent SLA and Specs to be changed after they have been set
     bool slaSet = false;
@@ -41,18 +40,18 @@ contract ServiceContract is Hosting {
         _;
     }
 
-    function setSla(Metrics _metric,
+    function setSla(Hosting.Metrics _metric,
         uint _highGoal, uint _middleGoal,
         uint _refundMiddle, uint _refundLow) public onlyPartners {
         require(!slaSet, "SLA cannot be set again!");
-        sla = SLAPolicy(_metric, _highGoal, _middleGoal, _refundMiddle, _refundLow);
+        sla = Hosting.SLAPolicy(_metric, _highGoal, _middleGoal, _refundMiddle, _refundLow);
         slaSet = true;
     }
 
     function setServiceDetails(uint _cpu, uint _ram,
         uint _traffic, uint _ssd) public onlyPartners {
         require(!specsSet);
-        specs = ServiceDetails(_cpu, _ram, _traffic, _ssd);
+        specs = Hosting.ServiceDetails(_cpu, _ram, _traffic, _ssd);
         specsSet = true;
     }
 

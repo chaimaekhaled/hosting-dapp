@@ -5,9 +5,9 @@ pragma solidity ^0.4.19;
 //pragma experimental ABIEncoderV2;
 
 import "./Hosting.sol";
-import "./ServiceContract.sol";
+import "./Service.sol";
 
-contract Provider is Hosting {
+contract Provider {
     // Provider's hosting system can listen to this event to start new servers.
     event NewProductBought(address serviceContract);
     event NewServiceContract(address serviceContract);
@@ -20,7 +20,7 @@ contract Provider is Hosting {
     mapping(address => uint) private pendingWithdrawals;
     
     // Services
-    ServiceOffer[] private products;
+    Hosting.ServiceOffer[] private products;
 
 
     // Customers
@@ -60,7 +60,7 @@ contract Provider is Hosting {
         // Product is only available for order is flagged as isActive = true
 
         // create a new StandardServer smart contract
-        ServiceContract serviceContract = (new ServiceContract).value(msg.value)(
+        Service serviceContract = (new Service).value(msg.value)(
             owner, msg.sender, this,
     _customerPublicKey, products[_id].name, products[_id].costPerDay
         );
@@ -95,17 +95,17 @@ contract Provider is Hosting {
         uint ram;
         uint traffic;
         uint ssd;
-        (cpu, ram, traffic, ssd) = ServiceDetailsToVars(products[_id].specs);
+        (cpu, ram, traffic, ssd) = Hosting.ServiceDetailsToVars(products[_id].specs);
         ServiceContract(_serviceContract).setServiceDetails(cpu, ram, traffic, ssd);
     }
 
     function extendServiceWithSla(address _serviceContract, uint _id) internal {
-        Metrics metric;
+        Hosting.Metrics metric;
         uint highGoal;
         uint middleGoal;
         uint refundMiddle;
         uint refundLow;
-        (metric, highGoal, middleGoal, refundMiddle, refundLow) = SLAPolicyToVars(products[_id].sla);
+        (metric, highGoal, middleGoal, refundMiddle, refundLow) = Hosting.SLAPolicyToVars(products[_id].sla);
         ServiceContract(_serviceContract).setSla(metric, highGoal, middleGoal, refundMiddle, refundLow);
     }
 
@@ -121,7 +121,7 @@ contract Provider is Hosting {
         uint traffic;
         uint ssd;*/
         //(cpu, ram, traffic, ssd) = ServiceDetailsToVars(_specs);
-        ServiceDetails memory specs = ServiceDetails(_specs[0], _specs[1], _specs[2], _specs[3]);
+        Hosting.ServiceDetails memory specs = Hosting.ServiceDetails(_specs[0], _specs[1], _specs[2], _specs[3]);
 
         /*Metrics metric;
         uint highGoal;
@@ -129,9 +129,9 @@ contract Provider is Hosting {
         uint refundMiddle;
         uint refundLow;*/
         //(metric, highGoal, middleGoal, refundMiddle, refundLow) = SLAPolicyToVars(_sla);
-        SLAPolicy memory slaPolicy = SLAPolicy(Metrics(_sla[0]), _sla[1], _sla[2], _sla[3], _sla[4]);
+        Hosting.SLAPolicy memory slaPolicy = Hosting.SLAPolicy(Hosting.Metrics(_sla[0]), _sla[1], _sla[2], _sla[3], _sla[4]);
 
-        ServiceOffer memory newProduct = ServiceOffer(_name, id, true, _costPerDay, specs, slaPolicy);
+        Hosting.ServiceOffer memory newProduct = Hosting.ServiceOffer(_name, id, true, _costPerDay, specs, slaPolicy);
         products.push(newProduct);
     }
     /*
@@ -149,8 +149,8 @@ contract Provider is Hosting {
         products[_i].id,
         products[_i].isActive,
         products[_i].costPerDay,
-        ServiceDetailsToArray(products[_i].specs),
-        SLAPolicyToArray(products[_i].sla)
+        Hosting.ServiceDetailsToArray(products[_i].specs),
+        Hosting.SLAPolicyToArray(products[_i].sla)
         );
     }
 
