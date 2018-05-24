@@ -9,6 +9,7 @@ contract ServiceContract {
     event LogNumber(uint n);
     event Log(string text);
     event ContractStateChanged(bool isActive);
+    event PenaltyCalculated(uint quality, uint penalty);
 
     uint costPerDay;
 
@@ -75,8 +76,9 @@ contract ServiceContract {
         //default: set penalty to refundLow (achieved 0% - middleGoal)
         if (_achievedServiceQuality >= sla[2]) penalty = sla[3];
         //set penalty to refundMiddle (achieved middleGoal - highGoal)
-        if (_achievedServiceQuality >= sla[1]) penalty = 1;
+        if (_achievedServiceQuality >= sla[1]) penalty = 100;
         // SLA was adhered to -> no penalty
+        //emit PenaltyCalculated(_achievedServiceQuality, penalty);
         return penalty;
     }
 

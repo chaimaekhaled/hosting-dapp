@@ -48,26 +48,21 @@ contract ServiceBilling is ServiceMonitoring {
 
         uint providerPenalty = 100;
 
-        if (withSLACalc)
-        {
+        if (withSLACalc) {
             uint availability;
-            if (daysSinceLastUpdate > 1) {
-                // calculate the SLA adherence for multiple days
-                uint start = calcIntervalBegin;
-                for (uint i = 1; i <= daysSinceLastUpdate; i++) {
-                    availability = calculateServiceLevel(start, start + 1 days);
-                    availabilityForDay(start, availability);
-                    start = start + 1 days;
-                    providerPenalty = (providerPenalty * (i - 1) + calculatePenalty(availability)) / i;
-                }
-            } else {
-                // calculate SLA adherence for one day
-                availability = calculateServiceLevel(calcIntervalBegin, calcIntervalBegin + 1 days);
-                providerPenalty = calculatePenalty(availability);
-                emit LogNumber(providerPenalty);
+            // calculate the SLA adherence and penalty
+            uint start = calcIntervalBegin;
+            for (uint i = 1; i <= daysSinceLastUpdate; i++) {
+                availability = calculateServiceLevel(start, start + 1 days);
+                emit availabilityForDay(start, availability);
+                start = start + 1 days;
+                providerPenalty = (providerPenalty * (i - 1) + calculatePenalty(availability)) / i;
             }
         }
-
+        /*
+        emit Log("Penalty: ");
+        emit LogNumber(providerPenalty);
+        */
         uint earningsProviderSinceLastUpdate = costPerDay * daysSinceLastUpdate * providerPenalty / 100;
         withdrawableForProvider += earningsProviderSinceLastUpdate;
 

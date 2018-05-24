@@ -113,7 +113,7 @@ contract("Service", async (accounts) => {
         assert.equal(payoutForProvider, expectedPayoutForProvider, "Payout not correct!");
     });
     it("should calculate 20wei withdrawableForProvider because of 3 days different penalties", async () => {
-        let pricePerDay = parseInt(web3.toWei(8, 'wei'));
+        let pricePerDay = parseInt(web3.toWei(10, 'wei'));
         let now = (Date.now() / 1000);
         let daysBefore = (x) => {
             return now - 1000 - (x * 86400);
@@ -134,17 +134,17 @@ contract("Service", async (accounts) => {
             await contract.testHeartbeat(daysBefore(1) + i * hourInSeconds);
         }
 
-        //let serviceLevel = (await contract.calculateServiceLevel(daysBefore(3) + 1000, now)).c[0];
-        //console.log("ServiceLevel: " + serviceLevel);
-        //assert.approximately(serviceLevel, 91, 2, "Servicelevel is not ~91 as exptected");
+        let serviceLevel = (await contract.calculateServiceLevel(daysBefore(3) + 1000, now)).c[0];
+        console.log("ServiceLevel: " + serviceLevel);
+        assert.approximately(serviceLevel, 83, 2, "Servicelevel is not ~83 as exptected");
         // Now calculate if 25% discount is given
         let expectedPayoutForProvider = pricePerDay + (pricePerDay * middlePenalty / 100) * 2;
         await contract.updateLastCalculationDate(daysBefore(3));
         await contract.recalculateServiceDuration(); //calculates refund
 
         let payoutForProvider = (await contract.getWithdrawableForProvider()).c[0];
-        console.log("For provider: " + payoutForProvider);
-        assert.equal(payoutForProvider, expectedPayoutForProvider, "Payout not correct!");
+        //console.log("For provider: " + payoutForProvider);
+        assert.approximately(payoutForProvider, expectedPayoutForProvider, 1, "Payout not correct!");
     });
 
 });
