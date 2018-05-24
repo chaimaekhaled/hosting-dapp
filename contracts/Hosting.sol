@@ -21,7 +21,7 @@ library Hosting {
     // SLAPolicy contains metrics with goals and refundpolicy
     struct SLAPolicy {
         //DELMetrics metric;
-        uint metric;
+        uint metric; //since only availability is implemented, this is not required anymore;
         uint highGoal; // >= implemented!
         uint middleGoal; // >= implemented!
         uint refundMiddle;

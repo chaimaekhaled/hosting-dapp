@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Card, CardBody, CardTitle, CardText, CardImg, Table} from 'reactstrap';
+import {Card, CardBody, CardImg, CardText, CardTitle, Table} from 'reactstrap';
 
 class StoreCard extends Component {
 
@@ -50,7 +50,7 @@ class StoreCard extends Component {
                             </tr>
                             <tr>
                                 <th scope="row">Price:</th>
-                                <td>{this.props.details.price} ETH/mo.</td>
+                                <td>{this.props.details.price} ETH/day</td>
                             </tr>
                             </tbody>
                         </Table>

@@ -11,8 +11,6 @@ function SLA() {
                     <thead>
                     <tr>
                         <th>Goal</th>
-                        <th>Latency</th>
-                        <th>Packets dropped</th>
                         <th>Availability</th>
                         <th>Refund</th>
                     </tr>
@@ -20,22 +18,16 @@ function SLA() {
                     <tbody>
                     <tr>
                         <td>High</td>
-                        <td>&le;5ms</td>
-                        <td>&le;2%</td>
-                        <td>&ge;99.99%</td>
+                        <td>&ge;99%</td>
                     </tr>
                     <tr>
                         <td>Middle</td>
-                        <td>&le;50ms</td>
-                        <td>&le;10%</td>
-                        <td>&ge;95%</td>
+                        <td>&ge;90%</td>
                         <td>25%</td>
                     </tr>
                     <tr>
                         <td>Low</td>
-                        <td>&ge;50ms</td>
-                        <td>&ge;10%</td>
-                        <td>&lt;95%</td>
+                        <td>&lt;90%</td>
                         <td>100%</td>
                     </tr>
                     </tbody>
@@ -70,9 +62,9 @@ function DealClosing(props) {
                         <Row><Label for="duration" xs={3}>Duration</Label>
                             <Col xs={9}>
                                 <Input type="select" name="duration" id="duration">
-                                    <option>1 month</option>
-                                    <option>1 week</option>
-                                    <option>1 day</option>
+                                    <option value="30">1 month</option>
+                                    <option value="7">1 week</option>
+                                    <option value="1">1 day</option>
                                 </Input></Col>
                         </Row>
                     </Col>

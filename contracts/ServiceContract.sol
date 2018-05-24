@@ -45,16 +45,22 @@ contract ServiceContract {
         _;
     }
 
-    function setSla(uint _metric,
-        uint _highGoal, uint _middleGoal,
-        uint _refundMiddle, uint _refundLow) public onlyPartners {
+    function setSla(
+        uint _metric,
+        uint _highGoal,
+        uint _middleGoal,
+        uint _refundMiddle,
+        uint _refundLow) public onlyPartners {
         require(!slaSet, "SLA cannot be set again!");
         sla = [_metric, _highGoal, _middleGoal, _refundMiddle, _refundLow];
         slaSet = true;
     }
 
-    function setServiceDetails(uint _cpu, uint _ram,
-        uint _traffic, uint _ssd) public onlyPartners {
+    function setServiceDetails(
+        uint _cpu,
+        uint _ram,
+        uint _traffic,
+        uint _ssd) public onlyPartners {
         require(!specsSet);
         specs = [_cpu, _ram, _traffic, _ssd];
         specsSet = true;
