@@ -16,6 +16,7 @@ contract("Service", async (accounts) => {
         let contract = await Service.new(addr, accounts[0], accounts[0], "pubKey", "vServers", pricePerDay);
         //await contract.send(pricePerDay * 8);
         await contract.deposit({value: pricePerDay * 8});
+        await contract.setWithSLACalc(false);
 
         //console.log("Today: " + ~~(Date.now() / 1000) + "\nYesterday: " + ~~((Date.now() / 1000) - 87000));
         await contract.updateLastCalculationDate((Date.now() / 1000) - 87000);
@@ -55,6 +56,7 @@ contract("Service", async (accounts) => {
         let endDate = await contract.getEndDate();
         assert.equal(endDate, 0, "EndDate should be 0!");
         //await contract.send(pricePerDay * 8);
+        await contract.setWithSLACalc(false);
         await contract.deposit({value: pricePerDay * 8});
         await contract.updateLastCalculationDate((Date.now() / 1000) - 87000);
         await contract.recalculateServiceDuration();
@@ -67,7 +69,7 @@ contract("Service", async (accounts) => {
         let contract = await Service.new(accounts[0], accounts[0], accounts[0], "pubKey", "vServers", pricePerDay);
         let endDate = await contract.getEndDate();
         assert.equal(endDate, 0, "EndDate should be 0!");
-//        await contract.send(pricePerDay * 8);
+        await contract.setWithSLACalc(false);
         await contract.deposit({value: pricePerDay * 8});
 
         await contract.updateLastCalculationDate((Date.now() / 1000) - 87000);
@@ -84,4 +86,65 @@ contract("Service", async (accounts) => {
         assert.approximately(balanceAfterWithdraw, expected, 1, "Withdraw did not work!");
 
     });
+
+    it("should calculate 91% availability and discount 25% of costPerDay with 1 day duration", async () => {
+        let pricePerDay = parseInt(web3.toWei(8, 'wei'));
+        let yesterday = (Date.now() / 1000) - 87000;
+        let middlePenalty = 75;
+        let now = (Date.now() / 1000);
+        let hourInSeconds = 3600;
+        let contract = await Service.new(accounts[0], accounts[0], accounts[0], "pubKey", "vServers", pricePerDay);
+        await contract.setSla(0, 95, 75, middlePenalty, 0);
+        await contract.deposit({value: pricePerDay * 8});
+        await contract.updateLastCalculationDate(yesterday);
+        for (let i = 1; i <= 21; i++) {
+            await contract.testHeartbeat(yesterday + i * hourInSeconds);
+        }
+        let serviceLevel = (await contract.calculateServiceLevel(yesterday + 1000, now)).c[0];
+        //console.log("ServiceLevel: " + serviceLevel);
+        assert.approximately(serviceLevel, 91, 2, "Servicelevel is not ~91 as exptected");
+        // Now calculate if 25% discount is given
+        let expectedPayoutForProvider = pricePerDay * middlePenalty / 100;
+        await contract.updateLastCalculationDate(yesterday);
+        await contract.recalculateServiceDuration(); //calculates refund
+
+        let payoutForProvider = (await contract.getWithdrawableForProvider()).c[0];
+        //console.log("For provider: " + payoutForProvider);
+        assert.equal(payoutForProvider, expectedPayoutForProvider, "Payout not correct!");
+    });
+    it("should calculate 20wei withdrawableForProvider because of 3 days different penalties", async () => {
+        let pricePerDay = parseInt(web3.toWei(8, 'wei'));
+        let now = (Date.now() / 1000);
+        let daysBefore = (x) => {
+            return now - 1000 - (x * 86400);
+        };
+        let middlePenalty = 75;
+        let hourInSeconds = 3600;
+        let contract = await Service.new(accounts[0], accounts[0], accounts[0], "pubKey", "vServers", pricePerDay);
+        await contract.setSla(0, 90, 75, middlePenalty, 0);
+        await contract.deposit({value: pricePerDay * 8});
+        await contract.updateLastCalculationDate(daysBefore(3));
+        for (let i = 1; i <= 21; i++) {
+            await contract.testHeartbeat(daysBefore(3) + i * hourInSeconds);
+        }
+        for (let i = 1; i <= 23; i++) {
+            await contract.testHeartbeat(daysBefore(2) + i * hourInSeconds);
+        }
+        for (let i = 1; i <= 21; i++) {
+            await contract.testHeartbeat(daysBefore(1) + i * hourInSeconds);
+        }
+
+        //let serviceLevel = (await contract.calculateServiceLevel(daysBefore(3) + 1000, now)).c[0];
+        //console.log("ServiceLevel: " + serviceLevel);
+        //assert.approximately(serviceLevel, 91, 2, "Servicelevel is not ~91 as exptected");
+        // Now calculate if 25% discount is given
+        let expectedPayoutForProvider = pricePerDay + (pricePerDay * middlePenalty / 100) * 2;
+        await contract.updateLastCalculationDate(daysBefore(3));
+        await contract.recalculateServiceDuration(); //calculates refund
+
+        let payoutForProvider = (await contract.getWithdrawableForProvider()).c[0];
+        console.log("For provider: " + payoutForProvider);
+        assert.equal(payoutForProvider, expectedPayoutForProvider, "Payout not correct!");
+    });
+
 });

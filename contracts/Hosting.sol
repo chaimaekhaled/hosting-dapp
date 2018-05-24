@@ -22,8 +22,8 @@ library Hosting {
     struct SLAPolicy {
         //DELMetrics metric;
         uint metric;
-        uint highGoal;
-        uint middleGoal;
+        uint highGoal; // >= implemented!
+        uint middleGoal; // >= implemented!
         uint refundMiddle;
         uint refundLow;
     }

@@ -16,7 +16,7 @@ contract ServiceContract {
     address customer;
     address providerContract;
     string customerPublicKey;
-    bool isActive = false; 
+    bool isActive = false;
 
     string name; // name of ServiceOffer
     uint[] specs;
@@ -35,12 +35,12 @@ contract ServiceContract {
     }*/
 
     modifier onlyPartners(){
-        require(msg.sender == provider || msg.sender == customer || msg.sender == providerContract);
+        require(msg.sender == provider || msg.sender == customer || msg.sender == providerContract, "OnlyPartners!");
         _;
     }
 
     modifier onlyProvider(){
-        require(msg.sender == provider || msg.sender == providerContract);
+        require(msg.sender == provider || msg.sender == providerContract, "OnlyProvider!");
         _;
     }
 
@@ -59,15 +59,25 @@ contract ServiceContract {
         specsSet = true;
     }
 
-    function setActive(bool state) internal {
-        isActive = state;
-        emit ContractStateChanged(state);
+    function setActive(bool _state) internal {
+        if (isActive != _state) emit ContractStateChanged(_state);
+        isActive = _state;
     }
 
     function deposit() public payable returns (uint){
         require(msg.value >= costPerDay, "Deposit > costPerDay is required!");
-        setActive(true);
+        if (!isActive) setActive(true);
         return address(this).balance;
+    }
+
+    function calculatePenalty(uint _achievedServiceQuality) public view returns (uint){
+        uint penalty = sla[4];
+        //default: set penalty to refundLow (achieved 0% - middleGoal)
+        if (_achievedServiceQuality >= sla[2]) penalty = sla[3];
+        //set penalty to refundMiddle (achieved middleGoal - highGoal)
+        if (_achievedServiceQuality >= sla[1]) penalty = 1;
+        // SLA was adhered to -> no penalty
+        return penalty;
     }
 
     //required for truffle testing

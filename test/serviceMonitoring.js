@@ -8,7 +8,11 @@ contract("ServiceMonitoring", async (accounts) => {
         for (let i = 17; i > 0; i--) {
             await monitor.testHeartbeat(now - i * hourInSeconds);
         }
+        let serviceLevelTX = await monitor.calculateServiceLevel(now - 24 * hourInSeconds, now + 1000);
+        let serviceLevel = serviceLevelTX.c[0];
+        assert.approximately(serviceLevel, 70, 2, "ServiceLevel not 70%!");
     });
+
     it("should empty heartbeat array on reset", async () => {
         let monitor = await ServiceMonitoring.new();
         let now = new Date(Date.now()) / 1000;
@@ -25,4 +29,5 @@ contract("ServiceMonitoring", async (accounts) => {
         //console.log("Heartbeats2: " + hb2 + "  | Type: " + typeof hb2 + " | Len: " + hb2.length);
         assert.equal(hb2.length, 0, "There should be 0 heartbeats!");
     });
+
 });

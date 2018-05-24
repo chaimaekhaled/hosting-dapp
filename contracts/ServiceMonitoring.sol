@@ -33,16 +33,28 @@ contract ServiceMonitoring is ServiceContract {
         heartbeats = empty;
     }
 
-    function calculateServiceLevel(uint _start, uint _end) public view onlyPartners returns (uint){
-        require(_start > 0 && _end > 0 && _start < _end, "Parameters are invalid!");
+    function calculateServiceLevel(uint _start, uint _end) public view returns (uint){
+        require(_start > 0, "Start is <= 0!");
+        require(_end > 0, "End is <= 0!");
+        require(_start < _end, "Start < end!");
+
         uint totalHours = (_end - _start) / 1 hours;
-        uint counterTimestamp;
-        for (uint i = heartbeatArchive.length; heartbeatArchive[i] > _start; i++) {
-            counterTimestamp++;
+        uint counterTimestamp = 0;
+        //uint i = heartbeatArchive.length - 1;
+        //emit LogNumber(totalHours);
+        //emit LogNumber(i);
+        for (uint n = 0; n < heartbeatArchive.length; n++) {
+            uint ts = heartbeatArchive[n];
+            if (ts > _start && ts < _end) {
+                //emit LogNumber(ts);
+                counterTimestamp++;
+            }
         }
-        require(false, "Line 44");
+        /*for (i; heartbeatArchive[i] > _start && i >= 0; i--) {
+            //counterTimestamp = counterTimestamp + 1;
+            emit LogNumber(heartbeatArchive[i]);
+        }*/
         uint availability = (counterTimestamp * 100) / totalHours;
-        require(false, "line 45");
         return availability;
     }
 }

@@ -8,11 +8,19 @@ contract ServiceBilling is ServiceMonitoring {
     event useableCustomerFundsEvent(uint forCustomer);
     event ContractCalculationUpdated(uint time);
     event DaysSinceLastUpdate(uint _days);
+    event availabilityForDay(uint start, uint val);
 
     // Billing
     uint endDate; // time until the service is active
     uint lastCalculationDate = now; // Date when the costs have been calculated last and service has been paid
     uint withdrawableForProvider; // service fee that is withdrawable for the provider
+
+    //Flag for testing
+    bool withSLACalc = true;
+
+    function setWithSLACalc(bool _state) public {
+        withSLACalc = _state;
+    }
 
 
     function withdraw(uint _amount) public onlyPartners {
@@ -30,19 +38,42 @@ contract ServiceBilling is ServiceMonitoring {
     function recalculateServiceDuration() public {
         require(isActive, "Require _contract to be active!");
         // Restrict to daily contract updates for easier payout calculation;
-
         uint daysSinceLastUpdate = (now - lastCalculationDate) / 1 days;
         emit DaysSinceLastUpdate(daysSinceLastUpdate);
-
         //uint daysSinceLastUpdate = 1;
         require(daysSinceLastUpdate >= 1, "Calculation is only daily, please wait");
 
-        uint earningsProviderSinceLastUpdate = costPerDay * daysSinceLastUpdate;
+        uint calcIntervalBegin = lastCalculationDate;
+        uint calcIntervalEnd = lastCalculationDate + daysSinceLastUpdate * 1 days;
+
+        uint providerPenalty = 100;
+
+        if (withSLACalc)
+        {
+            uint availability;
+            if (daysSinceLastUpdate > 1) {
+                // calculate the SLA adherence for multiple days
+                uint start = calcIntervalBegin;
+                for (uint i = 1; i <= daysSinceLastUpdate; i++) {
+                    availability = calculateServiceLevel(start, start + 1 days);
+                    availabilityForDay(start, availability);
+                    start = start + 1 days;
+                    providerPenalty = (providerPenalty * (i - 1) + calculatePenalty(availability)) / i;
+                }
+            } else {
+                // calculate SLA adherence for one day
+                availability = calculateServiceLevel(calcIntervalBegin, calcIntervalBegin + 1 days);
+                providerPenalty = calculatePenalty(availability);
+                emit LogNumber(providerPenalty);
+            }
+        }
+
+        uint earningsProviderSinceLastUpdate = costPerDay * daysSinceLastUpdate * providerPenalty / 100;
         withdrawableForProvider += earningsProviderSinceLastUpdate;
 
         uint newDurationInDays = 1 days * (useableCustomerFunds() / costPerDay);
         endDate = now + newDurationInDays;
-        updateLastCalculationDate(now);
+        updateLastCalculationDate(calcIntervalEnd);
 
         emit ContractEndDateUpdated(endDate);
     }
