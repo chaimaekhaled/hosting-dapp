@@ -8,11 +8,10 @@ contract ServiceBilling is ServiceMonitoring {
     event useableCustomerFundsEvent(uint forCustomer);
     event ContractCalculationUpdated(uint time);
     event DaysSinceLastUpdate(uint _days);
-    event availabilityForDay(uint start, uint val);
 
     // Billing
     uint endDate; // time until the service is active
-    uint lastCalculationDate = now; // Date when the costs have been calculated last and service has been paid
+    //uint lastCalculationDate = now; // Date when the costs have been calculated last and service has been paid
     uint withdrawableForProvider; // service fee that is withdrawable for the provider
 
     //Flag for testing
@@ -21,7 +20,6 @@ contract ServiceBilling is ServiceMonitoring {
     function setWithSLACalc(bool _state) public {
         withSLACalc = _state;
     }
-
 
     function withdraw(uint _amount) public onlyPartners {
         // Transfers contract funds to customer's address
@@ -38,13 +36,14 @@ contract ServiceBilling is ServiceMonitoring {
     function recalculateServiceDuration() public {
         require(isActive, "Require _contract to be active!");
         // Restrict to daily contract updates for easier payout calculation;
+        uint lastCalculationDate = startDay + (availabilityHistory.length * 1 days);
         uint daysSinceLastUpdate = (now - lastCalculationDate) / 1 days;
         emit DaysSinceLastUpdate(daysSinceLastUpdate);
         //uint daysSinceLastUpdate = 1;
         require(daysSinceLastUpdate >= 1, "Calculation is only daily, please wait");
 
         uint calcIntervalBegin = lastCalculationDate;
-        uint calcIntervalEnd = lastCalculationDate + daysSinceLastUpdate * 1 days;
+        //        uint calcIntervalEnd = lastCalculationDate + daysSinceLastUpdate * 1 days;
 
         uint providerPenalty = 100;
 
@@ -53,7 +52,7 @@ contract ServiceBilling is ServiceMonitoring {
             // calculate the SLA adherence and penalty
             uint start = calcIntervalBegin;
             for (uint i = 1; i <= daysSinceLastUpdate; i++) {
-                availability = calculateServiceLevel(start, start + 1 days);
+                availability = calculateServiceLevelPerDay();
                 emit availabilityForDay(start, availability);
                 start = start + 1 days;
                 providerPenalty = (providerPenalty * (i - 1) + calculatePenalty(availability)) / i;
@@ -68,7 +67,7 @@ contract ServiceBilling is ServiceMonitoring {
 
         uint newDurationInDays = 1 days * (useableCustomerFunds() / costPerDay);
         endDate = now + newDurationInDays;
-        updateLastCalculationDate(calcIntervalEnd);
+        //updateLastCalculationDate(calcIntervalEnd);
 
         emit ContractEndDateUpdated(endDate);
     }
@@ -79,19 +78,16 @@ contract ServiceBilling is ServiceMonitoring {
         return forCustomer;
     }
 
-    //TODO make private after testing!
+    /*//TODO make private after testing!
     function updateLastCalculationDate(uint _date) public {
         emit ContractCalculationUpdated(_date);
         lastCalculationDate = _date;
-    }
+    }*/
 
     function getEndDate() public view onlyPartners returns (uint){
         return endDate;
     }
 
-    function getLastUpdated() public view onlyPartners returns (uint){
-        return lastCalculationDate;
-    }
 
     function getBalance() public view onlyPartners returns (uint){
         return address(this).balance;

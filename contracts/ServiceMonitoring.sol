@@ -6,9 +6,12 @@ import "./Hosting.sol";
 contract ServiceMonitoring is ServiceContract {
 
     event heartbeatReceived(uint timestamp);
+    event availabilityForDay(uint start, uint val);
 
     uint[] heartbeats;
-    uint[] heartbeatArchive;
+    //uint[] heartbeatArchive;
+    uint[] availabilityHistory;
+    uint startDay = now;
 
     function getHeartbeats() public view returns (uint[]){
         return heartbeats;
@@ -17,15 +20,20 @@ contract ServiceMonitoring is ServiceContract {
     function heartbeat() public {
         uint beat = now;
         heartbeats.push(beat);
-        heartbeatArchive.push(beat);
-        emit heartbeatReceived(beat);
+        //        heartbeatArchive.push(beat);
+        //        emit heartbeatReceived(beat);
     }
 
+    //TODO Remove for prod
     function testHeartbeat(uint _timestamp) public {
         uint beat = _timestamp;
         heartbeats.push(beat);
-        heartbeatArchive.push(beat);
-        emit heartbeatReceived(beat);
+        //        heartbeatArchive.push(beat);
+        //        emit heartbeatReceived(beat);
+    }
+    //TODO Remove for prod
+    function testSetStartDay(uint _start) public {
+        startDay = _start;
     }
 
     function resetHeartbeats() public {
@@ -33,6 +41,7 @@ contract ServiceMonitoring is ServiceContract {
         heartbeats = empty;
     }
 
+    /*
     function calculateServiceLevel(uint _start, uint _end) public view returns (uint){
         require(_start > 0, "Start is <= 0!");
         require(_end > 0, "End is <= 0!");
@@ -50,11 +59,37 @@ contract ServiceMonitoring is ServiceContract {
                 counterTimestamp++;
             }
         }
-        /*for (i; heartbeatArchive[i] > _start && i >= 0; i--) {
-            //counterTimestamp = counterTimestamp + 1;
-            emit LogNumber(heartbeatArchive[i]);
-        }*/
         uint availability = (counterTimestamp * 100) / totalHours;
         return availability;
     }
+    */
+
+    function calculateServiceLevelPerDay() public returns (uint){
+        uint _start = startDay + availabilityHistory.length * 1 days;
+        uint _end = _start + 1 days;
+        require(_start > 0, "Start is <= 0!");
+        require(_end > 0, "End is <= 0!");
+
+        uint counterTimestamp = 0;
+
+        while (counterTimestamp < heartbeats.length && heartbeats[counterTimestamp] < _end) {
+            counterTimestamp++;
+        }
+        uint availability = (counterTimestamp * 100) / 24;
+
+        // Refresh heartbeats array to exclude those timestamps that where already processed
+        uint i = counterTimestamp;
+        uint[] newArray;
+        while (i < heartbeats.length) {
+            newArray.push(heartbeats[i]);
+        }
+        heartbeats = newArray;
+        emit availabilityForDay(_start, availability);
+        return availability;
+    }
+
+    function getStartDay() public view onlyPartners returns (uint){
+        return startDay;
+    }
+
 }

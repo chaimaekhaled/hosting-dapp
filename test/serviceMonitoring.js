@@ -8,7 +8,7 @@ contract("ServiceMonitoring", async (accounts) => {
         for (let i = 17; i > 0; i--) {
             await monitor.testHeartbeat(now - i * hourInSeconds);
         }
-        let serviceLevelTX = await monitor.calculateServiceLevel(now - 24 * hourInSeconds, now + 1000);
+        let serviceLevelTX = await monitor.calculateServiceLevelPerDay.call(); //now - 24 * hourInSeconds, now + 1000
         let serviceLevel = serviceLevelTX.c[0];
         assert.approximately(serviceLevel, 70, 2, "ServiceLevel not 70%!");
     });
