@@ -81,12 +81,6 @@ contract ServiceBilling is ServiceMonitoring {
         return forCustomer;
     }
 
-    /*//TODO make private after testing!
-    function updateLastCalculationDate(uint _date) public {
-        emit ContractCalculationUpdated(_date);
-        lastCalculationDate = _date;
-    }*/
-
     function getEndDate() public view onlyPartners returns (uint){
         return endDate;
     }

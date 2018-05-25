@@ -1,5 +1,18 @@
 import React, {Component} from 'react';
-import {Button, Col, Container, Form, FormGroup, Input, Jumbotron, Label, Row, Table} from 'reactstrap';
+import {
+    Button,
+    Col,
+    Container,
+    Form,
+    FormGroup,
+    Input,
+    InputGroup,
+    InputGroupAddon,
+    Jumbotron,
+    Label,
+    Row,
+    Table
+} from 'reactstrap';
 import StoreCard from '../../components/StoreCard'
 
 function SLA() {
@@ -40,7 +53,7 @@ function SLA() {
 
 function DealClosing(props) {
     let btn;
-    if (props.activeStoreCard === '') {
+    if (props.activeStoreCard === null) {
         btn = <Button id="orderButton" disabled className="btn-lg" block>Buy</Button>;
     } else {
         btn = <Button id="orderButton" color="primary" className="btn-lg" block>Buy</Button>;
@@ -54,28 +67,32 @@ function DealClosing(props) {
             <Form className="">
                 <FormGroup row className="justify-content-md-between">
                     <Col xs={12} sm={6} style={rowGrid}>
-                        <Row><Label for="email" xs={3}>Email</Label>
-                            <Col xs={9}><Input type="email" name="email" id="email" placeholder=""/></Col>
-                        </Row>
-                    </Col>
-                    <Col xs={12} sm={5} style={rowGrid}>
-                        <Row><Label for="duration" xs={3}>Duration</Label>
-                            <Col xs={9}>
-                                <Input type="select" name="duration" id="duration">
-                                    <option value="30">1 month</option>
-                                    <option value="7">1 week</option>
-                                    <option value="1">1 day</option>
-                                </Input></Col>
-                        </Row>
-                    </Col>
-                    <Col xs={12} sm={6} style={rowGrid}>
                         <Row><Label for="sshkey" xs={3}>SSH Key</Label>
                             <Col xs={9}>
                                 <Input type="textarea" name="sshkey" id="sshkey" placeholder=""/>
                             </Col>
                         </Row>
                     </Col>
-                    <Col xs={12} sm={5} className="align-content-md-end" style={rowGrid}>
+                    <Col xs={12} sm={3} style={rowGrid}>
+                        <Row><Label for="daysInput" xs={3}>Days</Label>
+                            <Col xs={9}>
+                                <InputGroup id="daysInput">
+                                    <InputGroupAddon addonType="prepend">
+                                        <Button onClick={() => {
+                                            props.handleClickDaysSelection(-1)
+                                        }}>-</Button>
+                                    </InputGroupAddon>
+                                    <Input value={props.selectedDays}/>
+                                    <InputGroupAddon addonType="append">
+                                        <Button onClick={() => {
+                                            props.handleClickDaysSelection(1)
+                                        }}>+</Button>
+                                    </InputGroupAddon>
+                                </InputGroup>
+                            </Col>
+                        </Row>
+                    </Col>
+                    <Col xs={12} sm={3} className="align-content-md-end" style={rowGrid}>
                         {btn}
                     </Col>
                 </FormGroup>
@@ -88,8 +105,10 @@ class Store extends Component {
     constructor(props) {
         super(props);
         this.handleClickStore = this.handleClickStore.bind(this);
+        this.handleClickDaysSelection = this.handleClickDaysSelection.bind(this);
         this.state = {
-            activeStoreCard: '',
+            activeStoreCard: null,
+            selectedDays: 1,
         };
     }
 
@@ -99,7 +118,18 @@ class Store extends Component {
         })
     }
 
+    handleClickDaysSelection(n) {
+        this.setState({
+            selectedDays: (this.state.selectedDays + n),
+        })
+    }
+
     render() {
+        const storeCards = this.props.services.map((service) =>
+            <Col><StoreCard activeId={this.state.activeStoreCard} title={service.name} id={service.id}
+                            onClick={this.handleClickStore} details={service.details}/></Col>
+        );
+
         return (
             <main>
                 <Jumbotron>
@@ -110,19 +140,22 @@ class Store extends Component {
                     <Row><Col><h3>Select a Service</h3></Col></Row>
                     <hr className="my-3"/>
                     <Row className="flex-row flex-nowrap" style={{'overflow-x': 'auto'}}>
-                        <Col><StoreCard activeId={this.state.activeStoreCard} title="Small" id="sm"
+                        {storeCards}
+                        {/*<Col><StoreCard activeId={this.state.activeStoreCard} title="Small" id="sm"
                                         onClick={this.handleClickStore} details={{cpu: 1, ram: 2, ssd: 25, price: 5}}/></Col>
                         <Col><StoreCard activeId={this.state.activeStoreCard} title="Medium" id="md"
                                         onClick={this.handleClickStore} details={{cpu: 2, ram: 4, ssd: 50, price: 10}}/></Col>
                         <Col><StoreCard activeId={this.state.activeStoreCard} title="Large" id="la"
                                         onClick={this.handleClickStore}
-                                        details={{cpu: 8, ram: 16, ssd: 100, price: 20}}/></Col>
+                                        details={{cpu: 8, ram: 16, ssd: 100, price: 20}}/></Col>*/}
                     </Row>
                     <hr className="my-3"/>
                 </Container>
 
                 <SLA/>
-                <DealClosing activeStoreCard={this.state.activeStoreCard}/>
+                <DealClosing {...this.props} activeStoreCard={this.state.activeStoreCard}
+                             selectedDays={this.state.selectedDays}
+                             handleClickDaysSelection={this.handleClickDaysSelection}/>
             </main>
         )
     }

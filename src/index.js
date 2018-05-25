@@ -81,7 +81,28 @@ const data = [
     },
 ];
 
+const services = [
+    {
+        name: "Server S",
+        id: 0,
+        costPerDay: 2,
+        details: {cpu: 1, ram: 2, ssd: 25, price: 5},
+    },
+    {
+        name: "Server M",
+        id: 1,
+        costPerDay: 10,
+        details: {cpu: 2, ram: 4, ssd: 50, price: 10}
+    },
+    {
+        name: "Server L",
+        id: 2,
+        costPerDay: 20,
+        details: {cpu: 8, ram: 16, ssd: 100, price: 20}
+    },
+];
+
 ReactDOM.render(
-    <App data={data}/>
+    <App data={data} services={services}/>
     , document.getElementById('root'));
 registerServiceWorker();

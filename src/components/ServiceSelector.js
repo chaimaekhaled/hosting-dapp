@@ -27,12 +27,15 @@ class ServiceSelector extends Component {
     }
 
     render() {
+        const badgeStyle = {'font-size': '85%', 'margin-top': '5px', 'margin-bottom': '5px', 'float': 'right'};
+        const rowGrid = {'margin-bottom': '15px'};
+
         return (
             <Container>
                 <Row className="align-items-center">
                     <Col xs={12} md={5} lg={4}>
                         <Row><Label xs={5} lg={4} for="serviceSelector"><h4>Service: </h4></Label>
-                            <Col xs={7}>
+                            <Col xs={7} lg={5}>
                                 <Input type="select" id="serviceSelector" onChange={this.handleChange}
                                        value={this.state.selectedService}>
                                     {
@@ -40,8 +43,13 @@ class ServiceSelector extends Component {
                                     }
                                 </Input>
                             </Col>
-                        </Row></Col>
-                    <Col xs={12} md={7} lg={8} style={{'text-align': "right"}}>
+                        </Row>
+                    </Col>
+
+                    <Col xs={12} md={4} xl={2} style={rowGrid}>Balance:
+                        <Badge style={badgeStyle} color="dark">25 ETH</Badge>
+                    </Col>
+                    <Col xs={12} md={3} lg={6} style={{'text-align': "right"}}>
                         <Badge color="light">Hash</Badge>
                         <span style={{'overflow-wrap': 'break-word'}}
                               color="dark">

@@ -5,7 +5,6 @@ import {BrowserRouter as Router, NavLink as NavLinkRRD, Route} from 'react-route
 import Home from "./layout/home/Home";
 import Billing from "./layout/billing/Billing";
 import Store from "./layout/store/Store";
-import Monitoring from "./layout/monitoring/Monitoring";
 // Import css
 import './App.css';
 
@@ -44,10 +43,10 @@ class App extends Component {
                                     <NavItem>
                                         <NavLink to="/store" activeClassName='active' tag={NavLinkRRD}>Store</NavLink>
                                     </NavItem>
-                                    <NavItem>
+                                    {/*<NavItem>
                                         <NavLink to="/monitoring" activeClassName='active'
                                                  tag={NavLinkRRD}>Monitoring</NavLink>
-                                    </NavItem>
+                                    </NavItem>*/}
                                     <NavItem>
                                         <NavLink to="/billing" activeClassName='active'
                                                  tag={NavLinkRRD}>Billing</NavLink>
@@ -58,9 +57,10 @@ class App extends Component {
                     </div>
                     <div>
                         <Route exact path="/" title="Home" component={Home}/>
-                        <Route path="/store" title="Store" component={Store}/>
-                        <Route path="/monitoring" title="Monitoring"
-                               render={(props) => <Monitoring {...props} data={this.props.data}/>}/>
+                        <Route path="/store" title="Store"
+                               render={(props) => <Store {...props} services={this.props.services}/>}/>
+                        {/*<Route path="/monitoring" title="Monitoring"
+                               render={(props) => <Monitoring {...props} data={this.props.data}/>}/>*/}
                         <Route path="/billing" title="Billing"
                                render={(props) => <Billing {...props} data={this.props.data}/>}/>
                     </div>
