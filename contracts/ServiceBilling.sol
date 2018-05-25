@@ -11,7 +11,6 @@ contract ServiceBilling is ServiceMonitoring {
 
     // Billing
     uint endDate; // time until the service is active
-    //uint lastCalculationDate = now; // Date when the costs have been calculated last and service has been paid
     uint withdrawableForProvider; // service fee that is withdrawable for the provider
 
     //Flag for testing
@@ -66,8 +65,12 @@ contract ServiceBilling is ServiceMonitoring {
         withdrawableForProvider += earningsProviderSinceLastUpdate;
 
         uint newDurationInDays = 1 days * (useableCustomerFunds() / costPerDay);
-        endDate = now + newDurationInDays;
-        //updateLastCalculationDate(calcIntervalEnd);
+        if (newDurationInDays >= 1) {
+            endDate = now + newDurationInDays;
+            setActive(true);
+        } else {
+            if (endDate < now) {setActive(false);}
+        }
 
         emit ContractEndDateUpdated(endDate);
     }
