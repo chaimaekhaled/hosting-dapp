@@ -39,60 +39,6 @@ function SLA() {
 }
 
 
-function DealClosing(props) {
-    let btn;
-    if (props.activeStoreCard === null) {
-        btn = <Button id="orderButton" disabled className="btn-lg" block>Buy</Button>;
-    } else {
-        btn = <Button id="orderButton" color="primary" className="btn-lg" block>Buy</Button>;
-    }
-    //TODO: move rowGrid to CSS
-    const rowGrid = {'margin-bottom': '15px'};
-    return (
-        <Container>
-            <Row><Col><h3>Details</h3></Col></Row>
-            <hr className="my-3"/>
-            <Form className="">
-                <FormGroup row className="justify-content-md-between">
-                    <Col xs={12} sm={6} style={rowGrid}>
-                        <Row><Label for="sshkey" xs={3}>SSH Key</Label>
-                            <Col xs={9}>
-                                <Input type="textarea" name="sshkey" id="sshkey" placeholder=""/>
-                            </Col>
-                        </Row>
-                    </Col>
-                    <Col xs={12} sm={3} style={rowGrid}>
-                        <DaysInput selectedDays={this.state.selectedDays}
-                                   onClick={() => {
-                                   }}
-                                   onChange={() => {
-                                   }}/>
-                        {/*<Row><Label for="daysInput" xs={3}>Days</Label>*/}
-                        {/*<Col xs={9}>*/}
-                        {/*<InputGroup id="daysInput">*/}
-                        {/*<InputGroupAddon addonType="prepend">*/}
-                        {/*<Button onClick={() => {*/}
-                        {/*props.handleClickDaysSelection(-1)*/}
-                        {/*}}>-</Button>*/}
-                        {/*</InputGroupAddon>*/}
-                        {/*<Input value={props.selectedDays}/>*/}
-                        {/*<InputGroupAddon addonType="append">*/}
-                        {/*<Button onClick={() => {*/}
-                        {/*props.handleClickDaysSelection(1)*/}
-                        {/*}}>+</Button>*/}
-                        {/*</InputGroupAddon>*/}
-                        {/*</InputGroup>*/}
-                        {/*</Col>*/}
-                        {/*</Row>*/}
-                    </Col>
-                    <Col xs={12} sm={3} className="align-content-md-end" style={rowGrid}>
-                        {btn}
-                    </Col>
-                </FormGroup>
-            </Form>
-        </Container>
-    );
-}
 
 class Store extends Component {
     constructor(props) {
@@ -124,6 +70,15 @@ class Store extends Component {
                             onClick={this.handleClickStore} details={service.details}/></Col>
         );
 
+        let btn;
+        if (this.state.activeStoreCard === null) {
+            btn = <Button id="orderButton" disabled className="btn-lg" block>Buy</Button>;
+        } else {
+            btn = <Button id="orderButton" color="primary" className="btn-lg" block>Buy</Button>;
+        }
+        //TODO: move rowGrid to CSS
+        const rowGrid = {'margin-bottom': '15px'};
+
         return (
             <main>
                 <Jumbotron>
@@ -147,9 +102,36 @@ class Store extends Component {
                 </Container>
 
                 <SLA/>
-                <DealClosing {...this.props} activeStoreCard={this.state.activeStoreCard}
-                             selectedDays={this.state.selectedDays}
-                             handleClickDaysSelection={this.handleClickDaysSelection}/>
+                {/*<DealClosing {...this.props} activeStoreCard={this.state.activeStoreCard}*/}
+                {/*selectedDays={this.state.selectedDays}*/}
+                {/*handleClickDaysSelection={this.handleClickDaysSelection}/>*/}
+                <Container>
+                    <Row><Col><h3>Details</h3></Col></Row>
+                    <hr className="my-3"/>
+                    <Form className="">
+                        <FormGroup row className="justify-content-md-between">
+                            <Col xs={12} sm={6} style={rowGrid}>
+                                <Row><Label for="sshkey" xs={3}>SSH Key</Label>
+                                    <Col xs={9}>
+                                        <Input type="textarea" name="sshkey" id="sshkey" placeholder=""/>
+                                    </Col>
+                                </Row>
+                            </Col>
+                            <Col xs={12} sm={3} style={rowGrid}>
+                                <DaysInput selectedDays={this.state.selectedDays}
+                                           onClick={(n) => this.handleClickDaysSelection(n)}
+                                           onChange={(e) => {
+                                               let newDays = parseInt(e.target.value, 10);
+                                               this.setState({selectedDays: newDays});
+                                           }}/>
+
+                            </Col>
+                            <Col xs={12} sm={3} className="align-content-md-end" style={rowGrid}>
+                                {btn}
+                            </Col>
+                        </FormGroup>
+                    </Form>
+                </Container>
             </main>
         )
     }

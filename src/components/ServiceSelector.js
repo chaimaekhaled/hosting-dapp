@@ -93,7 +93,7 @@ class ServiceSelector extends Component {
                     <Col xs={12} sm={sm} lg={lg} style={rowGrid}>
                         <DaysInput selectedDays={this.state.selectedDays}
                                    onChange={(e) => {
-                                       let newDays = parseInt(e.target.value, 10) === NaN ? 0 : parseInt(e.target.value, 10);
+                                       let newDays = parseInt(e.target.value, 10);
                                        this.setState({selectedDays: newDays});
                                    }}
                                    onClick={(n) => this.setState({selectedDays: this.state.selectedDays + n})}/>
