@@ -1,19 +1,7 @@
 import React, {Component} from 'react';
-import {
-    Button,
-    Col,
-    Container,
-    Form,
-    FormGroup,
-    Input,
-    InputGroup,
-    InputGroupAddon,
-    Jumbotron,
-    Label,
-    Row,
-    Table
-} from 'reactstrap';
-import StoreCard from '../../components/StoreCard'
+import {Button, Col, Container, Form, FormGroup, Input, Jumbotron, Label, Row, Table} from 'reactstrap';
+import StoreCard from '../../components/StoreCard';
+import DaysInput from '../../components/DaysInput';
 
 function SLA() {
     return (
@@ -74,23 +62,28 @@ function DealClosing(props) {
                         </Row>
                     </Col>
                     <Col xs={12} sm={3} style={rowGrid}>
-                        <Row><Label for="daysInput" xs={3}>Days</Label>
-                            <Col xs={9}>
-                                <InputGroup id="daysInput">
-                                    <InputGroupAddon addonType="prepend">
-                                        <Button onClick={() => {
-                                            props.handleClickDaysSelection(-1)
-                                        }}>-</Button>
-                                    </InputGroupAddon>
-                                    <Input value={props.selectedDays}/>
-                                    <InputGroupAddon addonType="append">
-                                        <Button onClick={() => {
-                                            props.handleClickDaysSelection(1)
-                                        }}>+</Button>
-                                    </InputGroupAddon>
-                                </InputGroup>
-                            </Col>
-                        </Row>
+                        <DaysInput selectedDays={this.state.selectedDays}
+                                   onClick={() => {
+                                   }}
+                                   onChange={() => {
+                                   }}/>
+                        {/*<Row><Label for="daysInput" xs={3}>Days</Label>*/}
+                        {/*<Col xs={9}>*/}
+                        {/*<InputGroup id="daysInput">*/}
+                        {/*<InputGroupAddon addonType="prepend">*/}
+                        {/*<Button onClick={() => {*/}
+                        {/*props.handleClickDaysSelection(-1)*/}
+                        {/*}}>-</Button>*/}
+                        {/*</InputGroupAddon>*/}
+                        {/*<Input value={props.selectedDays}/>*/}
+                        {/*<InputGroupAddon addonType="append">*/}
+                        {/*<Button onClick={() => {*/}
+                        {/*props.handleClickDaysSelection(1)*/}
+                        {/*}}>+</Button>*/}
+                        {/*</InputGroupAddon>*/}
+                        {/*</InputGroup>*/}
+                        {/*</Col>*/}
+                        {/*</Row>*/}
                     </Col>
                     <Col xs={12} sm={3} className="align-content-md-end" style={rowGrid}>
                         {btn}
@@ -119,8 +112,9 @@ class Store extends Component {
     }
 
     handleClickDaysSelection(n) {
+        let days = this.state.selectedDays + n >= 0 ? this.state.selectedDays + n : 0;
         this.setState({
-            selectedDays: (this.state.selectedDays + n),
+            selectedDays: days,
         })
     }
 

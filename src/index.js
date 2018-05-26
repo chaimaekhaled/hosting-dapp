@@ -10,22 +10,9 @@ const data = [
     {
         id: 0,
         hash: '0x14ce80ec89e1ed33701299d833d8b691d34f2fd2',
-        month: '2018-04',
-        latency: 4,
-        dropPackets: 5,
-        availability: 97.8
-    },
-    {
-        id: 0,
-        hash: '0x14ce80ec89e1ed33701299d833d8b691d34f2fd2',
-        month: '2018-03',
-        latency: 2,
-        dropPackets: 12,
-        availability: 96
-    },
-    {
-        id: 0,
-        hash: '0x14ce80ec89e1ed33701299d833d8b691d34f2fd2',
+        name: "Server S",
+        balance: 25,
+        endDate: '2018-06-21',
         month: '2018-02',
         latency: 21,
         dropPackets: 9,
@@ -34,6 +21,55 @@ const data = [
     {
         id: 1,
         hash: '0x13f93b519261bf56d58e6e5d2a028a04ac6fa691',
+        name: "Server M",
+        balance: 15,
+        endDate: '2018-05-31',
+        month: '2018-04',
+        latency: 55,
+        dropPackets: 2,
+        availability: 99.99
+    },
+    {
+        id: 2,
+        hash: '0xbe559c7a90427fb5b629b0703385480570190a36',
+        name: "Server M",
+        balance: 33,
+        endDate: '2018-06-07',
+        month: '2018-04',
+        latency: 4,
+        dropPackets: 5,
+        availability: 97.8
+    },
+];
+
+const data2 = [
+    {
+        id: 0,
+        hash: '0x14ce80ec89e1ed33701299d833d8b691d34f2fd2', name: "Server S",
+        month: '2018-04',
+        latency: 4,
+        dropPackets: 5,
+        availability: 97.8
+    },
+    {
+        id: 0,
+        hash: '0x14ce80ec89e1ed33701299d833d8b691d34f2fd2', name: "Server S",
+        month: '2018-03',
+        latency: 2,
+        dropPackets: 12,
+        availability: 96
+    },
+    {
+        id: 0,
+        hash: '0x14ce80ec89e1ed33701299d833d8b691d34f2fd2', name: "Server S",
+        month: '2018-02',
+        latency: 21,
+        dropPackets: 9,
+        availability: 99.999
+    },
+    {
+        id: 1,
+        hash: '0x13f93b519261bf56d58e6e5d2a028a04ac6fa691', name: "Server M",
         month: '2018-04',
         latency: 55,
         dropPackets: 2,
@@ -41,7 +77,7 @@ const data = [
     },
     {
         id: 1,
-        hash: '0x13f93b519261bf56d58e6e5d2a028a04ac6fa691',
+        hash: '0x13f93b519261bf56d58e6e5d2a028a04ac6fa691', name: "Server M",
         month: '2018-03',
         latency: 4,
         dropPackets: 5,
@@ -49,7 +85,7 @@ const data = [
     },
     {
         id: 1,
-        hash: '0x13f93b519261bf56d58e6e5d2a028a04ac6fa691',
+        hash: '0x13f93b519261bf56d58e6e5d2a028a04ac6fa691', name: "Server M",
         month: '2018-02',
         latency: 60,
         dropPackets: 8,
@@ -57,7 +93,7 @@ const data = [
     },
     {
         id: 2,
-        hash: '0xbe559c7a90427fb5b629b0703385480570190a36',
+        hash: '0xbe559c7a90427fb5b629b0703385480570190a36', name: "Server M",
         month: '2018-04',
         latency: 4,
         dropPackets: 5,
@@ -65,7 +101,7 @@ const data = [
     },
     {
         id: 2,
-        hash: '0xbe559c7a90427fb5b629b0703385480570190a36',
+        hash: '0xbe559c7a90427fb5b629b0703385480570190a36', name: "Server M",
         month: '2018-03',
         latency: 60,
         dropPackets: 8,
@@ -73,7 +109,7 @@ const data = [
     },
     {
         id: 2,
-        hash: '0xbe559c7a90427fb5b629b0703385480570190a36',
+        hash: '0xbe559c7a90427fb5b629b0703385480570190a36', name: "Server M",
         month: '2018-02',
         latency: 55,
         dropPackets: 2,

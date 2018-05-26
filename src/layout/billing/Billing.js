@@ -1,11 +1,18 @@
 import React, {Component} from 'react';
-import {Container, Jumbotron, Table} from 'reactstrap';
+import {Col, Container, Jumbotron, Row, Table} from 'reactstrap';
 import MonthSelector from "../../components/MonthSelector";
 import ServiceSelector from "../../components/ServiceSelector";
 
-function BillCalculation() {
+function BillCalculation(props) {
     return (
-        <Container><h3>Bill Calculation</h3>
+        <Container>
+            <Row>
+                <Col xs={12} lg={4}><h3>Bill Calculation</h3></Col>
+                <Col xs={12} lg={8}>
+                    <MonthSelector data={props.data} onChange={() => {
+                    }}/>
+                </Col>
+            </Row>
             <Table className="table-responsive-sm">
                 <thead className="thead-light">
                 <tr>
@@ -50,7 +57,6 @@ function BillCalculation() {
 
 class Billing extends Component {
     render() {
-        const rowGrid = {'margin-bottom': '15px'}; //TODO: move this to CSS
 
         return (
             <main>
@@ -59,10 +65,10 @@ class Billing extends Component {
                     <ServiceSelector data={this.props.data} onChange={() => {
                     }}/>
                     <hr className="my-3"/>
-                    <MonthSelector data={this.props.data} onChange={() => {
-                    }}/>
+                    {/*<MonthSelector data={this.props.data} onChange={() => {*/}
+                    {/*}}/>*/}
                     <hr className="my-3"/>
-                    <BillCalculation/>
+                    <BillCalculation {...this.props}/>
                     <hr className="my-3"/>
 
                     {/*<Row style={rowGrid}>
