@@ -3,8 +3,7 @@ import {Col, Container, Jumbotron, Row, Table} from 'reactstrap';
 import MonthSelector from "../../components/MonthSelector";
 import ServiceSelector from "../../components/ServiceSelector";
 
-function BillCalculation(props) {
-    console.log(props);
+const BillCalculation = (props) => {
     return (
         <Container>
             <Row>
@@ -53,17 +52,17 @@ function BillCalculation(props) {
             </Table>
         </Container>
     )
-}
+};
 
 class Billing extends Component {
     constructor(props) {
         super(props);
         const today = new Date().toISOString().slice(0, 10);
         this.state = {
-            selectedService: props.data[0],
+            selectedService: props.serviceContracts[0],
             selectedServiceId: 0,
-            fromDate: this.props.fromDate ? this.props.fromDate : today,
-            untilDate: this.props.untilDate ? this.props.untilDate : today,
+            fromDate: today,
+            untilDate: today,
             compliance: [0],
             cost: [0],
             refund: [0],
@@ -131,7 +130,7 @@ class Billing extends Component {
 
     handleServiceChanged(e) {
         const id = parseInt(e.target.value, 10);
-        let selectedService = this.props.data[id];
+        let selectedService = this.props.serviceContracts[id];
         this.setState({
             selectedServiceId: id,
             selectedService: selectedService,
@@ -170,24 +169,16 @@ class Billing extends Component {
             <main>
                 <Jumbotron><h1>Billing</h1></Jumbotron>
                 <Container>
-                    <ServiceSelector {...this.props} selectedService={this.state.selectedService}
+                    <ServiceSelector serviceContracts={this.props.serviceContracts}
+                                     selectedService={this.state.selectedService}
                                      onChange={this.handleServiceChanged}
                                      value={this.state.selectedServiceId}/>
-                    <hr className="my-3"/>
-                    {/*<MonthSelector data={this.props.data} onChange={() => {*/}
-                    {/*}}/>*/}
                     <hr className="my-3"/>
                     <BillCalculation selectedService={this.state.selectedService}
                                      fromDate={this.state.fromDate} untilDate={this.state.untilDate}
                                      onDateChanged={this.handleDateChanged}
                                      info={this.state}/>
                     <hr className="my-3"/>
-
-                    {/*<Row style={rowGrid}>
-                        <Col xs={8} sm={6} md={{size: 4, offset: 6}} lg={{size: 3, offset: 7}}>Total bill of all
-                            services: </Col>
-                        <Col className="ml-auto col-auto">72 ETH</Col>
-                    </Row>*/}
                 </Container>
             </main>
         )

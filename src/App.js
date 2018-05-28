@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink,} from 'reactstrap';
 import {BrowserRouter as Router, NavLink as NavLinkRRD, Route} from 'react-router-dom';
+import Data from "./AppProvider";
 // Import views
 import Home from "./layout/home/Home";
 import Billing from "./layout/billing/Billing";
@@ -15,7 +16,10 @@ class App extends Component {
 
         this.toggle = this.toggle.bind(this);
         this.state = {
-            isOpen: false,
+            isOpen: false, //toggle for navbar
+            providerName: Data.providerName,
+            serviceContracts: Data.serviceContracts,
+            products: Data.products,
         };
     }
 
@@ -27,8 +31,7 @@ class App extends Component {
 
 
     render() {
-        return (
-            <Router>
+        return (<Router>
                 <div>
                     <div>
                         <Navbar color="dark" dark expand="sm">
@@ -41,7 +44,8 @@ class App extends Component {
                                                  tag={NavLinkRRD}>Overview</NavLink>
                                     </NavItem>
                                     <NavItem>
-                                        <NavLink to="/store" activeClassName='active' tag={NavLinkRRD}>Store</NavLink>
+                                        <NavLink to="/store" activeClassName='active'
+                                                 tag={NavLinkRRD}>Store</NavLink>
                                     </NavItem>
                                     {/*<NavItem>
                                         <NavLink to="/monitoring" activeClassName='active'
@@ -58,11 +62,9 @@ class App extends Component {
                     <div>
                         <Route exact path="/" title="Home" component={Home}/>
                         <Route path="/store" title="Store"
-                               render={(props) => <Store {...props} services={this.props.services}/>}/>
-                        {/*<Route path="/monitoring" title="Monitoring"
-                               render={(props) => <Monitoring {...props} data={this.props.data}/>}/>*/}
+                               render={() => <Store products={this.state.products}/>}/>
                         <Route path="/billing" title="Billing"
-                               render={(props) => <Billing {...props} data={this.props.data}/>}/>
+                               render={() => <Billing serviceContracts={this.state.serviceContracts}/>}/>
                     </div>
                 </div>
             </Router>

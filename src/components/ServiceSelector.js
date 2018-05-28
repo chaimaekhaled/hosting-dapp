@@ -12,9 +12,8 @@ class ServiceSelector extends Component {
     }
 
     render() {
-        const badgeStyle = {'font-size': '85%', 'margin-top': '5px', 'margin-bottom': '5px', 'float': 'right'};
         const rowGrid = {marginBottom: 15 + 'px'};
-        let services = this.props.data.map(item => {
+        const services = this.props.serviceContracts.map(item => {
             return {value: item.id, text: item.name + " " + item.id}
         });
         const lg = {size: 3};
@@ -23,7 +22,7 @@ class ServiceSelector extends Component {
             <Button color="primary">Extend</Button> : <Button color="warning">Withdraw</Button>;
 
 
-        let info = {
+        let infoColors = {
             color: '#fff',
             backgroundColor: '#138496',
             borderColor: '#117a8b'
@@ -36,42 +35,31 @@ class ServiceSelector extends Component {
                         <LabeledInput inputId="serviceSelector" onChange={this.props.onChange} labelText="Service:"
                                       value={this.props.selectedServiceId} type="select"
                                       options={services}/>
-                        {/*<Row><Label xs={5} lg={4} for="serviceSelector"><h4>Service: </h4></Label>
-                            <Col xs={7} lg={5}>
-                                <Input type="select" id="serviceSelector" onChange={this.handleChange}
-                                       value={this.props.selectedService}>
-                                    {
-                                        this.state.uniqueServices.map(id => <option value={id}>Server {id}</option>)
-                                    }
-                                </Input>
-                            </Col>
-                        </Row>*/}
+
                     </Col>
                     <Col xs={12} lg={{size: 7}} xl={{size: 6, offset: 1}}
                          style={{textAlign: "right", marginBottom: 15 + 'px'}}>
                         <InputGroup>
-                            <InputGroupAddon addonType="prepend"><InputGroupText style={info}>Hash</InputGroupText>
+                            <InputGroupAddon addonType="prepend"><InputGroupText
+                                style={infoColors}>Hash</InputGroupText>
                             </InputGroupAddon>
                             <Input style={{textAlign: 'right',}} value={this.props.selectedService.hash} disabled/>
                         </InputGroup>
-                        {/*<Badge color="light">Hash</Badge>*/}
-                        {/*<span style={{overflowWrap: 'break-word'}} color="dark">*/}
-                        {/*{this.getHash(this.props.selectedService)}*/}
-                        {/*</span>*/}
+
                     </Col>
                     <Col xs={12} sm={sm} lg={lg} style={rowGrid}>
-                        {/*<Badge style={badgeStyle} color="dark">25 ETH</Badge>*/}
                         <InputGroup>
-                            <InputGroupAddon addonType="prepend"><InputGroupText style={info}>Balance</InputGroupText>
+                            <InputGroupAddon addonType="prepend"><InputGroupText
+                                style={infoColors}>Balance</InputGroupText>
                             </InputGroupAddon>
                             <Input style={{textAlign: 'right',}} value={this.props.selectedService.balance + " ETH"}
                                    disabled/>
                         </InputGroup>
                     </Col>
                     <Col xs={12} sm={sm} lg={lg} style={rowGrid}>
-                        {/*<Badge style={badgeStyle} color="dark">25 ETH</Badge>*/}
                         <InputGroup>
-                            <InputGroupAddon addonType="prepend"><InputGroupText style={info}>End Date</InputGroupText>
+                            <InputGroupAddon addonType="prepend"><InputGroupText style={infoColors}>End
+                                Date</InputGroupText>
                             </InputGroupAddon>
                             <Input style={{textAlign: 'right',}}
                                    value={new Date(this.props.selectedService.endDate).toLocaleDateString()} disabled/>

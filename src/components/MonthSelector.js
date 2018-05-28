@@ -24,25 +24,11 @@ class MonthSelector extends Component {
                                       inputId="fromSelector"
                                       value={this.props.fromDate} type="date"
                                       min={this.props.selectedService.startDate} max={today}/>
-                        {/*<Row>*/}
-                        {/*<Label xs={5} lg={4} for="fromSelector"><h4>From:</h4></Label>*/}
-                        {/*<Col xs={7} lg={5}>*/}
-                        {/*<Input id="fromSelector" onChange={this.handleChange}*/}
-                        {/*value={this.state.fromDate}/>*/}
-                        {/*</Col>*/}
-                        {/*</Row>*/}
                     </Col>
                     <Col xs={xs} md={md} lg={lg} xl={xl} style={rowGrid}>
                         <LabeledInput onChange={this.props.onDateChanged} labelText="Until:" inputId="untilSelector"
                                       value={this.props.untilDate} type="date"
                                       min={this.props.selectedService.startDate} max={today}/>
-                        {/*<Row>*/}
-                        {/*<Label xs={5} lg={4} for="untilSelector"><h4>Until:</h4></Label>*/}
-                        {/*<Col xs={7} lg={5}>*/}
-                        {/*<Input id="untilSelector" onChange={this.handleChange}*/}
-                        {/*value={this.state.untilDate}/>*/}
-                        {/*</Col>*/}
-                        {/*</Row>*/}
                     </Col>
                 </Row>
             </Container>

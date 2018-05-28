@@ -1,42 +1,48 @@
 import React, {Component} from 'react';
-import {Button, Col, Container, Form, FormGroup, Input, Jumbotron, Label, Row, Table} from 'reactstrap';
+import {Alert, Button, Col, Container, Form, FormGroup, Input, Jumbotron, Label, Row, Table} from 'reactstrap';
 import StoreCard from '../../components/StoreCard';
 import DaysInput from '../../components/DaysInput';
 
-function SLA() {
-    return (
-        <Container>
-            <Row><Col><h3>SLA</h3></Col></Row>
-            <Row><Col>
-                <Table className="table-responsive-sm">
-                    <thead>
-                    <tr>
-                        <th>Goal</th>
-                        <th>Availability</th>
-                        <th>Refund</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>High</td>
-                        <td>&ge;99%</td>
-                    </tr>
-                    <tr>
-                        <td>Middle</td>
-                        <td>&ge;90%</td>
-                        <td>25%</td>
-                    </tr>
-                    <tr>
-                        <td>Low</td>
-                        <td>&lt;90%</td>
-                        <td>100%</td>
-                    </tr>
-                    </tbody>
-                </Table>
-            </Col></Row>
-        </Container>
-    );
-}
+const Sla = (props) => {
+    if (props.service == null) {
+        return (<Container><Alert>Select a service to show the SLA terms.</Alert></Container>)
+    } else {
+        return (
+            <Container>
+                <Row><Col><h3>SLA</h3></Col></Row>
+                <Row><Col>
+                    <Table className="table-responsive-sm">
+                        <thead>
+                        <tr>
+                            <th>Goal</th>
+                            <th>Availability</th>
+                            <th>Refund</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>High</td>
+                            <td>&ge;{props.service.sla[1]}%</td>
+                        </tr>
+                        <tr>
+                            <td>Middle</td>
+                            <td>&ge;{props.service.sla[2]}%</td>
+                            <td>{props.service.sla[3]}%</td>
+                        </tr>
+                        <tr>
+                            <td>Low</td>
+                            <td>&lt;{props.service.sla[2]}%</td>
+                            <td>{props.service.sla[4]}%</td>
+                        </tr>
+                        </tbody>
+                    </Table>
+                </Col></Row>
+            </Container>
+        );
+    }
+
+
+};
 
 
 class Store extends Component {
@@ -46,7 +52,7 @@ class Store extends Component {
         this.handleClickDaysSelection = this.handleClickDaysSelection.bind(this);
         this.state = {
             activeStoreCardId: null,
-            selectedService: null,
+            selectedProduct: null,
             selectedDays: 1,
         };
     }
@@ -54,7 +60,7 @@ class Store extends Component {
     handleClickStore(id) {
         this.setState({
             activeStoreCardId: id,
-            selectedService: this.props.services[id],
+            selectedProduct: this.props.products[id],
         })
     }
 
@@ -66,23 +72,23 @@ class Store extends Component {
     }
 
     render() {
-        const storeCards = this.props.services.map((service) =>
-            <Col><StoreCard activeId={this.state.activeStoreCardId} title={service.name} id={service.id}
-                            onClick={this.handleClickStore} details={service.details}/></Col>
-        );
+        const getStoreCards = (products) => {
+            return products.map((product) =>
+                <Col><StoreCard activeId={this.state.activeStoreCardId} title={product.name} id={product.id}
+                                onClick={this.handleClickStore} details={product.details}/></Col>)
+        };
 
         let btn;
         if (this.state.activeStoreCardId === null) {
             btn = <Button id="orderButton" disabled className="btn-lg" block>Buy</Button>;
         } else {
             btn = <Button id="orderButton" color="primary" className="btn-lg"
-                          block>{this.state.selectedService.costPerDay * this.state.selectedDays + "ETH - Buy"}</Button>;
+                          block>{this.state.selectedProduct.costPerDay * this.state.selectedDays + "ETH - Buy"}</Button>;
         }
         //TODO: move rowGrid to CSS
         const rowGrid = {'margin-bottom': '15px'};
 
-        return (
-            <main>
+        return (<React.Fragment>
                 <Jumbotron>
                     <h1>Store</h1>
                 </Jumbotron>
@@ -90,23 +96,14 @@ class Store extends Component {
                 <Container>
                     <Row><Col><h3>Select a Service</h3></Col></Row>
                     <hr className="my-3"/>
-                    <Row className="flex-row flex-nowrap" style={{'overflow-x': 'auto'}}>
-                        {storeCards}
-                        {/*<Col><StoreCard activeId={this.state.activeStoreCard} title="Small" id="sm"
-                                        onClick={this.handleClickStore} details={{cpu: 1, ram: 2, ssd: 25, price: 5}}/></Col>
-                        <Col><StoreCard activeId={this.state.activeStoreCard} title="Medium" id="md"
-                                        onClick={this.handleClickStore} details={{cpu: 2, ram: 4, ssd: 50, price: 10}}/></Col>
-                        <Col><StoreCard activeId={this.state.activeStoreCard} title="Large" id="la"
-                                        onClick={this.handleClickStore}
-                                        details={{cpu: 8, ram: 16, ssd: 100, price: 20}}/></Col>*/}
+                    <Row className="flex-row flex-nowrap" style={{overflowX: 'auto'}}>
+                        {getStoreCards(this.props.products)}
                     </Row>
                     <hr className="my-3"/>
                 </Container>
 
-                <SLA/>
-                {/*<DealClosing {...this.props} activeStoreCard={this.state.activeStoreCard}*/}
-                {/*selectedDays={this.state.selectedDays}*/}
-                {/*handleClickDaysSelection={this.handleClickDaysSelection}/>*/}
+                <Sla service={this.state.selectedProduct}/>
+
                 <Container>
                     <Row><Col><h3>Details</h3></Col></Row>
                     <hr className="my-3"/>
@@ -133,11 +130,9 @@ class Store extends Component {
                             </Col>
                         </FormGroup>
                     </Form>
-                </Container>
-            </main>
+                </Container></React.Fragment>
         )
     }
-
 }
 
 export default Store
