@@ -8,7 +8,7 @@ class StoreCard extends Component {
         this.handleClick = this.handleClick.bind(this);
     }
 
-    handleClick(){
+    handleClick() {
         this.props.onClick(this.props.id);
     }
 
@@ -16,18 +16,14 @@ class StoreCard extends Component {
 
         const isActive = this.props.id === this.props.activeId;
 
-        let color = "";
-        let textcolor = "";
-        if (isActive) {
-            color = "primary";
-            textcolor = "text-white";
-        }
+        let color = isActive ? "primary" : "";
+        let textcolor = isActive ? "text-white" : "";
 
         return (
             <Card onClick={this.handleClick}
                   color={color}
                   className={textcolor}
-                  style={{'margin-bottom': '15px'}}
+                  style={{marginBottom: 15 + 'px'}}
                   id={this.props.id}>
                 <CardImg onClick={this.handleClick} top width="100%" src={this.props.imgsrc} alt={this.props.imgalt}/>
                 <CardBody onClick={this.handleClick}>
