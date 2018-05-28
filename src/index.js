@@ -92,10 +92,9 @@ const provider = {
             balance: 25,
             endDate: '2018-06-21',
             costPerDay: 2,
-            month: '2018-02',
-            latency: 21,
-            dropPackets: 9,
-            availability: 99.999
+            startDate: '2018-05-22',
+            availability: [99, 100, 21, 88, 95, 66, 85],
+            sla: [0, 90, 75, 25, 100],
         },
         {
             id: 1,
@@ -104,10 +103,9 @@ const provider = {
             balance: 15,
             endDate: '2018-05-31',
             costPerDay: 10,
-            month: '2018-04',
-            latency: 55,
-            dropPackets: 2,
-            availability: 99.99
+            startDate: '2018-05-22',
+            availability: [99, 100, 21, 88, 95, 66, 85],
+            sla: [0, 90, 75, 25, 100],
         },
         {
             id: 2,
@@ -116,10 +114,9 @@ const provider = {
             balance: 33,
             endDate: '2018-06-07',
             costPerDay: 10,
-            month: '2018-04',
-            latency: 4,
-            dropPackets: 5,
-            availability: 97.8
+            startDate: '2018-05-22',
+            availability: [99, 100, 21, 88, 95, 66, 85],
+            sla: [0, 90, 75, 25, 100],
         }],
     products: [
         {
@@ -139,10 +136,10 @@ const provider = {
             id: 2,
             costPerDay: 20,
             details: {cpu: 8, ram: 16, ssd: 100, price: 20}
-        }]
+        }],
 };
 
 ReactDOM.render(
-    <App data={provider.serviceContracts} services={provider.products}/>
+    <App data={provider.serviceContracts} services={provider.products} provider={provider}/>
     , document.getElementById('root'));
 registerServiceWorker();

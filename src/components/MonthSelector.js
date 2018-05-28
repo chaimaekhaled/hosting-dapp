@@ -3,35 +3,6 @@ import {Col, Container, Row} from 'reactstrap';
 import LabeledInput from './LabeledInput';
 
 class MonthSelector extends Component {
-    constructor(props) {
-        super(props);
-        this.handleChange = this.handleChange.bind(this);
-        const today = new Date().toISOString().slice(0, 10);
-        this.state = {
-            fromDate: this.props.fromDate ? this.props.fromDate : today,
-            untilDate: this.props.untilDate ? this.props.untilDate : today,
-        };
-    };
-
-    handleChange(e) {
-        const newDate = e.target.value;
-        switch (e.target.id) {
-            case "fromSelector":
-                this.setState({fromDate: newDate});
-                break;
-            case "untilSelector":
-                this.setState({untilDate: newDate});
-                break;
-            default:
-                console.log("Error in MonthSelector.handleChange. Target: ");
-                console.log(e.target);
-
-        }
-        //this.props.onChange(newDate);
-        console.log("New " + e.target.id + " date: " + newDate);
-        console.log("Date: " + new Date(newDate));
-    }
-
     render() {
         //TODO: move badgeStyle and rowGrid to CSS
         const rowGrid = {marginBottom: 15 + 'px'};
@@ -42,14 +13,17 @@ class MonthSelector extends Component {
         const lg = {size: 6};
         const md = {size: 6};
         const xs = {size: 12};
+        const today = new Date().toISOString().slice(0, 10);
+
         return (
             <Container>
                 <Row className="justify-content-lg-end">
                     {/*<Row className="align-items-center justify-content-between">*/}
                     <Col xs={xs} md={md} lg={lg} xl={xl} style={rowGrid}>
-                        <LabeledInput id="fromSelector" onChange={this.handleChange} labelText="From:"
+                        <LabeledInput id="fromSelector" onChange={this.props.onDateChanged} labelText="From:"
                                       inputId="fromSelector"
-                                      value={this.state.fromDate} type="date"/>
+                                      value={this.props.fromDate} type="date"
+                                      min={this.props.selectedService.startDate} max={today}/>
                         {/*<Row>*/}
                         {/*<Label xs={5} lg={4} for="fromSelector"><h4>From:</h4></Label>*/}
                         {/*<Col xs={7} lg={5}>*/}
@@ -59,8 +33,9 @@ class MonthSelector extends Component {
                         {/*</Row>*/}
                     </Col>
                     <Col xs={xs} md={md} lg={lg} xl={xl} style={rowGrid}>
-                        <LabeledInput onChange={this.handleChange} labelText="Until:" inputId="untilSelector"
-                                      value={this.state.untilDate} type="date"/>
+                        <LabeledInput onChange={this.props.onDateChanged} labelText="Until:" inputId="untilSelector"
+                                      value={this.props.untilDate} type="date"
+                                      min={this.props.selectedService.startDate} max={today}/>
                         {/*<Row>*/}
                         {/*<Label xs={5} lg={4} for="untilSelector"><h4>Until:</h4></Label>*/}
                         {/*<Col xs={7} lg={5}>*/}

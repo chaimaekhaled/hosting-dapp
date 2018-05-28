@@ -7,26 +7,13 @@ class ServiceSelector extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            selectedServiceId: this.props.selectedService ? this.props.selectedService : 0,
-            selectedService: this.props.data[0],
             selectedDays: 0,
         };
-        this.handleChange = this.handleChange.bind(this);
-    }
-
-    handleChange(e) {
-        const id = parseInt(e.target.value, 10);
-        this.setState({
-            selectedServiceId: id,
-            selectedService: this.props.data[id],
-        });
-        console.log("New ServiceContract selected: " + id);
-        //this.props.onChange(id);
     }
 
     render() {
         const badgeStyle = {'font-size': '85%', 'margin-top': '5px', 'margin-bottom': '5px', 'float': 'right'};
-        const rowGrid = {'margin-bottom': '15px'};
+        const rowGrid = {marginBottom: 15 + 'px'};
         let services = this.props.data.map(item => {
             return {value: item.id, text: item.name + " " + item.id}
         });
@@ -46,13 +33,13 @@ class ServiceSelector extends Component {
             <Container>
                 <Row className="align-items-center">
                     <Col xs={12} lg={5} style={rowGrid}>
-                        <LabeledInput inputId="serviceSelector" onChange={this.handleChange} labelText="Service:"
-                                      value={this.state.selectedServiceId} type="select"
+                        <LabeledInput inputId="serviceSelector" onChange={this.props.onChange} labelText="Service:"
+                                      value={this.props.selectedServiceId} type="select"
                                       options={services}/>
                         {/*<Row><Label xs={5} lg={4} for="serviceSelector"><h4>Service: </h4></Label>
                             <Col xs={7} lg={5}>
                                 <Input type="select" id="serviceSelector" onChange={this.handleChange}
-                                       value={this.state.selectedService}>
+                                       value={this.props.selectedService}>
                                     {
                                         this.state.uniqueServices.map(id => <option value={id}>Server {id}</option>)
                                     }
@@ -65,11 +52,11 @@ class ServiceSelector extends Component {
                         <InputGroup>
                             <InputGroupAddon addonType="prepend"><InputGroupText style={info}>Hash</InputGroupText>
                             </InputGroupAddon>
-                            <Input style={{textAlign: 'right',}} value={this.state.selectedService.hash} disabled/>
+                            <Input style={{textAlign: 'right',}} value={this.props.selectedService.hash} disabled/>
                         </InputGroup>
                         {/*<Badge color="light">Hash</Badge>*/}
                         {/*<span style={{overflowWrap: 'break-word'}} color="dark">*/}
-                        {/*{this.getHash(this.state.selectedService)}*/}
+                        {/*{this.getHash(this.props.selectedService)}*/}
                         {/*</span>*/}
                     </Col>
                     <Col xs={12} sm={sm} lg={lg} style={rowGrid}>
@@ -77,7 +64,7 @@ class ServiceSelector extends Component {
                         <InputGroup>
                             <InputGroupAddon addonType="prepend"><InputGroupText style={info}>Balance</InputGroupText>
                             </InputGroupAddon>
-                            <Input style={{textAlign: 'right',}} value={this.state.selectedService.balance + " ETH"}
+                            <Input style={{textAlign: 'right',}} value={this.props.selectedService.balance + " ETH"}
                                    disabled/>
                         </InputGroup>
                     </Col>
@@ -87,7 +74,7 @@ class ServiceSelector extends Component {
                             <InputGroupAddon addonType="prepend"><InputGroupText style={info}>End Date</InputGroupText>
                             </InputGroupAddon>
                             <Input style={{textAlign: 'right',}}
-                                   value={new Date(this.state.selectedService.endDate).toLocaleDateString()} disabled/>
+                                   value={new Date(this.props.selectedService.endDate).toLocaleDateString()} disabled/>
                         </InputGroup>
                     </Col>
                     <Col xs={12} sm={sm} lg={lg} style={rowGrid}>
@@ -101,7 +88,7 @@ class ServiceSelector extends Component {
                     <Col xs={12} sm={sm} lg={lg} style={rowGrid}>
                         <InputGroup>
                             <Input style={{textAlign: 'right',}}
-                                   value={this.state.selectedDays * this.state.selectedService.costPerDay + " ETH"}
+                                   value={this.state.selectedDays * this.props.selectedService.costPerDay + " ETH"}
                                    disabled/>
                             <InputGroupAddon addonType="prepend">{btn}</InputGroupAddon>
                         </InputGroup>
