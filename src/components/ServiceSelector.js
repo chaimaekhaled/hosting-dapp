@@ -100,7 +100,9 @@ class ServiceSelector extends Component {
                     </Col>
                     <Col xs={12} sm={sm} lg={lg} style={rowGrid}>
                         <InputGroup>
-                            <Input type="number" style={{textAlign: 'right',}}/>
+                            <Input style={{textAlign: 'right',}}
+                                   value={this.state.selectedDays * this.state.selectedService.costPerDay + " ETH"}
+                                   disabled/>
                             <InputGroupAddon addonType="prepend">{btn}</InputGroupAddon>
                         </InputGroup>
                     </Col>

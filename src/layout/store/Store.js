@@ -39,21 +39,22 @@ function SLA() {
 }
 
 
-
 class Store extends Component {
     constructor(props) {
         super(props);
         this.handleClickStore = this.handleClickStore.bind(this);
         this.handleClickDaysSelection = this.handleClickDaysSelection.bind(this);
         this.state = {
-            activeStoreCard: null,
+            activeStoreCardId: null,
+            selectedService: null,
             selectedDays: 1,
         };
     }
 
     handleClickStore(id) {
         this.setState({
-            activeStoreCard: id,
+            activeStoreCardId: id,
+            selectedService: this.props.services[id],
         })
     }
 
@@ -66,15 +67,16 @@ class Store extends Component {
 
     render() {
         const storeCards = this.props.services.map((service) =>
-            <Col><StoreCard activeId={this.state.activeStoreCard} title={service.name} id={service.id}
+            <Col><StoreCard activeId={this.state.activeStoreCardId} title={service.name} id={service.id}
                             onClick={this.handleClickStore} details={service.details}/></Col>
         );
 
         let btn;
-        if (this.state.activeStoreCard === null) {
+        if (this.state.activeStoreCardId === null) {
             btn = <Button id="orderButton" disabled className="btn-lg" block>Buy</Button>;
         } else {
-            btn = <Button id="orderButton" color="primary" className="btn-lg" block>Buy</Button>;
+            btn = <Button id="orderButton" color="primary" className="btn-lg"
+                          block>{this.state.selectedService.costPerDay * this.state.selectedDays + "ETH - Buy"}</Button>;
         }
         //TODO: move rowGrid to CSS
         const rowGrid = {'margin-bottom': '15px'};
@@ -110,14 +112,14 @@ class Store extends Component {
                     <hr className="my-3"/>
                     <Form className="">
                         <FormGroup row className="justify-content-md-between">
-                            <Col xs={12} sm={6} style={rowGrid}>
+                            <Col xs={12} sm={12} lg={6} style={rowGrid}>
                                 <Row><Label for="sshkey" xs={3}>SSH Key</Label>
                                     <Col xs={9}>
                                         <Input type="textarea" name="sshkey" id="sshkey" placeholder=""/>
                                     </Col>
                                 </Row>
                             </Col>
-                            <Col xs={12} sm={3} style={rowGrid}>
+                            <Col xs={12} sm={6} lg={3} style={rowGrid}>
                                 <DaysInput selectedDays={this.state.selectedDays}
                                            onClick={(n) => this.handleClickDaysSelection(n)}
                                            onChange={(e) => {
@@ -126,7 +128,7 @@ class Store extends Component {
                                            }}/>
 
                             </Col>
-                            <Col xs={12} sm={3} className="align-content-md-end" style={rowGrid}>
+                            <Col xs={12} sm={6} lg={3} className="align-content-md-end" style={rowGrid}>
                                 {btn}
                             </Col>
                         </FormGroup>
