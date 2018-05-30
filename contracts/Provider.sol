@@ -10,11 +10,10 @@ import "./Service.sol";
 contract Provider {
     // Provider's hosting system can listen to this event to start new servers.
     event NewProductBought(address serviceContract);
-    event NewServiceContract(address serviceContract);
     event MsgValue(uint value);
 
     address owner; // Provider's eth address
-    string public name = "undefined"; // Provider's name
+    string public name; // Provider's name
 
     // Withdrawal Pattern
     mapping(address => uint) private pendingWithdrawals;
@@ -30,6 +29,7 @@ contract Provider {
 
     constructor() public {
         owner = msg.sender;
+        name = "defaultName";
     }
 
     modifier onlyOwner(){
@@ -45,6 +45,10 @@ contract Provider {
     modifier productIsActive(uint _id){
         require(products[_id].isActive);
         _;
+    }
+
+    function getOwner() public view returns (address){
+        return owner;
     }
 
     function getName() public view returns (string){
@@ -67,22 +71,26 @@ contract Provider {
         // Product is only available for order is flagged as isActive = true
 
         // create a new StandardServer smart contract
-        Service serviceContract = (new Service).value(msg.value)(
-    owner, msg.sender, this,
-    _customerPublicKey, products[_id].name, products[_id].costPerDay, _id
-        );
+        Service serviceContract = new Service(
+            owner,
+            msg.sender,
+            this,
+            _customerPublicKey,
+            products[_id].name,
+            products[_id].costPerDay,
+            _id);
 
-        emit NewServiceContract(serviceContract);
         emit MsgValue(msg.value);
 
         extendServiceWithServiceDetails(serviceContract, _id);
         extendServiceWithSla(serviceContract, _id);
 
         // pay ETH into this new contract
-        //address(serviceContract).transfer(msg.value);
+        address(serviceContract).transfer(msg.value);
+        //        serviceContract.deposit.value(msg.value)();
 
         // Calculate service duration based on msg.value
-        serviceContract.recalculateServiceDuration();
+        ////serviceContract.recalculateServiceDuration();
 
         // add new contract to customerDB
         customerToContracts[msg.sender].push(serviceContract);
@@ -94,7 +102,7 @@ contract Provider {
         emit NewProductBought(address(serviceContract));
 
         // return contract's address
-        return serviceContract;
+        return address(serviceContract);
     }
 
     function extendServiceWithServiceDetails(address _serviceContract, uint _id) internal {

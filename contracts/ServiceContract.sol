@@ -91,7 +91,7 @@ contract ServiceContract {
     }
 
     //required for truffle testing
-    function() external payable {}
+    function() public payable {}
 
     /*function getAll() public view onlyPartners returns (address, address, address, string, string, uint, uint[], uint[]){
         return (provider, customer, providerContract, customerPublicKey, name, costPerDay, ServiceDetailsToArray(specs), SLAPolicyToArray(sla));

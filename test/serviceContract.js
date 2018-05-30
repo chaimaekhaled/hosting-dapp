@@ -13,7 +13,7 @@ contract("Service", async (accounts) => {
     it("should calculate 7 days of contract duration", async () => {
         let pricePerDay = 8;
         let addr = "0x627306090abab3a6e1400e9345bc60c78a8bef57";
-        let contract = await Service.new(addr, accounts[0], accounts[0], "pubKey", "vServers", pricePerDay);
+        let contract = await Service.new(addr, accounts[0], accounts[0], "pubKey", "vServers", pricePerDay, 0);
         //await contract.send(pricePerDay * 8);
         await contract.deposit({value: pricePerDay * 8});
         await contract.setWithSLACalc(false);
@@ -52,7 +52,7 @@ contract("Service", async (accounts) => {
             6) assert if Withdrawable for Provider == cost for one day
              */
         let pricePerDay = 8;
-        let contract = await Service.new(accounts[0], accounts[0], accounts[0], "pubKey", "vServers", pricePerDay);
+        let contract = await Service.new(accounts[0], accounts[0], accounts[0], "pubKey", "vServers", pricePerDay, 0);
         let endDate = await contract.getEndDate();
         assert.equal(endDate, 0, "EndDate should be 0!");
         //await contract.send(pricePerDay * 8);
@@ -66,7 +66,7 @@ contract("Service", async (accounts) => {
 
     it("should be able for the provider to withdraw ether", async () => {
         let pricePerDay = parseInt(web3.toWei(8, 'ether'));
-        let contract = await Service.new(accounts[0], accounts[0], accounts[0], "pubKey", "vServers", pricePerDay);
+        let contract = await Service.new(accounts[0], accounts[0], accounts[0], "pubKey", "vServers", pricePerDay, 0);
         let endDate = await contract.getEndDate();
         assert.equal(endDate, 0, "EndDate should be 0!");
         await contract.setWithSLACalc(false);
@@ -93,7 +93,7 @@ contract("Service", async (accounts) => {
         let middlePenalty = 75;
         let now = (Date.now() / 1000);
         let hourInSeconds = 3600;
-        let contract = await Service.new(accounts[0], accounts[0], accounts[0], "pubKey", "vServers", pricePerDay);
+        let contract = await Service.new(accounts[0], accounts[0], accounts[0], "pubKey", "vServers", pricePerDay, 0);
         await contract.setSla(0, 95, 75, middlePenalty, 0);
         await contract.deposit({value: pricePerDay * 8});
         await contract.testSetStartDay(yesterday);
@@ -120,7 +120,7 @@ contract("Service", async (accounts) => {
         };
         let middlePenalty = 75;
         let hourInSeconds = 3600;
-        let contract = await Service.new(accounts[0], accounts[0], accounts[0], "pubKey", "vServers", pricePerDay);
+        let contract = await Service.new(accounts[0], accounts[0], accounts[0], "pubKey", "vServers", pricePerDay, 0);
         await contract.setSla(0, 90, 75, middlePenalty, 0);
         await contract.deposit({value: pricePerDay * 8});
         await contract.testSetStartDay(daysBefore(3));
