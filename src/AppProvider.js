@@ -1,6 +1,6 @@
-import React, {Component} from 'react';
+//import React, {Component} from 'react';
 
-export const AppContext = React.createContext();
+/*export const AppContext = React.createContext();
 
 export class AppProvider extends Component {
     state = {
@@ -68,7 +68,7 @@ export class AppProvider extends Component {
             <AppContext.Provider value={this.state}>{this.props.children}</AppContext.Provider>
         )
     }
-}
+}*/
 
 const Data = {
     providerName: "myHostingCompany",
@@ -77,6 +77,7 @@ const Data = {
             id: 0,
             hash: '0x14ce80ec89e1ed33701299d833d8b691d34f2fd2',
             name: "Server S",
+            productId: 0,
             balance: 25,
             endDate: '2018-06-21',
             costPerDay: 2,
@@ -88,9 +89,10 @@ const Data = {
             id: 1,
             hash: '0x13f93b519261bf56d58e6e5d2a028a04ac6fa691',
             name: "Server M",
+            productId: 1,
             balance: 15,
             endDate: '2018-05-31',
-            costPerDay: 10,
+            costPerDay: 5,
             startDate: '2018-05-22',
             availability: [99, 100, 21, 88, 95, 66, 85],
             sla: [0, 90, 75, 25, 100],
@@ -99,9 +101,10 @@ const Data = {
             id: 2,
             hash: '0xbe559c7a90427fb5b629b0703385480570190a36',
             name: "Server M",
+            productId: 1,
             balance: 33,
             endDate: '2018-06-07',
-            costPerDay: 10,
+            costPerDay: 5,
             startDate: '2018-05-22',
             availability: [99, 100, 21, 88, 95, 66, 85],
             sla: [0, 90, 75, 25, 100],
@@ -111,23 +114,31 @@ const Data = {
             name: "Server S",
             id: 0,
             costPerDay: 2,
-            details: {cpu: 1, ram: 2, ssd: 25, price: 5},
+            details: {cpu: 1, ram: 2, traffic: 5, ssd: 25},
             sla: [0, 90, 75, 25, 100],
         },
         {
             name: "Server M",
             id: 1,
-            costPerDay: 10,
-            details: {cpu: 2, ram: 4, ssd: 50, price: 10},
+            costPerDay: 5,
+            details: {cpu: 2, ram: 4, traffic: 10, ssd: 50},
             sla: [0, 90, 75, 25, 100],
         },
         {
             name: "Server L",
             id: 2,
-            costPerDay: 20,
-            details: {cpu: 8, ram: 16, ssd: 100, price: 20},
+            costPerDay: 10,
+            details: {cpu: 8, ram: 16, traffic: 20, ssd: 100},
             sla: [0, 90, 75, 25, 100],
         }],
+};
+
+export const details2array = (details) => {
+    return [details.cpu, details.ram, details.traffic, details.ssd]
+};
+
+export const strDate2int = (date) => {
+    return (new Date(date)).getTime() / 1000
 };
 
 export default Data;
