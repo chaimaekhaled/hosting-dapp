@@ -86,7 +86,7 @@ class Store extends Component {
                           block>{this.state.selectedProduct.costPerDay * this.state.selectedDays + "ETH - Buy"}</Button>;
         }
         //TODO: move rowGrid to CSS
-        const rowGrid = {'margin-bottom': '15px'};
+        const rowGrid = {marginBottom: 15 + 'px'};
 
         return (<React.Fragment>
                 <Jumbotron>
