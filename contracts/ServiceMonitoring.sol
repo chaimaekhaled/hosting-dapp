@@ -9,9 +9,7 @@ contract ServiceMonitoring is ServiceContract {
     event availabilityForDay(uint start, uint val);
 
     uint[] heartbeats;
-    //uint[] heartbeatArchive;
     uint[] availabilityHistory;
-    uint startDay = now;
 
     function getHeartbeats() public view returns (uint[]){
         return heartbeats;
@@ -22,18 +20,6 @@ contract ServiceMonitoring is ServiceContract {
         heartbeats.push(beat);
         //        heartbeatArchive.push(beat);
         //        emit heartbeatReceived(beat);
-    }
-
-    //TODO Remove for prod
-    function testHeartbeat(uint _timestamp) public {
-        uint beat = _timestamp;
-        heartbeats.push(beat);
-        //        heartbeatArchive.push(beat);
-        //        emit heartbeatReceived(beat);
-    }
-    //TODO Remove for prod
-    function testSetStartDay(uint _start) public {
-        startDay = _start;
     }
 
     function resetHeartbeats() public {
@@ -92,4 +78,17 @@ contract ServiceMonitoring is ServiceContract {
         return startDay;
     }
 
+
+
+    //TODO Remove for prod
+    function testHeartbeat(uint _timestamp) public {
+        uint beat = _timestamp;
+        heartbeats.push(beat);
+        //        heartbeatArchive.push(beat);
+        //        emit heartbeatReceived(beat);
+    }
+    //TODO Remove for prod
+    function testSetStartDay(uint _start) public {
+        startDay = _start;
+    }
 }

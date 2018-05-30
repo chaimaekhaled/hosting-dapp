@@ -14,11 +14,11 @@ contract Provider {
     event MsgValue(uint value);
 
     address owner; // Provider's eth address
-    string public name; // Provider's name
+    string public name = "undefined"; // Provider's name
 
     // Withdrawal Pattern
     mapping(address => uint) private pendingWithdrawals;
-    
+
     // Services
     Hosting.ServiceOffer[] private products;
 
@@ -28,9 +28,8 @@ contract Provider {
     mapping(address => address[]) private customerToContracts;
 
 
-    constructor(string _name) public {
+    constructor() public {
         owner = msg.sender;
-        name = _name;
     }
 
     modifier onlyOwner(){
@@ -48,6 +47,14 @@ contract Provider {
         _;
     }
 
+    function getName() public view returns (string){
+        return name;
+    }
+
+    function setName(string _name) public onlyOwner {
+        name = _name;
+    }
+
     function isCustomer(address _person) private view returns (bool) {
         bool customer = false;
         for (uint i = 0; i < customers.length; i++) {
@@ -61,8 +68,8 @@ contract Provider {
 
         // create a new StandardServer smart contract
         Service serviceContract = (new Service).value(msg.value)(
-            owner, msg.sender, this,
-    _customerPublicKey, products[_id].name, products[_id].costPerDay
+    owner, msg.sender, this,
+    _customerPublicKey, products[_id].name, products[_id].costPerDay, _id
         );
 
         emit NewServiceContract(serviceContract);

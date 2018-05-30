@@ -17,7 +17,9 @@ contract ServiceContract {
     address customer;
     address providerContract;
     string customerPublicKey;
+    uint productId;
     bool isActive = false;
+    uint startDay = now;
 
     string name; // name of ServiceOffer
     uint[] specs;
