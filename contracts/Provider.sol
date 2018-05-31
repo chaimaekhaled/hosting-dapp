@@ -129,19 +129,6 @@ contract Provider {
         // Add product to available offers
         uint id = products.length;
 
-        /*uint cpu;
-        uint ram;
-        uint traffic;
-        uint ssd;*/
-        //(cpu, ram, traffic, ssd) = ServiceDetailsToVars(_specs);
-
-        /*Metrics metric;
-        uint highGoal;
-        uint middleGoal;
-        uint refundMiddle;
-        uint refundLow;*/
-        //(metric, highGoal, middleGoal, refundMiddle, refundLow) = SLAPolicyToVars(_sla);
-
         Hosting.ServiceOffer memory newProduct = Hosting.ServiceOffer(_name, id, true, _costPerDay, _specs, _sla);
         products.push(newProduct);
     }

@@ -75,7 +75,7 @@ const Data = {
     serviceContracts: [
         {
             id: 0,
-            hash: '0x14ce80ec89e1ed33701299d833d8b691d34f2fd2',
+            hash: 'fake0x14ce80ec89e1ed33701299d833d8b691d34f2fd2',
             name: "Server S",
             productId: 0,
             balance: 25,
@@ -87,7 +87,7 @@ const Data = {
         },
         {
             id: 1,
-            hash: '0x13f93b519261bf56d58e6e5d2a028a04ac6fa691',
+            hash: 'fake0x13f93b519261bf56d58e6e5d2a028a04ac6fa691',
             name: "Server M",
             productId: 1,
             balance: 15,
@@ -99,7 +99,7 @@ const Data = {
         },
         {
             id: 2,
-            hash: '0xbe559c7a90427fb5b629b0703385480570190a36',
+            hash: 'fake0xbe559c7a90427fb5b629b0703385480570190a36',
             name: "Server M",
             productId: 1,
             balance: 33,
@@ -137,8 +137,16 @@ export const details2array = (details) => {
     return [details.cpu, details.ram, details.traffic, details.ssd]
 };
 
+export const details2dict = (details) => {
+    return {cpu: details[0], ram: details[1], traffic: details[2], ssd: details[3]}
+};
+
 export const strDate2int = (date) => {
     return (new Date(date)).getTime() / 1000
+};
+
+export const bigNumArray2intArray = (array) => {
+    return array.map(bigNum => bigNum.c[0])
 };
 
 export default Data;

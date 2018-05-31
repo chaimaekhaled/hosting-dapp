@@ -16,8 +16,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "compile": "truffle compile && npm run migrate",
-    "migrate": "truffle migrate --reset && npm run contracts:sync-src",
+    "migrate": "truffle migrate --reset --compile-all && npm run contracts:sync-src",
     "contracts:sync-src": "rimraf src/contracts && cp -R build/contracts/ src"
   },
   "devDependencies": {

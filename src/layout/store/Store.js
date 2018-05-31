@@ -72,11 +72,14 @@ class Store extends Component {
     }
 
     render() {
-        const getStoreCards = (products) => {
-            return products.map((product) =>
+        let StoreCards;
+        if (this.props.products === null || this.props.products === undefined) {
+            StoreCards = <Alert>No products found!</Alert>;
+        } else {
+            StoreCards = this.props.products.map((product) =>
                 <Col><StoreCard activeId={this.state.activeStoreCardId} title={product.name} id={product.id}
                                 onClick={this.handleClickStore} details={product.details}/></Col>)
-        };
+        }
 
         let btn;
         if (this.state.activeStoreCardId === null) {
@@ -97,7 +100,7 @@ class Store extends Component {
                     <Row><Col><h3>Select a Service</h3></Col></Row>
                     <hr className="my-3"/>
                     <Row className="flex-row flex-nowrap" style={{overflowX: 'auto'}}>
-                        {getStoreCards(this.props.products)}
+                        {StoreCards}
                     </Row>
                     <hr className="my-3"/>
                 </Container>

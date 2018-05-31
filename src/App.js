@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink,} from 'reactstrap';
 import {BrowserRouter as Router, NavLink as NavLinkRRD, Route} from 'react-router-dom';
-import Data, {details2array, strDate2int} from "./AppProvider";
+import Data, {bigNumArray2intArray, details2array, details2dict, strDate2int} from "./AppProvider";
 // Import views
 import Home from "./layout/home/Home";
 import Billing from "./layout/billing/Billing";
@@ -23,14 +23,16 @@ class App extends Component {
             web3: null,
             providerInstance: null,
             isOpen: false, //toggle for navbar
-            providerName: Data.providerName,
-            serviceContracts: Data.serviceContracts,
-            products: Data.products,
+            providerName: null,
+            serviceContracts: null,
+            products: null,
+            // providerName: Data.providerName,
+            // serviceContracts: Data.serviceContracts,
+            // products: Data.products,
         };
-        this.registerWeb3 = this.registerWeb3.bind(this);
         getWeb3
             .then(results => {
-                this.setState({web3: results.web3}, () => this.instantiateContract());
+                this.setState({web3: results.web3}, this.instantiateContract);
             })
             .catch(() => console.log('Error finding web3'));
     }
@@ -41,46 +43,58 @@ class App extends Component {
         });
     }
 
-    registerWeb3(web3) {
-        this.setState({
-            web3: web3,
-        })
-    }
-
-    localWeb3() {
-        if (this.state.web3 === null) {
-            return getWeb3.then(results => {
-                return results.web3
-            });
-        } else {
-            return this.state.web3.currentProvider;
-        }
-    }
-
     instantiateContract() {
         // console.log("Trying to instantiate Contract");
         // console.log("Provider:");
         // console.log(this.state.web3.currentProvider);
-        let web3Prov = this.localWeb3();
 
         const contract = require('truffle-contract');
         const ProviderC = contract(Provider);
         // const ServiceC = contract(Service);
-        ProviderC.setProvider(web3Prov);
+        ProviderC.setProvider(this.state.web3.currentProvider);
+        // Fix for http provider with truffle
+        if (typeof ProviderC.currentProvider.sendAsync !== "function") {
+            ProviderC.currentProvider.sendAsync = function () {
+                return ProviderC.currentProvider.send.apply(
+                    ProviderC.currentProvider, arguments
+                );
+            };
+        }
 
-        // this.state.web3.eth.getAccounts((error, accounts) => {
         ProviderC.deployed()
             .then((instance) => {
-                this.setState({providerInstance: instance}, () => this.fillWithMockData());
-                // console.log("Found Instance!");
-                // console.log(instance)
+                this.setState({providerInstance: instance}, () => {
+                    let providerInstance = this.state.providerInstance;
+
+                    providerInstance.getName.call()
+                        .then((name) => this.setState({providerName: name}))
+                        .then(() => providerInstance.countProducts.call())
+                        .then(countOfProducts => {
+                            let products = [];
+                            for (let i = 0; i < countOfProducts; i++) {
+                                providerInstance.getProduct.call(i).then(getProduct => {
+                                    console.log(getProduct);
+                                    let product = {
+                                        name: getProduct[0],
+                                        id: getProduct[1].c[0],
+                                        isActive: getProduct[2],
+                                        costPerDay: getProduct[3].c[0],
+                                        details: details2dict(bigNumArray2intArray(getProduct[4])),
+                                        sla: bigNumArray2intArray(getProduct[5]),
+                                    };
+                                    products.push(product);
+                                });
+                            }
+                            this.setState({products: products}, this.render);
+                        });
+                });
+
+
+                // this.setState({providerInstance: instance}, () => this.fillWithMockData());
             })
-        // });
-        // return (providerInstance);
     }
 
-    async fillWithMockData() {
-        let web3Prov = this.localWeb3();
+    fillWithMockData() {
         // console.log("FillWithMockData");
         // console.log("providerInstance: ");
         // console.log(this.state.providerInstance);
@@ -88,8 +102,8 @@ class App extends Component {
         const ProviderContract = contract(Provider);
         const ServiceContract = contract(Service);
         // const ServiceC = contract(Service);
-        ProviderContract.setProvider(web3Prov);
-        ServiceContract.setProvider(web3Prov);
+        ProviderContract.setProvider(this.state.web3.currentProvider);
+        ServiceContract.setProvider(this.state.web3.currentProvider);
 
         this.state.web3.eth.getAccounts((error, accounts) => {
             let providerAccount = accounts[0];
@@ -105,7 +119,6 @@ class App extends Component {
                     providerInstance = instance;
                     console.log("ProviderContract: " + instance.address);
                     let name = await providerInstance.name.call();
-                    console.log(name);
                     return name;
                 })
                 .then((name) => {
@@ -122,55 +135,98 @@ class App extends Component {
                     return providerInstance.countProducts.call();
 
                 })
-                .then((productsCount) => {
+                .then(async (productsCount) => {
+                    console.log("Count of products:" + productsCount.c[0]);
                     if (productsCount.c[0] === 0) {
-                        Data.products.forEach(async (product) => {
+                        await Data.products.forEach((product) => {
                             console.log("Adding product: " + product.name + " ID " + product.id);
-                            await providerInstance.addProduct(
+                            providerInstance.addProduct.estimateGas(
                                 product.name,
                                 product.costPerDay,
                                 details2array(product.details),
-                                product.sla, {from: providerAccount});
+                                product.sla
+                            ).then((gasEstimate) =>
+                                providerInstance.addProduct(
+                                    product.name,
+                                    product.costPerDay,
+                                    details2array(product.details),
+                                    product.sla, {from: providerAccount, gas: 2 * gasEstimate})
+                            ).catch(error => console.log(error));
                         })
                     }
-                    return providerInstance.countProducts()
+                    return await providerInstance.countProducts.call();
                 })
-                .then(async (countProducts) => {
+                .then((countProducts) => {
                     if (countProducts.c[0] === 0) {
                         console.log("No products found!");
                     }
                     // check if customer already has contracts
                     let pubKey = "myPubKey";
-                    let customerContracts = await providerInstance.getAllContractsOfCustomer.call(customerAccount);
+                    //let customerContracts = await providerInstance.getAllContractsOfCustomer.call(customerAccount);
 
                     // instantiate serviceContracts to account[1] (customer)
-
-                    let serviceContractInstance = null;
-                    Data.serviceContracts.forEach(async (serviceContract) => {
+                    Data.serviceContracts.forEach((mockServiceContract) => {
                         console.log("Trying to buy: ");
-                        console.log(serviceContract);
-                        await providerInstance.buyService(
+                        console.log(mockServiceContract);
+                        let serviceContract = mockServiceContract;
+                        let serviceContractInstance = null;
+
+                        providerInstance.buyService.estimateGas(
                             serviceContract.productId,
                             pubKey,
                             {from: customerAccount}
-                        ).then((serviceContract) => {
-                            console.log("ServiceContract: ");
-                            console.log(serviceContract);
-                            let address = serviceContract.logs[1].args.serviceContract;
-                            serviceContractInstance = ServiceContract.at(address);
-                            serviceContractInstance.setMockData(
-                                strDate2int(serviceContract.endDate),
-                                serviceContract.availabilities,
-                                strDate2int(serviceContract.startDate), {from: providerAccount});
-                        })
-                            .then(() => {
+                        ).then(gasEstimate => providerInstance.buyService(
+                            serviceContract.productId,
+                            pubKey,
+                            {from: customerAccount, gas: 2 * gasEstimate})
+                        ).catch(error => {
+                            console.log("Error in tx buyService!");
+                            console.log(error)
+                        }).then((txResultBuyService) => {
+                            if (txResultBuyService !== undefined) {
+                                console.log("MockServiceContract: ");
+                                console.log("endDate: " + strDate2int(serviceContract.endDate));
+                                console.log("availability: " + serviceContract.availability);
+                                console.log("startDate: " + strDate2int(serviceContract.startDate));
+                                let address = txResultBuyService.logs[1].args.serviceContract;
+                                console.log("Service contract: " + address);
+                                console.log(txResultBuyService);
+                                serviceContractInstance = ServiceContract.at(address);
+
+                                return serviceContractInstance.setMockData.estimateGas(
+                                    strDate2int(serviceContract.endDate),
+                                    serviceContract.availability,
+                                    strDate2int(serviceContract.startDate),
+                                    {from: providerAccount}
+                                ).then(gasEstimate => serviceContractInstance.setMockData(
+                                    strDate2int(serviceContract.endDate),
+                                    serviceContract.availability,
+                                    strDate2int(serviceContract.startDate),
+                                    {from: providerAccount, gas: 2 * gasEstimate})
+                                ).catch(error => {
+                                    console.log("Error in tx setMockData!");
+                                    console.log(error)
+                                });
+                            }
+                            return undefined;
+                        }).then((txResultSetMockData) => {
+                            console.log("txResultSetMockData: ");
+                            console.log(txResultSetMockData);
+                            if (txResultSetMockData !== undefined) {
                                 return serviceContractInstance.deposit(
-                                    {from: customerAccount, value: 3 * serviceContract.costPerDay});
-                            })
-                            .then((balance) => {
+                                    {from: customerAccount, value: 3 * serviceContract.costPerDay}
+                                ).catch(error => {
+                                    console.log("Error in tx deposit!");
+                                    console.log(error)
+                                }).then(() => serviceContractInstance.getBalance.call());
+                            }
+                            return undefined;
+                        }).then((balance) => {
+                            if (balance !== undefined) {
                                 console.log("Created contract: " + serviceContractInstance.address);
-                                console.log("\t...with balance of " + balance);
-                            })
+                                console.log("\t...with balance of " + balance.c[0]);
+                            }
+                        })
                     })
                 });
 
@@ -185,7 +241,7 @@ class App extends Component {
                 <div>
                     <div>
                         <Navbar color="dark" dark expand="sm">
-                            <NavbarBrand href="/">dApp Hosting</NavbarBrand>
+                            <NavbarBrand href="/">{this.state.providerName}</NavbarBrand>
                             <NavbarToggler onClick={this.toggle}/>
                             <Collapse isOpen={this.state.isOpen} navbar>
                                 <Nav className="ml-auto" navbar>
