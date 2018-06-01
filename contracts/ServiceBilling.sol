@@ -16,6 +16,7 @@ contract ServiceBilling is ServiceMonitoring {
     //Flag for testing
     bool withSLACalc = true;
 
+    //TODO remove for Prod
     function setWithSLACalc(bool _state) public {
         withSLACalc = _state;
     }

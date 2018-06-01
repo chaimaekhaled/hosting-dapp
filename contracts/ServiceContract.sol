@@ -52,7 +52,8 @@ contract ServiceContract {
         uint _highGoal,
         uint _middleGoal,
         uint _refundMiddle,
-        uint _refundLow) public onlyPartners {
+        uint _refundLow
+    ) public onlyPartners {
         require(!slaSet, "SLA cannot be set again!");
         sla = [_metric, _highGoal, _middleGoal, _refundMiddle, _refundLow];
         slaSet = true;
@@ -80,11 +81,12 @@ contract ServiceContract {
     }
 
     function calculatePenalty(uint _achievedServiceQuality) public view returns (uint){
+        require(slaSet, "SLA has not been set yet, cannot calculate quality");
         uint penalty = sla[4];
         //default: set penalty to refundLow (achieved 0% - middleGoal)
         if (_achievedServiceQuality >= sla[2]) penalty = sla[3];
         //set penalty to refundMiddle (achieved middleGoal - highGoal)
-        if (_achievedServiceQuality >= sla[1]) penalty = 100;
+        if (_achievedServiceQuality >= sla[1]) penalty = 0;
         // SLA was adhered to -> no penalty
         //emit PenaltyCalculated(_achievedServiceQuality, penalty);
         return penalty;
@@ -96,6 +98,10 @@ contract ServiceContract {
     /*function getAll() public view onlyPartners returns (address, address, address, string, string, uint, uint[], uint[]){
         return (provider, customer, providerContract, customerPublicKey, name, costPerDay, ServiceDetailsToArray(specs), SLAPolicyToArray(sla));
     }*/
+
+    function setProvider() public {
+        provider = msg.sender;
+    }
 
 
 }

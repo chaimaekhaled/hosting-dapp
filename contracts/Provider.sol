@@ -71,6 +71,7 @@ contract Provider {
         // Product is only available for order is flagged as isActive = true
 
         // create a new StandardServer smart contract
+
         Service serviceContract = new Service(
             owner,
             msg.sender,
@@ -79,6 +80,7 @@ contract Provider {
             products[_id].name,
             products[_id].costPerDay,
             _id);
+
 
         emit MsgValue(msg.value);
 
@@ -103,7 +105,10 @@ contract Provider {
 
         // return contract's address
         return address(serviceContract);
+
+
     }
+
 
     function extendServiceWithServiceDetails(address _serviceContract, uint _id) internal {
         uint cpu = products[_id].specs[0];
@@ -121,7 +126,6 @@ contract Provider {
         uint refundLow = products[_id].sla[4];
         ServiceContract(_serviceContract).setSla(metric, highGoal, middleGoal, refundMiddle, refundLow);
     }
-
     //function addProduct(string _name, uint _costPerDay, ServiceDetails _specs, SLAPolicy _sla) public onlyOwner {
     function addProduct(
         string _name, uint _costPerDay, uint[] _specs, uint[] _sla) public onlyOwner {

@@ -58,6 +58,7 @@ contract ServiceMonitoring is ServiceContract {
 
         uint counterTimestamp = 0;
 
+        // count how often a heartbeat was received during this 24h period
         while (counterTimestamp < heartbeats.length && heartbeats[counterTimestamp] < _end) {
             counterTimestamp++;
         }
@@ -65,9 +66,11 @@ contract ServiceMonitoring is ServiceContract {
 
         // Refresh heartbeats array to exclude those timestamps that where already processed
         uint i = counterTimestamp;
-        uint[] newArray;
+        uint[] memory newArray = new uint[](heartbeats.length - i);
+        uint x = 0;
         while (i < heartbeats.length) {
-            newArray.push(heartbeats[i]);
+            newArray[x] = heartbeats[i];
+            x++;
         }
         heartbeats = newArray;
         emit availabilityForDay(_start, availability);

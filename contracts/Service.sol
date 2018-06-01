@@ -23,6 +23,7 @@ contract Service is ServiceBilling {
     }
 
     //TODO Remove for prod
+
     function setMockData(
         uint _endDate,
         uint[] _availabilities,
