@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Col, Container, Jumbotron, Row, Table} from 'reactstrap';
+import {Alert, Col, Container, Jumbotron, Row, Table} from 'reactstrap';
 import MonthSelector from "../../components/MonthSelector";
 import ServiceSelector from "../../components/ServiceSelector";
 
@@ -59,8 +59,8 @@ class Billing extends Component {
         super(props);
         const today = new Date().toISOString().slice(0, 10);
         this.state = {
-            selectedService: props.serviceContracts[0],
-            selectedServiceId: 0,
+            selectedService: null,
+            selectedServiceId: null,
             fromDate: today,
             untilDate: today,
             compliance: [0],
@@ -73,8 +73,23 @@ class Billing extends Component {
     }
 
     componentDidMount() {
-        this.calculateComplianceAndCost(this.state.fromDate, this.state.untilDate, this.state.selectedService);
+        if (this.props.serviceContracts !== null) {
+            this.setState(
+                {
+                    selectedService: this.props.serviceContracts[0],
+                    selectedServiceId: this.props.serviceContracts[0].id,
+                },
+                () => {
+                    this.calculateComplianceAndCost(
+                        this.state.fromDate,
+                        this.state.untilDate,
+                        this.state.selectedService
+                    )
+                }
+            )
+        }
     }
+
 
     calculateComplianceAndCost(fromDate, untilDate, selectedService) {
         const round = (number, precision) => {
@@ -164,22 +179,26 @@ class Billing extends Component {
     }
 
     render() {
+        let content = <Container><Alert>Please wait until services have been retrieved...</Alert></Container>;
+        if (this.props.serviceContracts !== null && this.state.selectedService !== null) {
+            content = <Container>
+                <ServiceSelector serviceContracts={this.props.serviceContracts}
+                                 selectedService={this.state.selectedService}
+                                 onChange={this.handleServiceChanged}
+                                 value={this.state.selectedServiceId}/>
+                <hr className="my-3"/>
+                <BillCalculation selectedService={this.state.selectedService}
+                                 fromDate={this.state.fromDate} untilDate={this.state.untilDate}
+                                 onDateChanged={this.handleDateChanged}
+                                 info={this.state}/>
+                <hr className="my-3"/>
+            </Container>
+        }
 
         return (
             <main>
                 <Jumbotron><h1>Billing</h1></Jumbotron>
-                <Container>
-                    <ServiceSelector serviceContracts={this.props.serviceContracts}
-                                     selectedService={this.state.selectedService}
-                                     onChange={this.handleServiceChanged}
-                                     value={this.state.selectedServiceId}/>
-                    <hr className="my-3"/>
-                    <BillCalculation selectedService={this.state.selectedService}
-                                     fromDate={this.state.fromDate} untilDate={this.state.untilDate}
-                                     onDateChanged={this.handleDateChanged}
-                                     info={this.state}/>
-                    <hr className="my-3"/>
-                </Container>
+                {content}
             </main>
         )
     }

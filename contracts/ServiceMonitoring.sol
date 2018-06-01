@@ -81,7 +81,9 @@ contract ServiceMonitoring is ServiceContract {
         return startDay;
     }
 
-
+    function getAvailabilityHistory() public view onlyPartners returns (uint[]){
+        return availabilityHistory;
+    }
 
     //TODO Remove for prod
     function testHeartbeat(uint _timestamp) public {

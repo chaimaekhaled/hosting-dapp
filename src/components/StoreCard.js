@@ -46,7 +46,7 @@ class StoreCard extends Component {
                             </tr>
                             <tr>
                                 <th scope="row">Price:</th>
-                                <td>{this.props.details.price} ETH/day</td>
+                                <td>{this.props.price} ETH/day</td>
                             </tr>
                             </tbody>
                         </Table>

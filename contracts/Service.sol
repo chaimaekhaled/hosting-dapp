@@ -5,6 +5,7 @@ import "./ServiceBilling.sol";
 contract Service is ServiceBilling {
 
     constructor(
+        uint _serviceId,
         address _provider,
         address _customer,
         address _providerContract,
@@ -13,6 +14,7 @@ contract Service is ServiceBilling {
         uint _costPerDay,
         uint _productId)
     public payable {
+        serviceId = _serviceId;
         provider = _provider;
         customer = _customer;
         providerContract = _providerContract;
@@ -20,6 +22,21 @@ contract Service is ServiceBilling {
         name = _name;
         costPerDay = _costPerDay;
         productId = _productId;
+    }
+
+    function getData() public view onlyPartners
+    returns (uint[], uint, uint, uint, uint, uint, uint[], uint, address, string){
+        return (
+        availabilityHistory,
+        useableCustomerFunds(),
+        costPerDay,
+        endDate,
+        serviceId,
+        productId,
+        sla,
+        startDay,
+        address(this),
+        name);
     }
 
     //TODO Remove for prod

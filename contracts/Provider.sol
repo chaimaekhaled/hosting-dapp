@@ -73,6 +73,7 @@ contract Provider {
         // create a new StandardServer smart contract
 
         Service serviceContract = new Service(
+            customerToContracts[msg.sender].length, //service id
             owner,
             msg.sender,
             this,
@@ -80,6 +81,7 @@ contract Provider {
             products[_id].name,
             products[_id].costPerDay,
             _id);
+        // id of product
 
 
         emit MsgValue(msg.value);

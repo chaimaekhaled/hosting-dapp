@@ -1,7 +1,24 @@
 import React, {Component} from 'react';
-import {Alert, Button, Col, Container, Form, FormGroup, Input, Jumbotron, Label, Row, Table} from 'reactstrap';
+import {
+    Alert,
+    Button,
+    Col,
+    Container,
+    Form,
+    FormGroup,
+    Input,
+    Jumbotron,
+    Label,
+    Modal,
+    ModalBody,
+    ModalFooter,
+    ModalHeader,
+    Row,
+    Table
+} from 'reactstrap';
 import StoreCard from '../../components/StoreCard';
 import DaysInput from '../../components/DaysInput';
+import Web3 from 'web3';
 
 const Sla = (props) => {
     if (props.service == null) {
@@ -48,16 +65,29 @@ const Sla = (props) => {
 class Store extends Component {
     constructor(props) {
         super(props);
-        this.handleClickStore = this.handleClickStore.bind(this);
+        this.handleClickOnStoreCard = this.handleClickOnStoreCard.bind(this);
         this.handleClickDaysSelection = this.handleClickDaysSelection.bind(this);
+        this.handleClickBuyProduct = this.handleClickBuyProduct.bind(this);
+        this.handlePubKeyChange = this.handlePubKeyChange.bind(this);
+        this.toggleModal = this.toggleModal.bind(this);
         this.state = {
             activeStoreCardId: null,
             selectedProduct: null,
             selectedDays: 1,
+            pubKey: "",
+            modalServiceBought: false,
+            lastTx: null,
+            account: null,
         };
     }
 
-    handleClickStore(id) {
+    toggleModal() {
+        this.setState({
+            modalServiceBought: !this.state.modalServiceBought,
+        })
+    }
+
+    handleClickOnStoreCard(id) {
         this.setState({
             activeStoreCardId: id,
             selectedProduct: this.props.products[id],
@@ -71,27 +101,113 @@ class Store extends Component {
         })
     }
 
+    handlePubKeyChange(e) {
+        this.setState({
+            pubKey: e.target.value,
+        })
+    }
+
+    handleClickBuyProduct() {
+        let providerInstance = this.props.providerInstance;
+        let pubKey = this.state.pubKey;
+
+        let transferValue = this.state.selectedDays * this.state.selectedProduct.costPerDay;
+        transferValue = Web3.utils.toWei(transferValue.toString(), "ether");
+
+        console.log("Trying to buy product (id: " + this.state.selectedProduct.id + ") with value: " + transferValue);
+        this.props.web3.eth.getAccounts((error, accounts) =>
+            providerInstance.buyService.estimateGas(
+                this.state.selectedProduct.id,
+                pubKey,
+                {from: accounts[0],}
+            ).then(gasEstimate => {
+                providerInstance.buyService(
+                    this.state.selectedProduct.id,
+                    pubKey,
+                    {from: accounts[0], gas: 2 * gasEstimate, value: transferValue}
+                ).catch(error => {
+                    console.log("Error in tx buyService!");
+                    console.log(error)
+                }).then((txResultBuyService) => {
+                    console.log("Succesfully bought a service with account: " + accounts[0]);
+                    console.log(txResultBuyService);
+                    this.setState({
+                        lastTx: txResultBuyService,
+                        account: accounts[0],
+                    }, this.toggleModal)
+                })
+            }));
+    }
+
     render() {
         let StoreCards;
         if (this.props.products === null || this.props.products === undefined) {
-            StoreCards = <Alert>No products found!</Alert>;
+            console.log("props.products = null / undefined");
+            StoreCards = <Col><Alert color="info">Products are being loaded...</Alert></Col>;
+        } else if (this.props.products.length === 0) {
+            console.log("props.products.length: " + this.props.products.length);
+            StoreCards = <Col><Alert color="info">The provider does not offer any products.</Alert></Col>
         } else {
             StoreCards = this.props.products.map((product) =>
                 <Col><StoreCard activeId={this.state.activeStoreCardId} title={product.name} id={product.id}
-                                onClick={this.handleClickStore} details={product.details}/></Col>)
+                                onClick={this.handleClickOnStoreCard} details={product.details}
+                                price={product.costPerDay}/></Col>)
         }
 
         let btn;
         if (this.state.activeStoreCardId === null) {
             btn = <Button id="orderButton" disabled className="btn-lg" block>Buy</Button>;
         } else {
-            btn = <Button id="orderButton" color="primary" className="btn-lg"
-                          block>{this.state.selectedProduct.costPerDay * this.state.selectedDays + "ETH - Buy"}</Button>;
+            btn =
+                <Button id="orderButton" color="primary" className="btn-lg" block onClick={this.handleClickBuyProduct}>
+                    {this.state.selectedProduct.costPerDay * this.state.selectedDays + "ETH - Buy"}
+                </Button>;
         }
         //TODO: move rowGrid to CSS
         const rowGrid = {marginBottom: 15 + 'px'};
 
-        return (<React.Fragment>
+        let modal = "";
+        if (this.state.modalServiceBought) {
+            modal = <Modal isOpen={this.state.modalServiceBought} toggle={this.toggleModal}>
+                <ModalHeader>
+                    Successfully bought {this.state.selectedProduct.name}
+                </ModalHeader>
+                <ModalBody>
+                    Thank you for purchasing {this.state.selectedProduct.name} for {this.state.selectedDays} days.
+                    Please note the following data:<br/>
+                    <Table style={{tableLayout: "fixed"}}>
+                        <tbody>
+                        <tr>
+                            <th scope="row">TX Hash</th>
+                            <td style={{wordWrap: "break-word"}}>{this.state.lastTx.tx}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Block #</th>
+                            <td style={{wordWrap: "break-word"}}>{this.state.lastTx.receipt.blockNumber}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">cumGasUsed</th>
+                            <td style={{wordWrap: "break-word"}}>{this.state.lastTx.receipt.cumulativeGasUsed}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Service Address</th>
+                            <td style={{wordWrap: "break-word"}}>{this.state.lastTx.logs[1].address}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">From Account</th>
+                            <td style={{wordWrap: "break-word"}}>{this.state.account}</td>
+                        </tr>
+                        </tbody>
+                    </Table>
+                </ModalBody>
+                <ModalFooter>
+                    <Button color="primary" onClick={this.toggleModal}>Ok</Button>
+                </ModalFooter>
+            </Modal>
+        }
+
+        return (
+            <React.Fragment>
                 <Jumbotron>
                     <h1>Store</h1>
                 </Jumbotron>
@@ -115,7 +231,8 @@ class Store extends Component {
                             <Col xs={12} sm={12} lg={6} style={rowGrid}>
                                 <Row><Label for="sshkey" xs={3}>SSH Key</Label>
                                     <Col xs={9}>
-                                        <Input type="textarea" name="sshkey" id="sshkey" placeholder=""/>
+                                        <Input type="textarea" name="sshkey" id="sshkey" placeholder=""
+                                               value={this.state.pubKey} onChange={this.handlePubKeyChange}/>
                                     </Col>
                                 </Row>
                             </Col>
@@ -133,7 +250,10 @@ class Store extends Component {
                             </Col>
                         </FormGroup>
                     </Form>
-                </Container></React.Fragment>
+                </Container>
+                {modal}
+
+            </React.Fragment>
         )
     }
 }
