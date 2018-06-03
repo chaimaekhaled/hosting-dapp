@@ -1,5 +1,6 @@
 // Import contracts and web3
 import Provider from "../contracts/Provider.json";
+import Service from "../contracts/Service.json";
 import {details2array} from "./helpers";
 import Data from "./Data.json";
 import Web3 from 'web3';
@@ -16,15 +17,26 @@ if (typeof ProviderContract.currentProvider.sendAsync !== "function") {
         );
     };
 }
+const ServiceContract = contract(Service);
+ServiceContract.setProvider(web3.currentProvider);
+// Fix for http provider with truffle
+if (typeof ServiceContract.currentProvider.sendAsync !== "function") {
+    ServiceContract.currentProvider.sendAsync = function () {
+        return ServiceContract.currentProvider.send.apply(
+            ServiceContract.currentProvider, arguments
+        );
+    };
+}
 
 web3.eth.getAccounts((error, accounts) => {
     let providerAccount = accounts[0];
-    // let customerAccount = accounts[1];
+    let customerAccount = accounts[1];
     // let providerAccount = "0x516121B7f5893C637467A5402B7085FE946DEc37";
     // let customerAccount = "0xAD8Aa9bDcE3AB547434E522f3639884F745DB49d";
     let providerInstance;
 
-    ProviderContract.defaults({from: providerAccount});
+    // ProviderContract.defaults({from: providerAccount});
+    // ServiceContract.defaults({from: customerAccount});
     ProviderContract.deployed()
         .then((instance) => {
             // get name from contract
@@ -65,78 +77,84 @@ web3.eth.getAccounts((error, accounts) => {
                     ).catch(error => console.log(error));
                 })
             }
-        });
-    /*
-    .then(() => {
-                    // check if customer already has contracts
-                    let pubKey = "myPubKey";
-                    //let customerContracts = await providerInstance.getAllContractsOfCustomer.call(customerAccount);
+            return providerInstance.countProducts.call();
+        })
+        .then((countofProducts) => {
+            if (countofProducts === 0) {
+                console.log("ERR: no products to buy, abort buying");
+                return -1;
+            }
+            // check if customer already has contracts
+            let pubKey = "myPubKey";
+            let days = 86400;
+            let today = ~~((new Date()).getTime() / 1000);
+            let serviceStartDate = today - 6 * days;
+            let serviceEndDate = today + 1 * days;
+            //let customerContracts = await providerInstance.getAllContractsOfCustomer.call(customerAccount);
 
-                    // instantiate serviceContracts to account[1] (customer)
-                    Data.serviceContracts.forEach((mockServiceContract) => {
-                        console.log("Trying to buy: ");
-                        console.log(mockServiceContract);
-                        let serviceContract = mockServiceContract;
-                        let serviceContractInstance = null;
+            // instantiate serviceContracts to account[1] (customer)
+            Data.serviceContracts.forEach((mockServiceContract) => {
+                console.log("Trying to buy: ");
+                console.log(mockServiceContract);
+                let serviceContract = mockServiceContract;
+                let serviceContractInstance = null;
 
-                        providerInstance.buyService.estimateGas(
-                            serviceContract.productId,
-                            pubKey,
-                            {from: customerAccount}
-                        ).then(gasEstimate => providerInstance.buyService(
-                            serviceContract.productId,
-                            pubKey,
-                            {from: customerAccount, gas: 2 * gasEstimate})
+                providerInstance.buyService.estimateGas(
+                    serviceContract.productId,
+                    pubKey,
+                    {from: customerAccount}
+                ).then(gasEstimate => providerInstance.buyService(
+                    serviceContract.productId,
+                    pubKey,
+                    {from: customerAccount, gas: 2 * gasEstimate})
+                ).catch(error => {
+                    console.log("Error in tx buyService!");
+                    console.log(error)
+                }).then((txResultBuyService) => {
+                    if (txResultBuyService !== undefined) {
+                        console.log("MockServiceContract: ");
+                        console.log("endDate: " + serviceEndDate);
+                        console.log("availability: " + serviceContract.availability);
+                        console.log("startDate: " + serviceStartDate);
+                        let address = txResultBuyService.logs[1].args.serviceContract;
+                        console.log("Service contract: " + address);
+                        console.log(txResultBuyService);
+                        serviceContractInstance = ServiceContract.at(address);
+
+                        return serviceContractInstance.setMockData.estimateGas(
+                            serviceEndDate,
+                            serviceContract.availability,
+                            serviceStartDate,
+                            {from: providerAccount}
+                        ).then(gasEstimate => serviceContractInstance.setMockData(
+                            serviceEndDate,
+                            serviceContract.availability,
+                            serviceStartDate,
+                            {from: providerAccount, gas: 2 * gasEstimate})
                         ).catch(error => {
-                            console.log("Error in tx buyService!");
+                            console.log("Error in tx setMockData!");
                             console.log(error)
-                        }).then((txResultBuyService) => {
-                            if (txResultBuyService !== undefined) {
-                                console.log("MockServiceContract: ");
-                                console.log("endDate: " + strDate2int(serviceContract.endDate));
-                                console.log("availability: " + serviceContract.availability);
-                                console.log("startDate: " + strDate2int(serviceContract.startDate));
-                                let address = txResultBuyService.logs[1].args.serviceContract;
-                                console.log("Service contract: " + address);
-                                console.log(txResultBuyService);
-                                serviceContractInstance = ServiceContract.at(address);
+                        });
+                    }
+                }).then((txResultSetMockData) => {
+                    console.log("txResultSetMockData: ");
+                    console.log(txResultSetMockData);
+                    if (txResultSetMockData !== undefined) {
+                        return serviceContractInstance.deposit(
+                            {from: customerAccount, value: 3 * serviceContract.costPerDay}
+                        ).catch(error => {
+                            console.log("Error in tx deposit!");
+                            console.log(error)
+                        }).then(() => serviceContractInstance.getBalance.call());
+                    }
+                }).then((balance) => {
+                    if (balance !== undefined) {
+                        console.log("Created contract: " + serviceContractInstance.address);
+                        console.log("\t...with balance of " + balance.c[0]);
+                    }
+                })
+            })
+        });
 
-                                return serviceContractInstance.setMockData.estimateGas(
-                                    strDate2int(serviceContract.endDate),
-                                    serviceContract.availability,
-                                    strDate2int(serviceContract.startDate),
-                                    {from: providerAccount}
-                                ).then(gasEstimate => serviceContractInstance.setMockData(
-                                    strDate2int(serviceContract.endDate),
-                                    serviceContract.availability,
-                                    strDate2int(serviceContract.startDate),
-                                    {from: providerAccount, gas: 2 * gasEstimate})
-                                ).catch(error => {
-                                    console.log("Error in tx setMockData!");
-                                    console.log(error)
-                                });
-                            }
-                            return undefined;
-                        }).then((txResultSetMockData) => {
-                            console.log("txResultSetMockData: ");
-                            console.log(txResultSetMockData);
-                            if (txResultSetMockData !== undefined) {
-                                return serviceContractInstance.deposit(
-                                    {from: customerAccount, value: 3 * serviceContract.costPerDay}
-                                ).catch(error => {
-                                    console.log("Error in tx deposit!");
-                                    console.log(error)
-                                }).then(() => serviceContractInstance.getBalance.call());
-                            }
-                            return undefined;
-                        }).then((balance) => {
-                            if (balance !== undefined) {
-                                console.log("Created contract: " + serviceContractInstance.address);
-                                console.log("\t...with balance of " + balance.c[0]);
-                            }
-                        })
-                    })
-                });
 
-     */
 });
