@@ -19,7 +19,8 @@ class ServiceSelector extends Component {
         const lg = {size: 3};
         const sm = {size: 6, offset: 0};
         const btn = this.state.selectedDays >= 0 ?
-            <Button color="primary">Extend</Button> : <Button color="warning">Withdraw</Button>;
+            <Button color="primary" onClick={() => this.props.onClick(this.state.selectedDays)}>Extend</Button> :
+            <Button color="warning" onClick={() => this.props.onClick(this.state.selectedDays)}>Withdraw</Button>;
 
 
         let infoColors = {

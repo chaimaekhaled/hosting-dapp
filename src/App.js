@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import {Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink,} from 'reactstrap';
 import {BrowserRouter as Router, NavLink as NavLinkRRD, Route} from 'react-router-dom';
 import {bigNumArray2intArray, details2dict, serviceData2object} from "./utils/helpers";
-import Data from "./utils/Data.json";
 // Import views
 import Home from "./layout/home/Home";
 import Billing from "./layout/billing/Billing";
@@ -24,8 +23,8 @@ class App extends Component {
             providerInstance: null,
             isOpen: false, //toggle for navbar
             providerName: null,
-            // serviceContracts: null,
-            serviceContracts: Data.serviceContracts,
+            serviceContracts: [],
+            // serviceContracts: Data.serviceContracts,
             products: null,
             // providerName: Data.providerName,
             // serviceContracts: Data.serviceContracts,
@@ -59,6 +58,8 @@ class App extends Component {
         const ServiceC = contract(Service);
         ProviderC.setProvider(this.state.web3.currentProvider);
         ServiceC.setProvider(this.state.web3.currentProvider);
+
+
         // Fix for http provider with truffle
         if (typeof ProviderC.currentProvider.sendAsync !== "function") {
             ProviderC.currentProvider.sendAsync = function () {
@@ -76,6 +77,8 @@ class App extends Component {
         }
 
         this.state.web3.eth.getAccounts((error, accounts) => {
+            const customerAccount = accounts[1];
+
             ProviderC.deployed()
                 .then((instance) => {
                     this.setState({providerInstance: instance}, () => {
@@ -106,18 +109,43 @@ class App extends Component {
                             })
                             .then(products => this.setState({products: products}))
                             .then(() => {
-                                return providerInstance.getAllContractsOfCustomer.call(accounts[0])
+                                return providerInstance.getAllContractsOfCustomer.call(customerAccount)
                             })
-                            .then(allContracts => {
+                            .then(async allContracts => {
                                 if (allContracts === undefined) return;
-                                return allContracts.map(contract => {
-                                    let serviceInstance = ServiceC.at(contract);
-                                    let data = serviceInstance.getData.call();
-                                    return serviceData2object(data)
-                                })
-                            })
-                            .then(serviceContracts => this.setState({serviceContracts: serviceContracts}))
-                    });
+                                console.log("Retreiving all contracts from customer " + customerAccount);
+                                allContracts.forEach(async contractAddr => {
+                                    await ServiceC.at(contractAddr)
+                                        .then(instance => instance.getData.call())
+                                        .then(data => serviceData2object(data))
+                                        .then(serviceContractObject => {
+                                            let newArr = this.state.serviceContracts;
+                                            newArr.push(serviceContractObject);
+                                            this.setState({
+                                                serviceContracts: newArr,
+                                            })
+                                        })
+                                });
+
+                                /*
+                                 return await allContracts.map(async contract => {
+                                                                   let serviceInstance = ServiceC.at(contract);
+                                                                   console.log("Get data for: " + contract);
+                                                                   let data = await serviceInstance.getData.call().then(data => serviceData2object(data));
+                                                                   console.log(data);
+                                                                   return data;
+                                                               })
+                                                           })
+                                                           .then(serviceContracts => this.setState(
+                                                               {serviceContracts: serviceContracts},
+                                                               () => {
+                                                                   console.log("Wrote ServiceContracts to App.state");
+                                                                   console.log(serviceContracts);
+                                                               })
+                                                           )
+                                                           */
+                            });
+                    })
                 })
         })
     }
@@ -158,7 +186,8 @@ class App extends Component {
                                                     providerInstance={this.state.providerInstance}
                                                     web3={this.state.web3}/>}/>
                         <Route path="/billing" title="Billing"
-                               render={() => <Billing serviceContracts={this.state.serviceContracts}/>}/>
+                               render={() => <Billing serviceContracts={this.state.serviceContracts}
+                                                      web3={this.state.web3}/>}/>
                     </div>
                 </div>
             </Router>

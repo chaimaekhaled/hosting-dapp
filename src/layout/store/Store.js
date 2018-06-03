@@ -149,9 +149,12 @@ class Store extends Component {
             StoreCards = <Col><Alert color="info">The provider does not offer any products.</Alert></Col>
         } else {
             StoreCards = this.props.products.map((product) =>
-                <Col><StoreCard activeId={this.state.activeStoreCardId} title={product.name} id={product.id}
-                                onClick={this.handleClickOnStoreCard} details={product.details}
-                                price={product.costPerDay}/></Col>)
+                <Col key={product.id}><StoreCard activeId={this.state.activeStoreCardId}
+                                                 title={product.name}
+                                                 id={product.id}
+                                                 onClick={this.handleClickOnStoreCard}
+                                                 details={product.details}
+                                                 price={product.costPerDay}/></Col>)
         }
 
         let btn;

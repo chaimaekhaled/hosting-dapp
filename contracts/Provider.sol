@@ -71,9 +71,11 @@ contract Provider {
         // Product is only available for order is flagged as isActive = true
 
         // create a new StandardServer smart contract
+        uint id = 0;
+        id = customerToContracts[msg.sender].length;
 
         Service serviceContract = new Service(
-            customerToContracts[msg.sender].length, //service id
+            id, //service id
             owner,
             msg.sender,
             this,

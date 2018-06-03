@@ -2,6 +2,8 @@ import React, {Component} from 'react';
 import {Alert, Col, Container, Jumbotron, Row, Table} from 'reactstrap';
 import MonthSelector from "../../components/MonthSelector";
 import ServiceSelector from "../../components/ServiceSelector";
+import Service from "../../contracts/Service.json";
+import contract from 'truffle-contract';
 
 const BillCalculation = (props) => {
     return (
@@ -58,8 +60,9 @@ class Billing extends Component {
     constructor(props) {
         super(props);
         const today = new Date().toISOString().slice(0, 10);
+        let contracts = this.props.serviceContracts.length > 0 ? this.props.serviceContracts[0] : null;
         this.state = {
-            selectedService: null,
+            selectedService: contracts,
             selectedServiceId: null,
             fromDate: today,
             untilDate: today,
@@ -70,26 +73,29 @@ class Billing extends Component {
         };
         this.handleServiceChanged = this.handleServiceChanged.bind(this);
         this.handleDateChanged = this.handleDateChanged.bind(this);
+        this.handleBuyWithdrawClicked = this.handleBuyWithdrawClicked.bind(this);
     }
 
-    componentDidMount() {
-        if (this.props.serviceContracts !== null) {
-            this.setState(
-                {
-                    selectedService: this.props.serviceContracts[0],
-                    selectedServiceId: this.props.serviceContracts[0].id,
-                },
-                () => {
-                    this.calculateComplianceAndCost(
-                        this.state.fromDate,
-                        this.state.untilDate,
-                        this.state.selectedService
-                    )
-                }
-            )
+    shouldComponentUpdate(nextProps, nextState) {
+        // if there are serviceContracts in the nextProps and the state.selectedService is null,
+        // set the selected service to the first contract of nextProps
+        if (nextProps.serviceContracts.length > 0 && this.state.selectedService === null) {
+            console.log(nextProps);
+            this.setState({
+                selectedService: nextProps.serviceContracts[0],
+                selectedServiceId: nextProps.serviceContracts[0].id,
+                fromDate: nextProps.serviceContracts[0].startDate,
+                untilDate: nextProps.serviceContracts[0].endDate,
+            }, () => this.calculateComplianceAndCost(
+                this.state.fromDate,
+                this.state.untilDate,
+                this.state.selectedService));
+            return true;
+        } else if (nextProps.serviceContracts.length > this.props.serviceContracts.length) {
+            return true;
         }
+        return true;
     }
-
 
     calculateComplianceAndCost(fromDate, untilDate, selectedService) {
         const round = (number, precision) => {
@@ -178,13 +184,45 @@ class Billing extends Component {
         console.log("Date: " + new Date(newDate));
     }
 
+    handleBuyWithdrawClicked(selectedDays) {
+        // buy or withdraw?
+        let ServiceC = contract(Service);
+        ServiceC.setProvider(this.props.web3.currentProvider);
+        if (typeof ServiceC.currentProvider.sendAsync !== "function") {
+            ServiceC.currentProvider.sendAsync = function () {
+                return ServiceC.currentProvider.send.apply(
+                    ServiceC.currentProvider, arguments
+                );
+            };
+        }
+        let serviceContractInstance = ServiceC.at(this.state.selectedService.hash);
+        let transferValue = selectedDays * this.state.selectedService.costPerDay;
+        if (selectedDays > 0) {
+            // deposit ether to contract
+            this.props.web3.eth.getAccounts((error, accounts) =>
+                serviceContractInstance.deposit({from: accounts[1], value: transferValue}))
+                .then((balance) => console.log("Extended contract."))
+        } else if (selectedDays < 0) {
+            // Withdraw ether from contract
+            this.props.web3.eth.getAccounts((error, accounts) => {
+                console.log("Trying to withdraw with account: " + accounts[1]);
+                serviceContractInstance.withdraw(-1 * transferValue, {from: accounts[1]})
+                    .catch(error => {
+                        let err = error;
+                        console.log(err);
+                    })
+            })
+        }
+    }
+
     render() {
         let content = <Container><Alert>Please wait until services have been retrieved...</Alert></Container>;
-        if (this.props.serviceContracts !== null && this.state.selectedService !== null) {
+        if (this.state.selectedService !== null) {
             content = <Container>
                 <ServiceSelector serviceContracts={this.props.serviceContracts}
                                  selectedService={this.state.selectedService}
                                  onChange={this.handleServiceChanged}
+                                 onClick={this.handleBuyWithdrawClicked}
                                  value={this.state.selectedServiceId}/>
                 <hr className="my-3"/>
                 <BillCalculation selectedService={this.state.selectedService}
