@@ -77,7 +77,7 @@ class App extends Component {
         }
 
         this.state.web3.eth.getAccounts((error, accounts) => {
-            const customerAccount = accounts[1];
+            const customerAccount = accounts[0];
 
             ProviderC.deployed()
                 .then((instance) => {
@@ -121,6 +121,8 @@ class App extends Component {
                                         .then(serviceContractObject => {
                                             let newArr = this.state.serviceContracts;
                                             newArr.push(serviceContractObject);
+                                            console.log("Added ServiceContract to state: ");
+                                            console.log(serviceContractObject);
                                             this.setState({
                                                 serviceContracts: newArr,
                                             })

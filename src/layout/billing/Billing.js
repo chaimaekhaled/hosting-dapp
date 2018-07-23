@@ -3,7 +3,8 @@ import {Alert, Col, Container, Jumbotron, Row, Table} from 'reactstrap';
 import MonthSelector from "../../components/MonthSelector";
 import ServiceSelector from "../../components/ServiceSelector";
 import Service from "../../contracts/Service.json";
-import contract from 'truffle-contract';
+
+const contract = require('truffle-contract');
 
 const BillCalculation = (props) => {
     return (
@@ -200,13 +201,13 @@ class Billing extends Component {
         if (selectedDays > 0) {
             // deposit ether to contract
             this.props.web3.eth.getAccounts((error, accounts) =>
-                serviceContractInstance.deposit({from: accounts[1], value: transferValue}))
+                serviceContractInstance.deposit({from: accounts[0], value: transferValue}))
                 .then((balance) => console.log("Extended contract."))
         } else if (selectedDays < 0) {
             // Withdraw ether from contract
             this.props.web3.eth.getAccounts((error, accounts) => {
-                console.log("Trying to withdraw with account: " + accounts[1]);
-                serviceContractInstance.withdraw(-1 * transferValue, {from: accounts[1]})
+                console.log("Trying to withdraw with account: " + accounts[0]);
+                serviceContractInstance.withdraw(-1 * transferValue, {from: accounts[0]})
                     .catch(error => {
                         let err = error;
                         console.log(err);

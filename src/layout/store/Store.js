@@ -129,12 +129,14 @@ class Store extends Component {
                     console.log("Error in tx buyService!");
                     console.log(error)
                 }).then((txResultBuyService) => {
-                    console.log("Succesfully bought a service with account: " + accounts[0]);
-                    console.log(txResultBuyService);
-                    this.setState({
-                        lastTx: txResultBuyService,
-                        account: accounts[0],
-                    }, this.toggleModal)
+                    if (txResultBuyService != null) {
+                        console.log("Succesfully bought a service with account: " + accounts[0]);
+                        console.log(txResultBuyService);
+                        this.setState({
+                            lastTx: txResultBuyService,
+                            account: accounts[0],
+                        }, this.toggleModal)
+                    }
                 })
             }));
     }
@@ -171,6 +173,7 @@ class Store extends Component {
 
         let modal = "";
         if (this.state.modalServiceBought) {
+            console.log(this.state.lastTx);
             modal = <Modal isOpen={this.state.modalServiceBought} toggle={this.toggleModal}>
                 <ModalHeader>
                     Successfully bought {this.state.selectedProduct.name}
@@ -194,7 +197,7 @@ class Store extends Component {
                         </tr>
                         <tr>
                             <th scope="row">Service Address</th>
-                            <td style={{wordWrap: "break-word"}}>{this.state.lastTx.logs[1].address}</td>
+                            <td style={{wordWrap: "break-word"}}>{this.state.lastTx.logs[1].args.serviceContract}</td>
                         </tr>
                         <tr>
                             <th scope="row">From Account</th>
