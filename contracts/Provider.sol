@@ -69,6 +69,8 @@ contract Provider {
 
     function buyService(uint _id, string _customerPublicKey) public payable productIsActive(_id) returns (address) {
         // Product is only available for order is flagged as isActive = true
+        // Require payment for at least a day of Service
+        require(msg.value >= products[_id].costPerDay, "Transfer funds for at least a day of service!");
 
         // create a new StandardServer smart contract
         uint id = 0;

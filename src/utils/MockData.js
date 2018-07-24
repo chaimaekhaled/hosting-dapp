@@ -60,10 +60,10 @@ web3.eth.getAccounts((error, accounts) => {
             return providerInstance.countProducts.call();
 
         })
-        .then((productsCount) => {
+        .then(async (productsCount) => {
             console.log("Count of products: " + productsCount.c[0]);
             if (productsCount.c[0] === 0) {
-                Data.products.forEach((product) => {
+                await Data.products.forEach((product) => {
                     console.log("Adding product: " + product.name + " ID " + product.id);
                     providerInstance.addProduct.estimateGas(
                         product.name,
@@ -77,12 +77,11 @@ web3.eth.getAccounts((error, accounts) => {
                             details2array(product.details),
                             product.sla, {from: providerAccount, gas: 2 * gasEstimate})
                     ).catch(error => console.log(error));
-                }).then(() => {
-                    return providerInstance.countProducts.call()
                 })
-            } else {
-                return productsCount;
             }
+            let products = await providerInstance.countProducts.call();
+            return products;
+
         })
         .then((countofProducts) => {
             if (countofProducts.c[0] === 0) {

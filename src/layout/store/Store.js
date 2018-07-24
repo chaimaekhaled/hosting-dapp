@@ -18,7 +18,6 @@ import {
 } from 'reactstrap';
 import StoreCard from '../../components/StoreCard';
 import DaysInput from '../../components/DaysInput';
-import Web3 from 'web3';
 
 const Sla = (props) => {
     if (props.service == null) {
@@ -112,15 +111,18 @@ class Store extends Component {
         let pubKey = this.state.pubKey;
 
         let transferValue = this.state.selectedDays * this.state.selectedProduct.costPerDay;
-        transferValue = Web3.utils.toWei(transferValue.toString(), "ether");
+        //transferValue = Web3.utils.toWei(transferValue.toString(), "ether");
 
-        console.log("Trying to buy product (id: " + this.state.selectedProduct.id + ") with value: " + transferValue);
+        console.log("Trying to buy product (id: " + this.state.selectedProduct.id + ") with value: " + transferValue + " wei");
         this.props.web3.eth.getAccounts((error, accounts) =>
             providerInstance.buyService.estimateGas(
                 this.state.selectedProduct.id,
                 pubKey,
-                {from: accounts[0],}
-            ).then(gasEstimate => {
+                {from: accounts[0], value: transferValue}
+            ).catch(error => {
+                console.log("ERROR in estimating gas for buyService");
+                console.log(error);
+            }).then(gasEstimate => {
                 providerInstance.buyService(
                     this.state.selectedProduct.id,
                     pubKey,
@@ -165,7 +167,7 @@ class Store extends Component {
         } else {
             btn =
                 <Button id="orderButton" color="primary" className="btn-lg" block onClick={this.handleClickBuyProduct}>
-                    {this.state.selectedProduct.costPerDay * this.state.selectedDays + "ETH - Buy"}
+                    {this.state.selectedProduct.costPerDay * this.state.selectedDays + " wei - Buy"}
                 </Button>;
         }
         //TODO: move rowGrid to CSS
