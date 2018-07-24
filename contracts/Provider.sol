@@ -13,6 +13,7 @@ contract Provider {
     event MsgValue(uint value);
 
     address owner; // Provider's eth address
+    address monitoringAgent = 0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef;
     string public name; // Provider's name
 
     // Withdrawal Pattern
@@ -20,7 +21,6 @@ contract Provider {
 
     // Services
     Hosting.ServiceOffer[] private products;
-
 
     // Customers
     address[] private customers;
@@ -78,7 +78,8 @@ contract Provider {
             id, //service id
             owner,
             msg.sender,
-            this,
+            monitoringAgent,
+            address(this),
             _customerPublicKey,
             products[_id].name,
             products[_id].costPerDay,
@@ -92,11 +93,8 @@ contract Provider {
         extendServiceWithSla(serviceContract, _id);
 
         // pay ETH into this new contract
-        address(serviceContract).transfer(msg.value);
+        serviceContract.changeContractDuration.value(msg.value)(1);
         //        serviceContract.deposit.value(msg.value)();
-
-        // Calculate service duration based on msg.value
-        ////serviceContract.recalculateServiceDuration();
 
         // add new contract to customerDB
         customerToContracts[msg.sender].push(serviceContract);
@@ -109,8 +107,6 @@ contract Provider {
 
         // return contract's address
         return address(serviceContract);
-
-
     }
 
 
@@ -170,6 +166,22 @@ contract Provider {
     }
 
     function getAllContractsOfCustomer(address _customer) public view onlyOwnerOrCustomer returns (address[]) {
+        if (msg.sender == owner) {
+            // Return all contracts from all customers as this function is called by provider
+            uint countOfAllContracts = 0;
+            for (uint i = 0; i < customers.length; i++) {
+                countOfAllContracts += customerToContracts[customers[i]].length;
+            }
+
+            address[] memory contracts = new address[](countOfAllContracts);
+            for (uint y = 0; y < customers.length; y++) {
+                for (uint x = 0; x < customerToContracts[customers[y]].length; x++) {
+                    contracts[countOfAllContracts] = customerToContracts[customers[y]][x];
+                    countOfAllContracts -= 1;
+                }
+            }
+            return contracts;
+        }
         return customerToContracts[_customer];
     }
 }

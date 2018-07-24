@@ -28,6 +28,8 @@ if (typeof ServiceContract.currentProvider.sendAsync !== "function") {
     };
 }
 
+const buyProducts = false;
+
 web3.eth.getAccounts((error, accounts) => {
     let providerAccount = accounts[0];
     let customerAccount = accounts[1];
@@ -59,7 +61,7 @@ web3.eth.getAccounts((error, accounts) => {
 
         })
         .then((productsCount) => {
-            console.log("Count of products:" + productsCount.c[0]);
+            console.log("Count of products: " + productsCount.c[0]);
             if (productsCount.c[0] === 0) {
                 Data.products.forEach((product) => {
                     console.log("Adding product: " + product.name + " ID " + product.id);
@@ -75,15 +77,19 @@ web3.eth.getAccounts((error, accounts) => {
                             details2array(product.details),
                             product.sla, {from: providerAccount, gas: 2 * gasEstimate})
                     ).catch(error => console.log(error));
+                }).then(() => {
+                    return providerInstance.countProducts.call()
                 })
+            } else {
+                return productsCount;
             }
-            return providerInstance.countProducts.call();
         })
         .then((countofProducts) => {
-            if (countofProducts === 0) {
+            if (countofProducts.c[0] === 0) {
                 console.log("ERR: no products to buy, abort buying");
                 return -1;
             }
+            console.log("Count of products: " + countofProducts.c[0]);
             // check if customer already has contracts
             let pubKey = "myPubKey";
             let days = 86400;
@@ -91,7 +97,10 @@ web3.eth.getAccounts((error, accounts) => {
             let serviceStartDate = today - 6 * days;
             let serviceEndDate = today + 1 * days;
             //let customerContracts = await providerInstance.getAllContractsOfCustomer.call(customerAccount);
+            // finished creating products for provider
+            if (!buyProducts) return;
 
+            // FLAG FOR BUYING PRODUCTS
             // instantiate serviceContracts to account[1] (customer)
             Data.serviceContracts.forEach((mockServiceContract) => {
                 console.log("Trying to buy: ");

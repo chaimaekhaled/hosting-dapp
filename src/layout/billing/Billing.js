@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
-import {Alert, Col, Container, Jumbotron, Row, Table} from 'reactstrap';
+import {Alert, Button, Col, Container, Jumbotron, Row, Table} from 'reactstrap';
 import MonthSelector from "../../components/MonthSelector";
 import ServiceSelector from "../../components/ServiceSelector";
 import Service from "../../contracts/Service.json";
+import LabeledInput from '../../components/LabeledInput';
 
 const contract = require('truffle-contract');
 
@@ -71,10 +72,19 @@ class Billing extends Component {
             cost: [0],
             refund: [0],
             sum: 0,
+            monitoringDataRaw: "",
+            monitoringData: null,
+            generatedHash: 0,
+            v: 0,
+            r: 0,
+            s: 0,
         };
         this.handleServiceChanged = this.handleServiceChanged.bind(this);
         this.handleDateChanged = this.handleDateChanged.bind(this);
         this.handleBuyWithdrawClicked = this.handleBuyWithdrawClicked.bind(this);
+        this.generateHash = this.generateHash.bind(this);
+        this.handleHashChanged = this.handleHashChanged.bind(this);
+        this.submitMonitoringData = this.submitMonitoringData.bind(this);
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -216,7 +226,74 @@ class Billing extends Component {
         }
     }
 
+    handleHashChanged(e) {
+        switch (e.target.id) {
+            case "generatedHash":
+                this.setState({generatedHash: e.target.value});
+                break;
+            case "inputV":
+                this.setState({v: e.target.value});
+                break;
+            case "inputR":
+                this.setState({r: e.target.value});
+                break;
+            case "inputS":
+                this.setState({s: e.target.value});
+                break;
+            case "monitoringData":
+                this.setState({monitoringDataRaw: e.target.value});
+                break;
+            default:
+                break;
+        }
+    }
+
+    generateHash() {
+        if (this.state.monitoringDataRaw === "") return;
+        const monitoringData = this.state.monitoringDataRaw.split(",").map(function (x) {
+            return parseInt(x, 10);
+        });
+        let hash = this.props.web3.utils.soliditySha3({t: 'address', v: this.state.selectedService.hash}, {
+            t: 'uint[]',
+            v: monitoringData
+        });
+        console.log(hash);
+        //let signedHash = null;
+        this.props.web3.eth.getAccounts((error, accounts) => {
+            this.props.web3.eth.sign(hash, accounts[0]).then((signedHash) => {
+                let r = signedHash.slice(0, 66);
+                let s = '0x' + signedHash.slice(66, 130);
+                let v = this.props.web3.utils.hexToNumber('0x' + signedHash.slice(130, 132));
+                if (v < 2) v = v + 27;
+                this.setState({v: v, r: r, s: s, generatedHash: hash, monitoringData: monitoringData})
+            })
+        });
+    }
+
+    submitMonitoringData() {
+        let ServiceC = contract(Service);
+        ServiceC.setProvider(this.props.web3.currentProvider);
+        if (typeof ServiceC.currentProvider.sendAsync !== "function") {
+            ServiceC.currentProvider.sendAsync = function () {
+                return ServiceC.currentProvider.send.apply(
+                    ServiceC.currentProvider, arguments
+                );
+            };
+        }
+        let serviceContractInstance = ServiceC.at(this.state.selectedService.hash);
+        this.props.web3.eth.getAccounts((error, accounts) =>
+            serviceContractInstance.addAvailabilityData(this.state.generatedHash, this.state.v, this.state.r, this.state.s, this.state.monitoringData, {from: accounts[0]})
+                .catch(error => {
+                    console.log(error);
+                })
+        )
+        //     function addAvailabilityData(bytes32 h, uint8 v, bytes32 r, bytes32 s, uint[] availabilityData) public {
+    }
+
+
     render() {
+        const rowGrid = {marginBottom: 15 + 'px'};
+
         let content = <Container><Alert>Please wait until services have been retrieved...</Alert></Container>;
         if (this.state.selectedService !== null) {
             content = <Container>
@@ -231,6 +308,53 @@ class Billing extends Component {
                                  onDateChanged={this.handleDateChanged}
                                  info={this.state}/>
                 <hr className="my-3"/>
+                <Container>
+                    <Row><Col><h3>Generate hash for monitoring data</h3></Col></Row>
+                    <Row>
+                        <Col>
+                            Please input the monitoring data (separate values with comma)
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col style={rowGrid}>
+                            <LabeledInput inputId="monitoringData" type="text" labelText="Monitoring data"
+                                          value={this.state.monitoringDataRaw}
+                                          onChange={this.handleHashChanged}/>
+                        </Col>
+                    </Row>
+                    <Row style={rowGrid}>
+                        <Col xs={8} md={{size: 6, offset: 6}}>
+                            <Button id="generateHashBtn" color="primary" className="" block onClick={this.generateHash}>
+                                Generate signed Hash
+                            </Button>
+                        </Col>
+                    </Row>
+                    <Row style={rowGrid}>
+                        <Col xs={12}
+                             style={{textAlign: "right", marginBottom: 15 + 'px'}}>
+                            <LabeledInput inputId="generatedHash" type="text" labelText={"Hash"}
+                                          value={this.state.generatedHash} onChange={this.handleHashChanged}/>
+                        </Col>
+                        <Col xs={12} md={{size: 8, offset: 4}}>
+                            <LabeledInput inputId="inputV" type="text" labelText={"v"}
+                                          value={this.state.v} onChange={this.handleHashChanged}/>
+                        </Col>
+                        <Col xs={12} md={{size: 8, offset: 4}}>
+                            <LabeledInput inputId="inputR" type="text" labelText={"r"}
+                                          value={this.state.r} onChange={this.handleHashChanged}/>
+                        </Col>
+                        <Col xs={12} md={{size: 8, offset: 4}}>
+                            <LabeledInput inputId="inputS" type="text" labelText={"s"}
+                                          value={this.state.s} onChange={this.handleHashChanged}/>
+                        </Col>
+                    </Row>
+                    <Row style={rowGrid}>
+                        <Col xs={8} md={{size: 6, offset: 6}}>
+                            <Button id={"submitMonitoringData"} color={"primary"} block
+                                    onClick={this.submitMonitoringData}>Submit to Smart Contract</Button>
+                        </Col>
+                    </Row>
+                </Container>
             </Container>
         }
 

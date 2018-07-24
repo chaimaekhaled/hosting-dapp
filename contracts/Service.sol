@@ -8,6 +8,7 @@ contract Service is ServiceBilling {
         uint _serviceId,
         address _provider,
         address _customer,
+        address _monitoringAgent,
         address _providerContract,
         string _customerPublicKey,
         string _name,
@@ -17,6 +18,7 @@ contract Service is ServiceBilling {
         serviceId = _serviceId;
         provider = _provider;
         customer = _customer;
+        monitoringAgent = _monitoringAgent;
         providerContract = _providerContract;
         customerPublicKey = _customerPublicKey;
         name = _name;

@@ -19,7 +19,7 @@ class LabeledInput extends Component {
 
         return (
             <Row>
-                <Label xs={12} md={4} for={this.props.InputId}><h5>{this.props.labelText}</h5></Label>
+                <Label xs={12} md={4} for={this.props.inputId}><h5>{this.props.labelText}</h5></Label>
                 <Col xs={12} md={8}>
                     <Input id={this.props.inputId} onChange={this.props.onChange} type={this.props.type}
                            value={this.props.value} min={min} max={max}>

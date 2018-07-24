@@ -15,12 +15,15 @@ contract ServiceContract {
 
     address provider;
     address customer;
+    address monitoringAgent;
     address providerContract;
     string customerPublicKey;
     uint productId;
     uint serviceId;
     bool isActive = false;
     uint startDay = now;
+    uint endDate = now; // time until the service is active
+
 
     string name; // name of ServiceOffer
     uint[] specs;
@@ -75,11 +78,6 @@ contract ServiceContract {
         isActive = _state;
     }
 
-    function deposit() public payable returns (uint){
-        require(msg.value >= costPerDay, "Deposit > costPerDay is required!");
-        if (!isActive) setActive(true);
-        return address(this).balance;
-    }
 
     function calculatePenalty(uint _achievedServiceQuality) public view returns (uint){
         require(slaSet, "SLA has not been set yet, cannot calculate quality");
@@ -96,13 +94,21 @@ contract ServiceContract {
     //required for truffle testing
     function() public payable {}
 
-    /*function getAll() public view onlyPartners returns (address, address, address, string, string, uint, uint[], uint[]){
-        return (provider, customer, providerContract, customerPublicKey, name, costPerDay, ServiceDetailsToArray(specs), SLAPolicyToArray(sla));
-    }*/
-
+    // TODO remove for prod
     function setProvider() public {
         provider = msg.sender;
     }
 
+    function getStartDay() public view onlyPartners returns (uint){
+        return startDay;
+    }
+
+    function getEndDate() public view onlyPartners returns (uint){
+        return endDate;
+    }
+
+    function getBalance() public view onlyPartners returns (uint){
+        return address(this).balance;
+    }
 
 }

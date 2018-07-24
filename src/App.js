@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink,} from 'reactstrap';
+import {Collapse, Jumbotron, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink} from 'reactstrap';
 import {BrowserRouter as Router, NavLink as NavLinkRRD, Route} from 'react-router-dom';
 import {bigNumArray2intArray, details2dict, serviceData2object} from "./utils/helpers";
 // Import views
@@ -153,6 +153,8 @@ class App extends Component {
     }
 
     render() {
+        let providerAddress = this.state.providerInstance === null ? 0 : this.state.providerInstance.address;
+
         return (<Router>
                 <div>
                     <div>
@@ -190,6 +192,11 @@ class App extends Component {
                         <Route path="/billing" title="Billing"
                                render={() => <Billing serviceContracts={this.state.serviceContracts}
                                                       web3={this.state.web3}/>}/>
+                    </div>
+                    <div>
+                        <Jumbotron style={{marginBottom: "0px"}}>
+                            ProviderContract at: {providerAddress}
+                        </Jumbotron>
                     </div>
                 </div>
             </Router>
