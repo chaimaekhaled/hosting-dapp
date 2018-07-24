@@ -30,27 +30,27 @@ const BillCalculation = (props) => {
                 <tr>
                     <td>High</td>
                     <td>{props.info.compliance[2]}%</td>
-                    <td>{props.info.cost[2]} ETH</td>
-                    <td>{props.info.refund[2]} ETH</td>
+                    <td>{props.info.cost[2]} {props.currency}</td>
+                    <td>{props.info.refund[2]} {props.currency}</td>
                 </tr>
                 <tr>
                     <td>Middle</td>
                     <td>{props.info.compliance[1]}%</td>
-                    <td>{props.info.cost[1]} ETH</td>
-                    <td>{props.info.refund[1]} ETH</td>
+                    <td>{props.info.cost[1]} {props.currency}</td>
+                    <td>{props.info.refund[1]} {props.currency}</td>
                 </tr>
                 <tr>
                     <td>Low</td>
                     <td>{props.info.compliance[0]}%</td>
-                    <td>{props.info.cost[0]} ETH</td>
-                    <td>{props.info.refund[0]} ETH</td>
+                    <td>{props.info.cost[0]} {props.currency}</td>
+                    <td>{props.info.refund[0]} {props.currency}</td>
                 </tr>
                 <tr>
                     <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
-                    <td>{props.info.sum} ETH</td>
+                    <td>{props.info.sum} {props.currency}</td>
                 </tr>
                 </tbody>
             </Table>
@@ -282,10 +282,23 @@ class Billing extends Component {
         }
         let serviceContractInstance = ServiceC.at(this.state.selectedService.hash);
         this.props.web3.eth.getAccounts((error, accounts) =>
-            serviceContractInstance.addAvailabilityData(this.state.generatedHash, this.state.v, this.state.r, this.state.s, this.state.monitoringData, {from: accounts[0]})
+            serviceContractInstance.addAvailabilityData.estimateGas(this.state.generatedHash, this.state.v,
+                this.state.r, this.state.s, this.state.monitoringData, {from: accounts[0]})
                 .catch(error => {
+                    console.log("ERROR in estimating gas for addAvailabilityData");
                     console.log(error);
-                })
+                }).then(gasEstimate =>
+                serviceContractInstance.addAvailabilityData(this.state.generatedHash, this.state.v,
+                    this.state.r, this.state.s, this.state.monitoringData, {from: accounts[0], gas: 2 * gasEstimate})
+                    .catch(error => {
+                        console.log("ERROR in addAvailabilityData transaction!");
+                        console.log(error);
+                    })
+                    .then(txResult => {
+                        console.log("Succesfully added monitoring data to contract.");
+                        console.log(txResult);
+                    })
+            )
         )
         //     function addAvailabilityData(bytes32 h, uint8 v, bytes32 r, bytes32 s, uint[] availabilityData) public {
     }
@@ -293,6 +306,7 @@ class Billing extends Component {
 
     render() {
         const rowGrid = {marginBottom: 15 + 'px'};
+        let currency = "wei";
 
         let content = <Container><Alert>Please wait until services have been retrieved...</Alert></Container>;
         if (this.state.selectedService !== null) {
@@ -301,12 +315,12 @@ class Billing extends Component {
                                  selectedService={this.state.selectedService}
                                  onChange={this.handleServiceChanged}
                                  onClick={this.handleBuyWithdrawClicked}
-                                 value={this.state.selectedServiceId}/>
+                                 value={this.state.selectedServiceId} currency={currency}/>
                 <hr className="my-3"/>
                 <BillCalculation selectedService={this.state.selectedService}
                                  fromDate={this.state.fromDate} untilDate={this.state.untilDate}
                                  onDateChanged={this.handleDateChanged}
-                                 info={this.state}/>
+                                 info={this.state} currency={currency}/>
                 <hr className="my-3"/>
                 <Container>
                     <Row><Col><h3>Generate hash for monitoring data</h3></Col></Row>

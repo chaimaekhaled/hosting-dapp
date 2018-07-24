@@ -60,10 +60,10 @@ web3.eth.getAccounts((error, accounts) => {
             return providerInstance.countProducts.call();
 
         })
-        .then(async (productsCount) => {
+        .then((productsCount) => {
             console.log("Count of products: " + productsCount.c[0]);
             if (productsCount.c[0] === 0) {
-                await Data.products.forEach((product) => {
+                Data.products.forEach((product) => {
                     console.log("Adding product: " + product.name + " ID " + product.id);
                     providerInstance.addProduct.estimateGas(
                         product.name,
@@ -79,15 +79,15 @@ web3.eth.getAccounts((error, accounts) => {
                     ).catch(error => console.log(error));
                 })
             }
-            let products = await providerInstance.countProducts.call();
+            let products = providerInstance.countProducts.call();
             return products;
 
         })
         .then((countofProducts) => {
-            if (countofProducts.c[0] === 0) {
+            /*if (countofProducts.c[0] === 0) {
                 console.log("ERR: no products to buy, abort buying");
                 return -1;
-            }
+            }*/
             console.log("Count of products: " + countofProducts.c[0]);
             // check if customer already has contracts
             let pubKey = "myPubKey";

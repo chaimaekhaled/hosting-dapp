@@ -53,7 +53,8 @@ class ServiceSelector extends Component {
                             <InputGroupAddon addonType="prepend"><InputGroupText
                                 style={infoColors}>Balance</InputGroupText>
                             </InputGroupAddon>
-                            <Input style={{textAlign: 'right',}} value={this.props.selectedService.balance + " ETH"}
+                            <Input style={{textAlign: 'right',}}
+                                   value={this.props.selectedService.balance + " " + this.props.currency}
                                    disabled/>
                         </InputGroup>
                     </Col>
@@ -77,7 +78,7 @@ class ServiceSelector extends Component {
                     <Col xs={12} sm={sm} lg={lg} style={rowGrid}>
                         <InputGroup>
                             <Input style={{textAlign: 'right',}}
-                                   value={this.state.selectedDays * this.props.selectedService.costPerDay + " ETH"}
+                                   value={this.state.selectedDays * this.props.selectedService.costPerDay + " " + this.props.currency}
                                    disabled/>
                             <InputGroupAddon addonType="prepend">{btn}</InputGroupAddon>
                         </InputGroup>

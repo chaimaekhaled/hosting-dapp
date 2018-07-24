@@ -176,13 +176,15 @@ contract Provider {
             }
 
             address[] memory contracts = new address[](countOfAllContracts);
+
             for (uint y = 0; y < customers.length; y++) {
                 for (uint x = 0; x < customerToContracts[customers[y]].length; x++) {
-                    contracts[countOfAllContracts] = customerToContracts[customers[y]][x];
+                    contracts[countOfAllContracts - 1] = customerToContracts[customers[y]][x];
                     countOfAllContracts -= 1;
                 }
             }
             return contracts;
+
         }
         return customerToContracts[_customer];
     }
