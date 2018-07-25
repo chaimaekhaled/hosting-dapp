@@ -34,7 +34,7 @@ class ServiceSelector extends Component {
                 <Row className="align-items-center">
                     <Col xs={12} lg={5} style={rowGrid}>
                         <LabeledInput inputId="serviceSelector" onChange={this.props.onChange} labelText="Service:"
-                                      value={this.props.selectedServiceId} type="select"
+                                      value={this.props.selectedService.id} type="select"
                                       options={services}/>
 
                     </Col>

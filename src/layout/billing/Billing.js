@@ -162,7 +162,8 @@ class Billing extends Component {
 
     handleServiceChanged(e) {
         const id = parseInt(e.target.value, 10);
-        let selectedService = this.props.serviceContracts[id];
+        //let selectedService = this.props.serviceContracts[id];
+        let selectedService = this.props.serviceContracts.find(x => x.id === id);
         this.setState({
             selectedServiceId: id,
             selectedService: selectedService,
@@ -207,20 +208,20 @@ class Billing extends Component {
             };
         }
         let serviceContractInstance = ServiceC.at(this.state.selectedService.hash);
-        let transferValue = selectedDays * this.state.selectedService.costPerDay;
         if (selectedDays > 0) {
             // deposit ether to contract
-            this.props.web3.eth.getAccounts((error, accounts) =>
-                serviceContractInstance.deposit({from: accounts[0], value: transferValue}))
-                .then((balance) => console.log("Extended contract."))
+            this.props.web3.eth.getAccounts((error, accounts) => {
+                let transferValue = selectedDays * this.state.selectedService.costPerDay;
+                serviceContractInstance.changeContractDuration(selectedDays, {from: accounts[0], value: transferValue})
+                    .catch(error => console.log(error)).then(() => console.log("Extended contract."))
+            })
         } else if (selectedDays < 0) {
             // Withdraw ether from contract
             this.props.web3.eth.getAccounts((error, accounts) => {
                 console.log("Trying to withdraw with account: " + accounts[0]);
-                serviceContractInstance.withdraw(-1 * transferValue, {from: accounts[0]})
+                serviceContractInstance.changeContractDuration(selectedDays, {from: accounts[0]})
                     .catch(error => {
-                        let err = error;
-                        console.log(err);
+                        console.log(error);
                     })
             })
         }
