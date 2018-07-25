@@ -8,6 +8,9 @@ contract ServiceContract {
 
     event LogNumber(uint n);
     event Log(string text);
+    event LogBytes(bytes32 hash);
+    event LogAddress(address addr);
+    event LogUintArray(uint[] uintArr);
     event ContractStateChanged(bool isActive);
     event PenaltyCalculated(uint quality, uint penalty);
 
@@ -21,7 +24,7 @@ contract ServiceContract {
     uint productId;
     uint serviceId;
     bool isActive = false;
-    uint startDay = now;
+    uint startDate = now;
     uint endDate = now; // time until the service is active
 
 
@@ -99,8 +102,8 @@ contract ServiceContract {
         provider = msg.sender;
     }
 
-    function getStartDay() public view onlyPartners returns (uint){
-        return startDay;
+    function getStartDate() public view onlyPartners returns (uint){
+        return startDate;
     }
 
     function getEndDate() public view onlyPartners returns (uint){

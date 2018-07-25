@@ -8,7 +8,7 @@ contract ServiceBilling is ServiceContract {
 
     // Billing
     uint withdrawableForProvider; // service fee that is withdrawable for the provider
-    uint lastBillDate; // date when the last payout for provider was calculated.
+    uint lastBillDate = now; // date when the last payout for provider was calculated.
     uint[] availabilityHistory;
     mapping(bytes32 => address) signatures;
 
@@ -21,16 +21,31 @@ contract ServiceBilling is ServiceContract {
         address signer;
         bytes32 proof;
 
+        // do this for testing because truffle's web 3 is different to MetaMask's web3
+        bytes memory prefix = "\x19Ethereum Signed Message:\n32";
+        bytes32 prefixedHash = keccak256(abi.encodePacked(prefix, h));
+        address signer2 = ecrecover(prefixedHash, v, r, s);
+
+        // now this is for prod with MetaMask:
         // get who signed hash of (contract_address, values)
         signer = ecrecover(h, v, r, s);
 
-        // check if signer is either provider, customer or monitoringAgent
-        require(signer == provider || signer == customer || signer == monitoringAgent);
+        //emit LogBytes(h);
+        //emit LogNumber(v);
+        //emit LogBytes(r);
+        //emit LogBytes(s);
+        //emit LogUintArray(availabilityData);
+        //emit LogAddress(signer);
 
-        proof = keccak256(abi.encodePacked(this, availabilityData));
+        // check if signer is either provider, customer or monitoringAgent
+        require(signer == provider || signer == customer || signer == monitoringAgent || signer2 == provider || signer2 == customer || signer2 == monitoringAgent, "You are not a valid signer!");
+
+        proof = keccak256(abi.encodePacked(address(this), availabilityData));
+        //emit LogBytes(proof);
 
         // hash of contract's address and value equals provided hash h
-        require(proof == h);
+        require(proof == h, "Provided hash h and calculated proof do not match!");
+        //emit Log("proof == h, check");
 
         if (signatures[proof] == 0) {
             signatures[proof] = signer;
@@ -40,21 +55,21 @@ contract ServiceBilling is ServiceContract {
             // Append to availabilityHistory, check compliance with SLA and
             // payout provider accordingly (by adding the amount to withdrawableForProvider & update lastBillDate afterwards)
             require(availabilityData.length <= ((now - lastBillDate) / 1 days), "You cannot add performance data for the future!");
-
+            //emit Log("Came this far, only one more call to make.");
             paymentToProvider(availabilityData);
         }
     }
 
     // Payment for the provider after calculating SLA compliance and possible penalty deductions.
-    function paymentToProvider(uint[] availabilityData) public {
+    function paymentToProvider(uint[] availabilityData) public onlyPartners {
         uint availability;
-        uint providerPenalty;
+        uint providerPenalty = 100;
 
         // calculate the SLA compliance and penalty per day
-        for (uint i = 0; i < availabilityData.length; i++) {
-            availability = availabilityData[i];
+        for (uint i = 1; i <= availabilityData.length; i++) {
+            availability = availabilityData[i - 1];
             providerPenalty = (providerPenalty * (i - 1) + calculatePenalty(availability)) / i;
-            availabilityHistory.push(availabilityData[i]);
+            availabilityHistory.push(availabilityData[i - 1]);
         }
 
         // Calculate the service fee for provider according to the performance per day and SLA penalties
@@ -100,6 +115,9 @@ contract ServiceBilling is ServiceContract {
         withdrawableForProvider = 0;
     }
 
+    function getAvailabilityHistory() public view onlyPartners returns (uint[]){
+        return availabilityHistory;
+    }
 
     function getWithdrawableForProvider() public view onlyProvider returns (uint){
         return withdrawableForProvider;
