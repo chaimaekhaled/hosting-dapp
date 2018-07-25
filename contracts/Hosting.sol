@@ -10,7 +10,6 @@ library Hosting {
     struct ServiceOffer {
         string name; //name will be used for the Products Mapping
         uint id;
-        bool isActive; // flag to indicate lifecycle status of product
         uint costPerDay; // month has 30 days
         uint[] specs;
         //DELServiceDetails specs;

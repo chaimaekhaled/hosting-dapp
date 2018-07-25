@@ -42,11 +42,6 @@ contract Provider {
         _;
     }
 
-    modifier productIsActive(uint _id){
-        require(products[_id].isActive);
-        _;
-    }
-
     function getOwner() public view returns (address){
         return owner;
     }
@@ -67,8 +62,7 @@ contract Provider {
         return customer;
     }
 
-    function buyService(uint _id, string _customerPublicKey) public payable productIsActive(_id) returns (address) {
-        // Product is only available for order is flagged as isActive = true
+    function buyService(uint _id, string _customerPublicKey) public payable returns (address) {
         // Require payment for at least a day of Service
         require(msg.value >= products[_id].costPerDay, "Transfer funds for at least a day of service!");
 
@@ -135,7 +129,7 @@ contract Provider {
         // Add product to available offers
         uint id = products.length;
 
-        Hosting.ServiceOffer memory newProduct = Hosting.ServiceOffer(_name, id, true, _costPerDay, _specs, _sla);
+        Hosting.ServiceOffer memory newProduct = Hosting.ServiceOffer(_name, id, _costPerDay, _specs, _sla);
         products.push(newProduct);
     }
     /*
@@ -146,26 +140,17 @@ contract Provider {
         return products.length;
     }
 
-    function getProduct(uint _i) public view returns (string, uint, bool, uint, uint[], uint[]){
+    function getProduct(uint _i) public view returns (string, uint, uint, uint[], uint[]){
         require(_i < products.length && _i >= 0);
         return (
         products[_i].name,
         products[_i].id,
-        products[_i].isActive,
         products[_i].costPerDay,
         products[_i].specs,
         products[_i].sla
         );
     }
 
-
-    function activateProduct(uint _id) public onlyOwner {
-        products[_id].isActive = true;
-    }
-
-    function deactivateProduct(uint _id) public onlyOwner {
-        products[_id].isActive = false;
-    }
 
     function getAllContractsOfCustomer(address _customer) public view onlyOwnerOrCustomer returns (address[]) {
         if (msg.sender == owner) {
