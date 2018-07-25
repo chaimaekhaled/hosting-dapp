@@ -28,7 +28,8 @@ if (typeof ServiceContract.currentProvider.sendAsync !== "function") {
     };
 }
 
-const buyProducts = false;
+// Flag if MockData should include buying products with accounts[1]
+const buyProducts = true;
 
 web3.eth.getAccounts((error, accounts) => {
     let providerAccount = accounts[0];
@@ -110,11 +111,11 @@ web3.eth.getAccounts((error, accounts) => {
                 providerInstance.buyService.estimateGas(
                     serviceContract.productId,
                     pubKey,
-                    {from: customerAccount}
+                    {from: customerAccount, value: 7 * mockServiceContract.costPerDay}
                 ).then(gasEstimate => providerInstance.buyService(
                     serviceContract.productId,
                     pubKey,
-                    {from: customerAccount, gas: 2 * gasEstimate})
+                    {from: customerAccount, gas: 2 * gasEstimate, value: 7 * mockServiceContract.costPerDay})
                 ).catch(error => {
                     console.log("Error in tx buyService!");
                     console.log(error)
@@ -131,12 +132,16 @@ web3.eth.getAccounts((error, accounts) => {
 
                         return serviceContractInstance.setMockData.estimateGas(
                             serviceEndDate,
-                            serviceContract.availability,
+                            //serviceContract.availability,
+                            [],
+                            serviceStartDate,
                             serviceStartDate,
                             {from: providerAccount}
                         ).then(gasEstimate => serviceContractInstance.setMockData(
                             serviceEndDate,
-                            serviceContract.availability,
+                            //serviceContract.availability,
+                            [],
+                            serviceStartDate,
                             serviceStartDate,
                             {from: providerAccount, gas: 2 * gasEstimate})
                         ).catch(error => {
@@ -148,8 +153,8 @@ web3.eth.getAccounts((error, accounts) => {
                     console.log("txResultSetMockData: ");
                     console.log(txResultSetMockData);
                     if (txResultSetMockData !== undefined) {
-                        return serviceContractInstance.deposit(
-                            {from: customerAccount, value: 3 * serviceContract.costPerDay}
+                        return serviceContractInstance.changeContractDuration(1,
+                            {from: customerAccount, value: 2 * serviceContract.costPerDay}
                         ).catch(error => {
                             console.log("Error in tx deposit!");
                             console.log(error)

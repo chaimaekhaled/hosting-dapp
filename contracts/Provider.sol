@@ -96,7 +96,7 @@ contract Provider {
 
         // pay ETH into this new contract
         serviceContract.changeContractDuration.value(msg.value)(1);
-        //        serviceContract.deposit.value(msg.value)();
+        // serviceContract.deposit.value(msg.value)();
 
         // add new contract to customerDB
         customerToContracts[msg.sender].push(serviceContract);

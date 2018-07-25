@@ -77,13 +77,16 @@ contract ServiceBilling is ServiceContract {
         withdrawableForProvider += earningsProviderSinceLastUpdate;
         // use withdrawable pattern for provider
 
-        lastBillDate = now;
+        lastBillDate += 1 days * availabilityData.length;
+        emit Log("Added availabilityData to contract");
+        emit LogUintArray(availabilityData);
     }
 
     // This function changes the duration of this contract. When called by a msg with value, the contract is extended.
     // When called without value but a parameter indicating the days to substract from the duration, this function
     // shortens the contract duration and transfers the deposit to the customer
     function changeContractDuration(int _changeDays) public payable {
+        //if(_changeDays > 0 && msg.value < costPerDay) return;
         // Check if contract get's extended or shortened
         if (_changeDays > 0) {
             // extend the contract
