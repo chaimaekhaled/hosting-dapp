@@ -1,5 +1,21 @@
 import React, {Component} from 'react';
-import {Collapse, Jumbotron, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink} from 'reactstrap';
+import {
+    Alert,
+    Button,
+    Collapse,
+    Container,
+    Input,
+    InputGroup,
+    InputGroupAddon,
+    InputGroupText,
+    Jumbotron,
+    Nav,
+    Navbar,
+    NavbarBrand,
+    NavbarToggler,
+    NavItem,
+    NavLink,
+} from 'reactstrap';
 import {BrowserRouter as Router, NavLink as NavLinkRRD, Route} from 'react-router-dom';
 import {bigNumArray2intArray, details2dict, serviceData2object} from "./utils/helpers";
 // Import views
@@ -17,24 +33,25 @@ class App extends Component {
 
     constructor(props) {
         super(props);
-
         this.state = {
             web3: null,
             providerInstance: null,
             isOpen: false, //toggle for navbar
             providerName: null,
             serviceContracts: [],
-            // serviceContracts: Data.serviceContracts,
             products: null,
-            // providerName: Data.providerName,
-            // serviceContracts: Data.serviceContracts,
-            // products: Data.products,
+            providerContractAddress: sessionStorage.getItem("providerContractAddress"),
         };
         this.toggle = this.toggle.bind(this);
         this.instantiateContract = this.instantiateContract.bind(this);
+        this.handleContractAddressChanged = this.handleContractAddressChanged.bind(this);
     }
 
     componentDidMount() {
+        /*const addr = sessionStorage.getItem("providerContractAddress");
+        if(addr){
+            this.setState({providerContractAddress: addr});
+        }*/
         getWeb3
             .then(results => {
                 this.setState({web3: results.web3}, this.instantiateContract);
@@ -49,6 +66,10 @@ class App extends Component {
     }
 
     instantiateContract() {
+
+        if (!this.state.web3.utils.isAddress(this.state.providerContractAddress)) {
+            return -1;
+        }
         // console.log("Trying to instantiate Contract");
         // console.log("Provider:");
         // console.log(this.state.web3.currentProvider);
@@ -79,10 +100,11 @@ class App extends Component {
         this.state.web3.eth.getAccounts((error, accounts) => {
             const customerAccount = accounts[0];
 
-            ProviderC.deployed()
+            ProviderC.at(this.state.providerContractAddress)
                 .then((instance) => {
                     this.setState({providerInstance: instance}, () => {
                         let providerInstance = this.state.providerInstance;
+                        sessionStorage.setItem("providerContractAddress", this.state.providerContractAddress);
 
                         providerInstance.getName.call()
                             .then((name) => this.setState({providerName: name}))
@@ -152,54 +174,76 @@ class App extends Component {
         })
     }
 
-    render() {
-        let providerAddress = this.state.providerInstance === null ? 0 : this.state.providerInstance.address;
+    handleContractAddressChanged(e) {
+        this.setState({providerContractAddress: e.target.value});
+    }
 
-        return (<Router>
-                <div>
+    render() {
+        let footer = <div>
+            <Jumbotron style={{marginBottom: "0px"}}>
+                <Container>
+                    <InputGroup>
+                        <InputGroupAddon addonType="append"><InputGroupText>Contract
+                            address</InputGroupText></InputGroupAddon>
+                        <Input id="inputContractAddress" style={{textAlign: 'right',}}
+                               onChange={this.handleContractAddressChanged} value={this.state.providerContractAddress}/>
+                        <InputGroupAddon addonType="prepend">
+                            <Button color="primary" onClick={this.instantiateContract}>Submit</Button>
+                        </InputGroupAddon>
+                    </InputGroup>
+                </Container>
+            </Jumbotron>
+        </div>;
+
+        let content = <Container><Alert>Please insert a valid ProviderContractAddress</Alert>{footer}</Container>;
+
+
+        if (this.state.providerInstance != null) {
+            content =
+                <Router>
                     <div>
-                        <Navbar color="dark" dark expand="sm">
-                            <NavbarBrand href="/">{this.state.providerName}</NavbarBrand>
-                            <NavbarToggler onClick={this.toggle}/>
-                            <Collapse isOpen={this.state.isOpen} navbar>
-                                <Nav className="ml-auto" navbar>
-                                    <NavItem>
-                                        <NavLink exact to="/" activeClassName='active'
-                                                 tag={NavLinkRRD}>Overview</NavLink>
-                                    </NavItem>
-                                    <NavItem>
-                                        <NavLink to="/store" activeClassName='active'
-                                                 tag={NavLinkRRD}>Store</NavLink>
-                                    </NavItem>
-                                    {/*<NavItem>
+                        <div>
+                            <Navbar color="dark" dark expand="sm">
+                                <NavbarBrand href="/">{this.state.providerName}</NavbarBrand>
+                                <NavbarToggler onClick={this.toggle}/>
+                                <Collapse isOpen={this.state.isOpen} navbar>
+                                    <Nav className="ml-auto" navbar>
+                                        <NavItem>
+                                            <NavLink exact to="/" activeClassName='active'
+                                                     tag={NavLinkRRD}>Overview</NavLink>
+                                        </NavItem>
+                                        <NavItem>
+                                            <NavLink to="/store" activeClassName='active'
+                                                     tag={NavLinkRRD}>Store</NavLink>
+                                        </NavItem>
+                                        {/*<NavItem>
                                         <NavLink to="/monitoring" activeClassName='active'
                                                  tag={NavLinkRRD}>Monitoring</NavLink>
                                     </NavItem>*/}
-                                    <NavItem>
-                                        <NavLink to="/billing" activeClassName='active'
-                                                 tag={NavLinkRRD}>Billing</NavLink>
-                                    </NavItem>
-                                </Nav>
-                            </Collapse>
-                        </Navbar>
+                                        <NavItem>
+                                            <NavLink to="/billing" activeClassName='active'
+                                                     tag={NavLinkRRD}>Billing</NavLink>
+                                        </NavItem>
+                                    </Nav>
+                                </Collapse>
+                            </Navbar>
+                        </div>
+                        <div>
+                            <Route exact path="/" title="Home" component={Home}/>
+                            <Route path="/store" title="Store"
+                                   render={() => <Store products={this.state.products}
+                                                        providerInstance={this.state.providerInstance}
+                                                        web3={this.state.web3}/>}/>
+                            <Route path="/billing" title="Billing"
+                                   render={() => <Billing serviceContracts={this.state.serviceContracts}
+                                                          web3={this.state.web3}/>}/>
+                        </div>
+                        {footer}
                     </div>
-                    <div>
-                        <Route exact path="/" title="Home" component={Home}/>
-                        <Route path="/store" title="Store"
-                               render={() => <Store products={this.state.products}
-                                                    providerInstance={this.state.providerInstance}
-                                                    web3={this.state.web3}/>}/>
-                        <Route path="/billing" title="Billing"
-                               render={() => <Billing serviceContracts={this.state.serviceContracts}
-                                                      web3={this.state.web3}/>}/>
-                    </div>
-                    <div>
-                        <Jumbotron style={{marginBottom: "0px"}}>
-                            ProviderContract at: {providerAddress}
-                        </Jumbotron>
-                    </div>
-                </div>
-            </Router>
+                </Router>;
+        }
+
+        return (<div>{content}</div>
         );
     }
 }

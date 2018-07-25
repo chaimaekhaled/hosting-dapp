@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Alert, Button, Col, Container, Jumbotron, Row, Table} from 'reactstrap';
+import {Alert, Button, Col, Collapse, Container, Jumbotron, Row, Table} from 'reactstrap';
 import MonthSelector from "../../components/MonthSelector";
 import ServiceSelector from "../../components/ServiceSelector";
 import Service from "../../contracts/Service.json";
@@ -64,6 +64,7 @@ class Billing extends Component {
         const today = new Date().toISOString().slice(0, 10);
         let contracts = this.props.serviceContracts.length > 0 ? this.props.serviceContracts[0] : null;
         this.state = {
+            toggle: false,
             selectedService: contracts,
             selectedServiceId: null,
             fromDate: today,
@@ -85,6 +86,7 @@ class Billing extends Component {
         this.generateHash = this.generateHash.bind(this);
         this.handleHashChanged = this.handleHashChanged.bind(this);
         this.submitMonitoringData = this.submitMonitoringData.bind(this);
+        this.toggle = this.toggle.bind(this);
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -304,6 +306,10 @@ class Billing extends Component {
         //     function addAvailabilityData(bytes32 h, uint8 v, bytes32 r, bytes32 s, uint[] availabilityData) public {
     }
 
+    toggle() {
+        this.setState({collapse: !this.state.collapse});
+    }
+
 
     render() {
         const rowGrid = {marginBottom: 15 + 'px'};
@@ -324,51 +330,55 @@ class Billing extends Component {
                                  info={this.state} currency={currency}/>
                 <hr className="my-3"/>
                 <Container>
-                    <Row><Col><h3>Generate hash for monitoring data</h3></Col></Row>
-                    <Row>
-                        <Col>
-                            Please input the monitoring data (separate values with comma)
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col style={rowGrid}>
-                            <LabeledInput inputId="monitoringData" type="text" labelText="Monitoring data"
-                                          value={this.state.monitoringDataRaw}
-                                          onChange={this.handleHashChanged}/>
-                        </Col>
-                    </Row>
-                    <Row style={rowGrid}>
-                        <Col xs={8} md={{size: 6, offset: 6}}>
-                            <Button id="generateHashBtn" color="primary" className="" block onClick={this.generateHash}>
-                                Generate signed Hash
-                            </Button>
-                        </Col>
-                    </Row>
-                    <Row style={rowGrid}>
-                        <Col xs={12}
-                             style={{textAlign: "right", marginBottom: 15 + 'px'}}>
-                            <LabeledInput inputId="generatedHash" type="text" labelText={"Hash"}
-                                          value={this.state.generatedHash} onChange={this.handleHashChanged}/>
-                        </Col>
-                        <Col xs={12} md={{size: 8, offset: 4}}>
-                            <LabeledInput inputId="inputV" type="text" labelText={"v"}
-                                          value={this.state.v} onChange={this.handleHashChanged}/>
-                        </Col>
-                        <Col xs={12} md={{size: 8, offset: 4}}>
-                            <LabeledInput inputId="inputR" type="text" labelText={"r"}
-                                          value={this.state.r} onChange={this.handleHashChanged}/>
-                        </Col>
-                        <Col xs={12} md={{size: 8, offset: 4}}>
-                            <LabeledInput inputId="inputS" type="text" labelText={"s"}
-                                          value={this.state.s} onChange={this.handleHashChanged}/>
-                        </Col>
-                    </Row>
-                    <Row style={rowGrid}>
-                        <Col xs={8} md={{size: 6, offset: 6}}>
-                            <Button id={"submitMonitoringData"} color={"primary"} block
-                                    onClick={this.submitMonitoringData}>Submit to Smart Contract</Button>
-                        </Col>
-                    </Row>
+                    <Row><Col><Button color="primary" onClick={this.toggle} style={{marginBottom: '1rem'}}>Generate hash
+                        for monitoring data</Button></Col></Row>
+                    <Collapse isOpen={this.state.collapse}>
+                        <Row>
+                            <Col>
+                                Please input the monitoring data (separate values with comma)
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col style={rowGrid}>
+                                <LabeledInput inputId="monitoringData" type="text" labelText="Monitoring data"
+                                              value={this.state.monitoringDataRaw}
+                                              onChange={this.handleHashChanged}/>
+                            </Col>
+                        </Row>
+                        <Row style={rowGrid}>
+                            <Col xs={8} md={{size: 6, offset: 6}}>
+                                <Button id="generateHashBtn" color="primary" className="" block
+                                        onClick={this.generateHash}>
+                                    Generate signed Hash
+                                </Button>
+                            </Col>
+                        </Row>
+                        <Row style={rowGrid}>
+                            <Col xs={12}
+                                 style={{textAlign: "right", marginBottom: 15 + 'px'}}>
+                                <LabeledInput inputId="generatedHash" type="text" labelText={"Hash"}
+                                              value={this.state.generatedHash} onChange={this.handleHashChanged}/>
+                            </Col>
+                            <Col xs={12} md={{size: 8, offset: 4}}>
+                                <LabeledInput inputId="inputV" type="text" labelText={"v"}
+                                              value={this.state.v} onChange={this.handleHashChanged}/>
+                            </Col>
+                            <Col xs={12} md={{size: 8, offset: 4}}>
+                                <LabeledInput inputId="inputR" type="text" labelText={"r"}
+                                              value={this.state.r} onChange={this.handleHashChanged}/>
+                            </Col>
+                            <Col xs={12} md={{size: 8, offset: 4}}>
+                                <LabeledInput inputId="inputS" type="text" labelText={"s"}
+                                              value={this.state.s} onChange={this.handleHashChanged}/>
+                            </Col>
+                        </Row>
+                        <Row style={rowGrid}>
+                            <Col xs={8} md={{size: 6, offset: 6}}>
+                                <Button id={"submitMonitoringData"} color={"primary"} block
+                                        onClick={this.submitMonitoringData}>Submit to Smart Contract</Button>
+                            </Col>
+                        </Row>
+                    </Collapse>
                 </Container>
             </Container>
         }
