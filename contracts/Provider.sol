@@ -140,14 +140,14 @@ contract Provider {
         return products.length;
     }
 
-    function getProduct(uint _i) public view returns (string, uint, uint, uint[], uint[]){
-        require(_i < products.length && _i >= 0);
+    function getProduct(uint _id) public view returns (string, uint, uint, uint[], uint[]){
+        require(_id < products.length && _id >= 0);
         return (
-        products[_i].name,
-        products[_i].id,
-        products[_i].costPerDay,
-        products[_i].specs,
-        products[_i].sla
+        products[_id].name,
+        products[_id].id,
+        products[_id].costPerDay,
+        products[_id].specs,
+        products[_id].sla
         );
     }
 

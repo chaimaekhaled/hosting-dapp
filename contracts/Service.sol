@@ -14,7 +14,7 @@ contract Service is ServiceBilling {
         string _name,
         uint _costPerDay,
         uint _productId)
-    public payable {
+    public {
         serviceId = _serviceId;
         provider = _provider;
         customer = _customer;
