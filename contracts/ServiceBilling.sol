@@ -61,7 +61,7 @@ contract ServiceBilling is ServiceContract {
     }
 
     // Payment for the provider after calculating SLA compliance and possible penalty deductions.
-    function paymentToProvider(uint[] availabilityData) public onlyPartners {
+    function paymentToProvider(uint[] availabilityData) internal {
         uint availability;
         uint providerPenalty = 100;
 

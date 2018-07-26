@@ -60,7 +60,7 @@ contract ServiceContract {
         uint _middleGoal,
         uint _refundMiddle,
         uint _refundLow
-    ) public onlyPartners {
+    ) public onlyProvider {
         require(!slaSet, "SLA cannot be set again!");
         sla = [_metric, _highGoal, _middleGoal, _refundMiddle, _refundLow];
         slaSet = true;
@@ -70,7 +70,7 @@ contract ServiceContract {
         uint _cpu,
         uint _ram,
         uint _traffic,
-        uint _ssd) public onlyPartners {
+        uint _ssd) public onlyProvider {
         require(!specsSet);
         specs = [_cpu, _ram, _traffic, _ssd];
         specsSet = true;
