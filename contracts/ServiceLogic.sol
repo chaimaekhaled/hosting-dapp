@@ -1,17 +1,9 @@
 pragma solidity ^0.4.19;
 
-import "./ServiceContract.sol";
-import "./Hosting.sol";
+import "./ServiceDatabase.sol";
+//import "./Hosting.sol";
 
-contract ServiceBilling is ServiceContract {
-    event ContractEndDateUpdated(uint date);
-
-    // Billing
-    uint withdrawableForProvider; // service fee that is withdrawable for the provider
-    uint lastBillDate = now; // date when the last payout for provider was calculated.
-    uint[] availabilityHistory;
-    mapping(bytes32 => address) signatures;
-
+contract ServiceLogic is ServiceDatabase {
     // State channel logic by https://github.com/mattdf/payment-channel/blob/master/channel.sol
     // This function is part of the state channel pattern. Customer, provider and monitoringAgent exchange
     // the service performance data (availabilityData) off-chain to reduce transaction costs. The provider collects
@@ -78,14 +70,26 @@ contract ServiceBilling is ServiceContract {
         // use withdrawable pattern for provider
 
         lastBillDate += 1 days * availabilityData.length;
-        emit Log("Added availabilityData to contract");
-        emit LogUintArray(availabilityData);
+        emit WithdrawalForProviderChanged(withdrawableForProvider);
     }
+
+    function calculatePenalty(uint _achievedServiceQuality) public view returns (uint){
+        require(slaSet, "SLA has not been set yet, cannot calculate quality");
+        uint penalty = sla[4];
+        //default: set penalty to refundLow (achieved 0% - middleGoal)
+        if (_achievedServiceQuality >= sla[2]) penalty = sla[3];
+        //set penalty to refundMiddle (achieved middleGoal - highGoal)
+        if (_achievedServiceQuality >= sla[1]) penalty = 0;
+        // SLA was adhered to -> no penalty
+        //emit PenaltyCalculated(_achievedServiceQuality, penalty);
+        return penalty;
+    }
+
 
     // This function changes the duration of this contract. When called by a msg with value, the contract is extended.
     // When called without value but a parameter indicating the days to substract from the duration, this function
     // shortens the contract duration and transfers the deposit to the customer
-    function changeContractDuration(int _changeDays) public payable {
+    function changeContractDuration(int _changeDays) public payable returns (uint) {
         //if(_changeDays > 0 && msg.value < costPerDay) return;
         // Check if contract get's extended or shortened
         if (_changeDays > 0) {
@@ -105,6 +109,7 @@ contract ServiceBilling is ServiceContract {
             customer.transfer(reimbursement);
         }
         emit ContractEndDateUpdated(endDate);
+        return endDate;
     }
 
     function terminateContract() public onlyPartners {
@@ -118,15 +123,8 @@ contract ServiceBilling is ServiceContract {
         withdrawableForProvider = 0;
     }
 
-    function getAvailabilityHistory() public view onlyPartners returns (uint[]){
-        return availabilityHistory;
-    }
-
-    function getWithdrawableForProvider() public view onlyProvider returns (uint){
-        return withdrawableForProvider;
-    }
-
-    function useableCustomerFunds() public view onlyPartners returns (uint){
-        return address(this).balance - withdrawableForProvider;
+    function setActive(bool _state) internal {
+        if (isActive != _state) emit ContractStateChanged(_state);
+        isActive = _state;
     }
 }
