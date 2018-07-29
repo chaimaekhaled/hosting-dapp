@@ -1,5 +1,3 @@
-// TODO: convert between ether and wei!
-
 pragma solidity ^0.4.21;
 
 //import "./Hosting.sol";
