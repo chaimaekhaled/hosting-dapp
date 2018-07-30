@@ -24,21 +24,20 @@ The billing view shows active service contracts, their achieved service performa
 
 
 ## Project structure:
-+-- ├-  contracts                   # Smart Contract files (.sol)  
+├-  contracts                   # Smart Contract files (.sol)  
+├-  migrations                  # necessary for truffle  
+├-  public                      # static content of website  
+├-  src                         #  
+>   ├- components               # React components that are used in views  
+>   ├- contracts                # copy of ./contracts (for import in web app)  
+>   ├- css                      # style sheets  
+>   ├- heartbeatOracle          # Node.js-based Oracle to send heartbeats to Blockchain  
+>   ├- layout                   # contains views for react web app   
+>   └- utils                    # contains utilities for support (e.g., web3js, test data) 
 
-+-- ├-  migrations                  # necessary for truffle  
-+-- ├-  public                      # static content of website  
-+-- ├-  src                         #  
-|   +--   ├- components               # React components that are used in views  
-|   +--   ├- contracts                # copy of ./contracts (for import in web app)  
-|   +--   ├- css                      # style sheets  
-|   +--   ├- heartbeatOracle          # Node.js-based Oracle to send heartbeats to Blockchain  
-|   +--   ├- layout                   # contains views for react web app   
-|   +--   └- utils                    # contains utilities for support (e.g., web3js, test data) 
- 
-+-- ├-  test                        # contains tests for distributed application  
-+-- ├-  README.md                   # this file  
-+-- ├-  package-lock.json           # required for npm  
-+-- ├-  package.json                # required for npm  
-+-- ├-  truffle-config.js           # Truffle configuration file for Windows  
-+-- └-  truffle.js                  # Truffle configuration file  
+├-  test                        # contains tests for distributed application  
+├-  README.md                   # this file  
+├-  package-lock.json           # required for npm  
+├-  package.json                # required for npm  
+├-  truffle-config.js           # Truffle configuration file for Windows  
+└-  truffle.js                  # Truffle configuration file
