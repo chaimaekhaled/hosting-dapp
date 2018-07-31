@@ -1,3 +1,10 @@
+# Distributed application for server hosting providers
+This application was developed during my master's thesis. It is a design science artifact to
+solve problems in the domain of digital services, with a focus on service level agreements (SLA).
+
+The design and development of this application is described in more detail in Dev_Info.pdf, which
+use cases, sequence diagrams and architectural overviews.
+
 ## Requirements:
 
 - make (gcc) (sudo apt-get install build-essential)
@@ -8,7 +15,7 @@
 - npm install
 - sudo npm install -g truffle
 
-## Running:
+## Run the application (dev server):
 In project root execute:
 1. truffle develop
 2. npm run migrate
@@ -41,3 +48,5 @@ The billing view shows active service contracts, their achieved service performa
 ├-  package.json                # required for npm  
 ├-  truffle-config.js           # Truffle configuration file for Windows  
 └-  truffle.js                  # Truffle configuration file
+
+## Disclaimer
