@@ -9,16 +9,19 @@ use cases, sequence diagrams and architectural overviews.
 
 - make (gcc) (sudo apt-get install build-essential)
 - MetaMask browser extension
+- Windows: MS Visual C++ build tools
+- python 2.7
 
 ## Installation:
-- sudo apt-get install build-essential
+- ubuntu only: sudo apt-get install build-essential
+- windows only (as admin):  npm install --global --production windows-build-tools
 - npm install
 - sudo npm install -g truffle
 
 ## Run the application (dev server):
 In project root execute:
-1. truffle develop
-2. npm run migrate
+1. truffle develop (Windows: truffle.cmd develop)
+2. npm run migrate (Windows: truffle.cmd migrate --reset --compile-all && npm run contracts)
 3. node ./src/utils/SetMockData.js (optional, adds fake data)
 4. npm run start (starts dev webserver which server's react app)
 5. Open http://localhost:3000 in browser
