@@ -41,6 +41,7 @@ class App extends Component {
             serviceContracts: [],
             products: null,
             providerContractAddress: sessionStorage.getItem("providerContractAddress"),
+            defaultProvider: null,
         };
         this.toggle = this.toggle.bind(this);
         this.instantiateContract = this.instantiateContract.bind(this);
@@ -67,9 +68,7 @@ class App extends Component {
 
     instantiateContract() {
 
-        if (!this.state.web3.utils.isAddress(this.state.providerContractAddress)) {
-            return -1;
-        }
+
         // console.log("Trying to instantiate Contract");
         // console.log("Provider:");
         // console.log(this.state.web3.currentProvider);
@@ -95,6 +94,12 @@ class App extends Component {
                     ServiceC.currentProvider, arguments
                 );
             };
+        }
+
+        ProviderC.deployed().then(instance => instance.address).then((addr) => this.setState({defaultProvider: addr}));
+
+        if (!this.state.web3.utils.isAddress(this.state.providerContractAddress)) {
+            return -1;
         }
 
         this.state.web3.eth.getAccounts((error, accounts) => {
@@ -179,6 +184,9 @@ class App extends Component {
     }
 
     render() {
+        let defaultProviderAddress =
+            <div>{"Default: " + this.state.defaultProvider}</div>;
+
         let footer = <div>
             <Jumbotron style={{marginBottom: "0px"}}>
                 <Container>
@@ -195,7 +203,8 @@ class App extends Component {
             </Jumbotron>
         </div>;
 
-        let content = <Container><Alert>Please insert a valid ProviderContractAddress</Alert>{footer}</Container>;
+        let content = <Container><Alert>Please insert a valid
+            ProviderContractAddress</Alert>{footer}{defaultProviderAddress}</Container>;
 
 
         if (this.state.providerInstance != null) {
@@ -216,10 +225,6 @@ class App extends Component {
                                             <NavLink to="/store" activeClassName='active'
                                                      tag={NavLinkRRD}>Store</NavLink>
                                         </NavItem>
-                                        {/*<NavItem>
-                                        <NavLink to="/monitoring" activeClassName='active'
-                                                 tag={NavLinkRRD}>Monitoring</NavLink>
-                                    </NavItem>*/}
                                         <NavItem>
                                             <NavLink to="/billing" activeClassName='active'
                                                      tag={NavLinkRRD}>Billing</NavLink>
