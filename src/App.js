@@ -123,10 +123,10 @@ class App extends Component {
                                         let product = {
                                             name: getProduct[0],
                                             id: getProduct[1].c[0],
-                                            isActive: getProduct[2],
-                                            costPerDay: getProduct[3].c[0],
-                                            details: details2dict(bigNumArray2intArray(getProduct[4])),
-                                            sla: bigNumArray2intArray(getProduct[5]),
+                                            //isActive: getProduct[2],
+                                            costPerDay: getProduct[2].c[0],
+                                            details: details2dict(bigNumArray2intArray(getProduct[3])),
+                                            sla: bigNumArray2intArray(getProduct[4]),
                                         };
                                         products.push(product);
                                     });
