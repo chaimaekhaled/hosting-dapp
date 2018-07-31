@@ -51,5 +51,3 @@ The billing view shows active service contracts, their achieved service performa
 ├-  package.json                # required for npm  
 ├-  truffle-config.js           # Truffle configuration file for Windows  
 └-  truffle.js                  # Truffle configuration file
-
-## Disclaimer
