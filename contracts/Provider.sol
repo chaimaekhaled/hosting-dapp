@@ -24,6 +24,10 @@ contract Provider is ProviderLogic {
         name = _name;
     }
 
+    function setMonitoringAgent(address _agent) public onlyOwner {
+        monitoringAgent = _agent;
+    }
+
     function getProduct(uint _id) public view returns (string, uint, uint, uint[], uint[]){
         require(_id < products.length && _id >= 0);
         return (

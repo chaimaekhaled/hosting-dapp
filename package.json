@@ -27,10 +27,10 @@
     "migrate:win32": "run-s truffleMigrate:win32 emptyContracts:win32 copyContracts:win32",
     "truffleMigrate:win32": "truffle.cmd migrate --reset --compile-all",
     "emptyContracts:win32": "del /F /S /Q src\\contracts",
-    "copyContracts:win32": "xcopy build\\contracts src\\contracts /Y"
+    "copyContracts:win32": "xcopy build\\contracts src\\contracts /Y",
+    "ganache": "ganache-cli --blockTime 15 --gasLimit 8000000 --gasPrice 30660000000 --port 9545 --mnemonic \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\""
   },
   "devDependencies": {
-    "copyfiles": "^2.0.0",
     "detect-port": "^1.2.3",
     "eslint": "^4.19.1",
     "eslint-config-react-app": "^2.1.0",
