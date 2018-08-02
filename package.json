@@ -31,6 +31,8 @@
     "ganache": "ganache-cli --blockTime 15 --gasLimit 8000000 --gasPrice 30660000000 --port 9545 --mnemonic \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\""
   },
   "devDependencies": {
+    "babel-plugin-transform-async-to-generator": "^6.24.1",
+    "babel-preset-env": "^1.7.0",
     "detect-port": "^1.2.3",
     "eslint": "^4.19.1",
     "eslint-config-react-app": "^2.1.0",
