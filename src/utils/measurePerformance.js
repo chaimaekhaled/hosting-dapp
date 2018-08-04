@@ -1,12 +1,37 @@
 // Import contracts and web3
 import Provider from "../contracts/Provider.json";
 import Service from "../contracts/Service.json";
-import {details2array} from "./helpers";
-import Data from "./Data.json";
 import Web3 from 'web3';
 
-const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545"));
-// const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:9545"));
+const geth = false; // Flag if geth is used -> otherwise it's truffle or ganache at port 9545 with eth.sign
+let signHash;
+
+let web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545"));
+signHash = async (hash, account) => {
+    await web3.eth.personal.sign(hash, account.address, account.password).then((signedHash) => {
+        account.r = signedHash.slice(0, 66);
+        account.s = '0x' + signedHash.slice(66, 130);
+        let v = web3.utils.hexToNumber('0x' + signedHash.slice(130, 132));
+        if (v < 2) v = v + 27;
+        account.v = v;
+    });
+    return account
+};
+// Overwrite web3 and sign function if truffle or ganache is used
+if (!geth) {
+    const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:9545"));
+    signHash = async (hash, account) => {
+        await web3.eth.sign(hash, account.address).then((signedHash) => {
+            account.r = signedHash.slice(0, 66);
+            account.s = '0x' + signedHash.slice(66, 130);
+            let v = web3.utils.hexToNumber('0x' + signedHash.slice(130, 132));
+            if (v < 2) v = v + 27;
+            account.v = v;
+        });
+        return account
+    };
+}
+
 
 // const contract = require('truffle-contract');
 // const ProviderContract = contract(Provider);
@@ -31,7 +56,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545"));
 //     };
 // }
 
-const run = async() => {
+const run = async () => {
     let accounts = await web3.eth.getAccounts();
     // Blockchain parameters
     const gasCost = 3500000000;
@@ -98,7 +123,11 @@ const run = async() => {
 
 
     // Smart Contracts
-    let providerContract = new web3.eth.Contract(Provider.abi, {from: provider.address, gasLimit: 4500000});
+    let providerContract = new web3.eth.Contract(Provider.abi, {
+        from: provider.address,
+        gasPrice: "" + gasCost,
+        gasLimit: 4500000
+    });
     let serviceContract = new web3.eth.Contract(Service.abi);
 
     // Variables for state channel
@@ -110,7 +139,7 @@ const run = async() => {
     // Deploy contract
     console.time("deployProviderContract");
     await providerContract.deploy({data: Provider.bytecode})
-        .send({from: provider.address, gas: 4500000})
+        .send({from: provider.address, gasPrice: "" + gasCost, gas: 4500000})
         .on('receipt', (receipt) => {
             ProviderDeploy.gasUsed += receipt.cumulativeGasUsed;
             ProviderDeploy.receipt.push(receipt);
@@ -153,7 +182,7 @@ const run = async() => {
     // 3) Order a service
     console.time("orderService");
     await providerContract.methods.buyService(0, "myPubKey")
-        .send({from: customer.address, value: 120})
+        .send({from: customer.address, gasPrice: "" + gasCost, value: 120})
         .on("receipt", (receipt) => {
                 OrderAService.gasUsed += receipt.cumulativeGasUsed;
                 OrderAService.receipt.push(receipt);
@@ -170,16 +199,6 @@ const run = async() => {
 
     // 4) Add Monitoring data (execute 2 times - once for provider & once for customer to 'close' state channel)
     // Method to sign the hash message with an account and retrieve v, r, s
-    const signHash = async (hash, account) => {
-        await web3.eth.personal.sign(hash, account.address, account.password).then((signedHash) => {
-            account.r = signedHash.slice(0, 66);
-            account.s = '0x' + signedHash.slice(66, 130);
-            let v = web3.utils.hexToNumber('0x' + signedHash.slice(130, 132));
-            if (v < 2) v = v + 27;
-            account.v = v;
-        });
-        return account
-    };
 
     hash = await web3.utils.soliditySha3(
         {t: 'address', v: serviceContract.options.address},
@@ -223,7 +242,7 @@ const run = async() => {
 
     console.time("addAvailabilitySecond");
     await serviceContract.methods.addAvailabilityData(hash, customer.v, customer.r, customer.s, monitoringData)
-        .send({from: customer.address, gas: gasEstimate * 1.5})
+        .send({from: customer.address, gasPrice: "" + gasCost, gas: gasEstimate * 1.5})
         .on("receipt", (receipt) => {
             AddMonitoringData.gasUsed += receipt.cumulativeGasUsed;
             AddMonitoringData.receipt.push(receipt);
@@ -240,7 +259,11 @@ const run = async() => {
 
     // 5) Extend the contract
     console.time("extendContract");
-    await serviceContract.methods.changeContractDuration(10).send({from: customer.address, value: 120})
+    await serviceContract.methods.changeContractDuration(10).send({
+        from: customer.address,
+        gasPrice: "" + gasCost,
+        value: 120
+    })
         .on("receipt", (receipt) => {
             ExtendContract.gasUsed += receipt.cumulativeGasUsed;
             ExtendContract.receipt.push(receipt);
