@@ -3,7 +3,13 @@ import Provider from "../contracts/Provider.json";
 import Service from "../contracts/Service.json";
 import Web3 from 'web3';
 
-const geth = false; // Flag if geth is used -> otherwise it's truffle or ganache at port 9545 with eth.sign
+
+const args = process.argv;
+console.log(args);
+
+let geth = false;
+if (args.length > 2) geth = args[3] === "geth"; // Flag if geth is used -> otherwise it's truffle or ganache at port 9545 with eth.sign
+
 const port = geth ? 8545 : 9545;
 
 let web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:" + port));
@@ -304,7 +310,7 @@ const run = async () => {
 
     let json = JSON.stringify(db);
     let fs = require('fs');
-    fs.writeFile(new Date().toISOString().split("T")[0] + '_performanceMeasurement.json', json, 'utf8', callback);
+    fs.writeFile(new Date().toISOString().split("T")[0] + '_performanceMeasurement.json', json, 'utf8', () => console.log("Finished writing data"));
 
 };
 
