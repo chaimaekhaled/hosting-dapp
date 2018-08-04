@@ -30,7 +30,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545"));
 //         );
 //     };
 // }
-web3.eth.getAccounts(async (error, accounts) => {
+web3.eth.getAccounts().then(async (error, accounts) => {
     // Blockchain parameters
     const gasCost = 3500000000;
 
