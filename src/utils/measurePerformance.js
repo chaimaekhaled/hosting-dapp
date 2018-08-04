@@ -8,8 +8,8 @@ const args = process.argv;
 console.log(args);
 
 let geth = false;
-if (args.length > 2) geth = args[3] === "geth"; // Flag if geth is used -> otherwise it's truffle or ganache at port 9545 with eth.sign
-
+if (args.length > 2) geth = args[2] === "geth"; // Flag if geth is used -> otherwise it's truffle or ganache at port 9545 with eth.sign
+if (geth) console.log("Using geht!");
 const port = geth ? 8545 : 9545;
 
 let web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:" + port));
