@@ -4,9 +4,11 @@ import Service from "../contracts/Service.json";
 import Web3 from 'web3';
 
 const geth = false; // Flag if geth is used -> otherwise it's truffle or ganache at port 9545 with eth.sign
-let signHash;
+const port = geth ? 8545 : 9545;
 
-let web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545"));
+let web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:" + port));
+
+let signHash;
 signHash = async (hash, account) => {
     await web3.eth.personal.sign(hash, account.address, account.password).then((signedHash) => {
         account.r = signedHash.slice(0, 66);
@@ -19,7 +21,6 @@ signHash = async (hash, account) => {
 };
 // Overwrite web3 and sign function if truffle or ganache is used
 if (!geth) {
-    const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:9545"));
     signHash = async (hash, account) => {
         await web3.eth.sign(hash, account.address).then((signedHash) => {
             account.r = signedHash.slice(0, 66);
