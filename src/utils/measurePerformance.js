@@ -30,7 +30,9 @@ const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545"));
 //         );
 //     };
 // }
-web3.eth.getAccounts().then(async (error, accounts) => {
+
+const run = async() => {
+    let accounts = await web3.eth.getAccounts();
     // Blockchain parameters
     const gasCost = 3500000000;
 
@@ -280,4 +282,6 @@ web3.eth.getAccounts().then(async (error, accounts) => {
     let fs = require('fs');
     fs.writeFile(new Date().toISOString().split("T")[0] + '_performanceMeasurement.json', json, 'utf8', callback);
 
-});
+};
+
+run();
