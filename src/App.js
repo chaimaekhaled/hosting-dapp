@@ -236,7 +236,7 @@ class App extends Component {
                                     <Nav className="ml-auto" navbar>
                                         <NavItem>
                                             <NavLink exact to="/" activeClassName='active'
-                                                     tag={NavLinkRRD}>Overview</NavLink>
+                                                     tag={NavLinkRRD}>Home</NavLink>
                                         </NavItem>
                                         <NavItem>
                                             <NavLink to="/store" activeClassName='active'
