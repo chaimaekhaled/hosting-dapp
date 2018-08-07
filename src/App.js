@@ -42,6 +42,7 @@ class App extends Component {
             products: null,
             providerContractAddress: sessionStorage.getItem("providerContractAddress"),
             defaultProvider: null,
+            selectedAccount: "none selected yet",
         };
         this.toggle = this.toggle.bind(this);
         this.instantiateContract = this.instantiateContract.bind(this);
@@ -56,6 +57,7 @@ class App extends Component {
         getWeb3
             .then(results => {
                 this.setState({web3: results.web3}, this.instantiateContract);
+                this.state.web3.currentProvider.publicConfigStore.on('update', this.instantiateContract);
             })
             .catch(() => console.log('Error finding web3'));
     }
@@ -102,9 +104,11 @@ class App extends Component {
             return -1;
         }
 
+        this.setState({serviceContracts: []});
+
         this.state.web3.eth.getAccounts((error, accounts) => {
             const customerAccount = accounts[0];
-
+            this.setState({selectedAccount: customerAccount});
             ProviderC.at(this.state.providerContractAddress)
                 .then((instance) => {
                     this.setState({providerInstance: instance}, () => {
@@ -136,11 +140,17 @@ class App extends Component {
                             })
                             .then(products => this.setState({products: products}))
                             .then(() => {
-                                return providerInstance.getAllContractsOfCustomer.call(customerAccount)
+                                return providerInstance.getAllContractsOfCustomer.call(customerAccount, {from: customerAccount})
+                                    .catch(() => {
+                                        this.setState({serviceContracts: "invalidRequestToGetAllContractsOfCustomer"});
+                                        return "invalidRequestToGetAllContractsOfCustomer";
+                                    })
                             })
                             .then(async allContracts => {
-                                if (allContracts === undefined) return;
+                                if (allContracts === undefined || allContracts === "invalidRequestToGetAllContractsOfCustomer") return;
                                 console.log("Retreiving all contracts from customer " + customerAccount);
+                                console.log("Found contracts: ");
+                                console.log(allContracts);
                                 allContracts.forEach(async contractAddr => {
                                     await ServiceC.at(contractAddr)
                                         .then(instance => instance.getData.call())
@@ -190,6 +200,7 @@ class App extends Component {
         let footer = <div>
             <Jumbotron style={{marginBottom: "0px"}}>
                 <Container>
+                    <div>Curent account: {this.state.selectedAccount}</div>
                     <InputGroup>
                         <InputGroupAddon addonType="append"><InputGroupText>Contract
                             address</InputGroupText></InputGroupAddon>

@@ -62,7 +62,7 @@ class Billing extends Component {
     constructor(props) {
         super(props);
         const today = new Date().toISOString().slice(0, 10);
-        let contracts = this.props.serviceContracts.length > 0 ? this.props.serviceContracts[0] : null;
+        let contracts = typeof(this.props.serviceContracts) === "object" && this.props.serviceContracts.length > 0 ? this.props.serviceContracts[0] : null;
         this.state = {
             toggle: false,
             selectedService: contracts,
@@ -92,7 +92,7 @@ class Billing extends Component {
     shouldComponentUpdate(nextProps, nextState) {
         // if there are serviceContracts in the nextProps and the state.selectedService is null,
         // set the selected service to the first contract of nextProps
-        if (nextProps.serviceContracts.length > 0 && this.state.selectedService === null) {
+        if (nextProps.serviceContracts.length > 0 && typeof(nextProps.serviceContracts) !== 'string' && this.state.selectedService === null) {
             console.log(nextProps);
             this.setState({
                 selectedService: nextProps.serviceContracts[0],
@@ -316,6 +316,10 @@ class Billing extends Component {
         let currency = "wei";
 
         let content = <Container><Alert>Please wait until services have been retrieved...</Alert></Container>;
+        if (this.props.serviceContracts === "invalidRequestToGetAllContractsOfCustomer") {
+            content = <Container><Alert color="warning">Could not find service contracts for your
+                account.</Alert></Container>;
+        }
         if (this.state.selectedService !== null) {
             content = <Container>
                 <ServiceSelector serviceContracts={this.props.serviceContracts}
