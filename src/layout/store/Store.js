@@ -73,7 +73,7 @@ class Store extends Component {
             activeStoreCardId: null,
             selectedProduct: null,
             selectedDays: 1,
-            pubKey: "",
+            pubKey: "optional input",
             modalServiceBought: false,
             lastTx: null,
             account: null,

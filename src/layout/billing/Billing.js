@@ -79,6 +79,8 @@ class Billing extends Component {
             v: 0,
             r: 0,
             s: 0,
+            signedBy: 0,
+            validated: false,
         };
         this.handleServiceChanged = this.handleServiceChanged.bind(this);
         this.handleDateChanged = this.handleDateChanged.bind(this);
@@ -87,6 +89,7 @@ class Billing extends Component {
         this.handleHashChanged = this.handleHashChanged.bind(this);
         this.submitMonitoringData = this.submitMonitoringData.bind(this);
         this.toggle = this.toggle.bind(this);
+        this.validateMonitoringData = this.validateMonitoringData.bind(this);
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -232,19 +235,22 @@ class Billing extends Component {
     handleHashChanged(e) {
         switch (e.target.id) {
             case "generatedHash":
-                this.setState({generatedHash: e.target.value});
+                this.setState({generatedHash: e.target.value, validated: false});
                 break;
             case "inputV":
-                this.setState({v: e.target.value});
+                this.setState({v: e.target.value, validated: false});
                 break;
             case "inputR":
-                this.setState({r: e.target.value});
+                this.setState({r: e.target.value, validated: false});
                 break;
             case "inputS":
-                this.setState({s: e.target.value});
+                this.setState({s: e.target.value, validated: false});
                 break;
             case "monitoringData":
-                this.setState({monitoringDataRaw: e.target.value});
+                this.setState({monitoringDataRaw: e.target.value, validated: false});
+                break;
+            case "inputSigner":
+                this.setState({signedBy: e.target.value, validated: false});
                 break;
             default:
                 break;
@@ -268,7 +274,14 @@ class Billing extends Component {
                 let s = '0x' + signedHash.slice(66, 130);
                 let v = this.props.web3.utils.hexToNumber('0x' + signedHash.slice(130, 132));
                 if (v < 2) v = v + 27;
-                this.setState({v: v, r: r, s: s, generatedHash: hash, monitoringData: monitoringData})
+                this.setState({
+                    v: v,
+                    r: r,
+                    s: s,
+                    generatedHash: hash,
+                    monitoringData: monitoringData,
+                    signedBy: accounts[0],
+                })
             })
         });
     }
@@ -306,6 +319,35 @@ class Billing extends Component {
         //     function addAvailabilityData(bytes32 h, uint8 v, bytes32 r, bytes32 s, uint[] availabilityData) public {
     }
 
+    validateMonitoringData() {
+        if (!this.props.web3.utils.isAddress(this.state.signedBy)) {
+            alert("Not a valid address in field: 'Signed by'");
+            return;
+        }
+        let ServiceC = contract(Service);
+        ServiceC.setProvider(this.props.web3.currentProvider);
+        if (typeof ServiceC.currentProvider.sendAsync !== "function") {
+            ServiceC.currentProvider.sendAsync = function () {
+                return ServiceC.currentProvider.send.apply(
+                    ServiceC.currentProvider, arguments
+                );
+            };
+        }
+        let serviceContractInstance = ServiceC.at(this.state.selectedService.hash);
+        serviceContractInstance.recoverAddr(this.state.generatedHash, this.state.v, this.state.r, this.state.s)
+            .then((address) => {
+                console.log("Recoverd address:");
+                console.log(address);
+                if (address.toLowerCase() === this.state.signedBy.toLowerCase()) {
+                    alert("Data is valid.")
+                } else {
+                    alert("Data is NOT valid!");
+                }
+            });
+
+        return true;
+    }
+
     toggle() {
         this.setState({collapse: !this.state.collapse});
     }
@@ -314,6 +356,7 @@ class Billing extends Component {
     render() {
         const rowGrid = {marginBottom: 15 + 'px'};
         let currency = "wei";
+
 
         let content = <Container><Alert>Please wait until services have been retrieved...</Alert></Container>;
         if (this.props.serviceContracts === "invalidRequestToGetAllContractsOfCustomer") {
@@ -334,8 +377,8 @@ class Billing extends Component {
                                  info={this.state} currency={currency}/>
                 <hr className="my-3"/>
                 <Container>
-                    <Row><Col><Button color="primary" onClick={this.toggle} style={{marginBottom: '1rem'}}>Generate hash
-                        for monitoring data</Button></Col></Row>
+                    <Row><Col><Button color="primary" onClick={this.toggle} style={{marginBottom: '1rem'}}>Submit and
+                        validate Monitoring data</Button></Col></Row>
                     <Collapse isOpen={this.state.collapse}>
                         <Row>
                             <Col>
@@ -363,21 +406,29 @@ class Billing extends Component {
                                 <LabeledInput inputId="generatedHash" type="text" labelText={"Hash"}
                                               value={this.state.generatedHash} onChange={this.handleHashChanged}/>
                             </Col>
-                            <Col xs={12} md={{size: 8, offset: 4}}>
+                            <Col xs={12} style={{textAlign: "right"}}>
                                 <LabeledInput inputId="inputV" type="text" labelText={"v"}
                                               value={this.state.v} onChange={this.handleHashChanged}/>
                             </Col>
-                            <Col xs={12} md={{size: 8, offset: 4}}>
+                            <Col xs={12} style={{textAlign: "right"}}>
                                 <LabeledInput inputId="inputR" type="text" labelText={"r"}
                                               value={this.state.r} onChange={this.handleHashChanged}/>
                             </Col>
-                            <Col xs={12} md={{size: 8, offset: 4}}>
+                            <Col xs={12} style={{textAlign: "right"}}>
                                 <LabeledInput inputId="inputS" type="text" labelText={"s"}
                                               value={this.state.s} onChange={this.handleHashChanged}/>
                             </Col>
+                            <Col xs={12} style={{textAlign: "right"}}>
+                                <LabeledInput inputId="inputSigner" type="text" labelText={"Signed by"}
+                                              value={this.state.signedBy} onChange={this.handleHashChanged}/>
+                            </Col>
                         </Row>
                         <Row style={rowGrid}>
-                            <Col xs={8} md={{size: 6, offset: 6}}>
+                            <Col xs={8} md={{size: 5}}>
+                                <Button id={"validateMonitoringData"} color={"info"} block
+                                        onClick={this.validateMonitoringData}>Validate</Button>
+                            </Col>
+                            <Col xs={8} md={{size: 6, offset: 1}}>
                                 <Button id={"submitMonitoringData"} color={"primary"} block
                                         onClick={this.submitMonitoringData}>Submit to Smart Contract</Button>
                             </Col>
