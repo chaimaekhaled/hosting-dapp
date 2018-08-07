@@ -84,7 +84,7 @@ web3.eth.getAccounts((error, accounts) => {
             return products;
 
         })
-        .then((countofProducts) => {
+        .then(async (countofProducts) => {
             /*if (countofProducts.c[0] === 0) {
                 console.log("ERR: no products to buy, abort buying");
                 return -1;
@@ -96,6 +96,15 @@ web3.eth.getAccounts((error, accounts) => {
             let today = ~~((new Date()).getTime() / 1000);
             let serviceStartDate = today - 6 * days;
             let serviceEndDate = today + 1 * days;
+
+            let newStartDate = new Date(today * 1000 - 3 * 86400000);
+            let newEndDate = new Date(today * 1000 + 3 * 86400000);
+            serviceStartDate = newStartDate / 1000;
+            serviceEndDate = newEndDate / 1000;
+            console.log("newStartDate:" + newStartDate);
+            console.log("newEndDate:" + newEndDate);
+            console.log("serviceStartDate:" + serviceStartDate);
+            console.log("serviceEndDate:" + serviceEndDate);
             //let customerContracts = await providerInstance.getAllContractsOfCustomer.call(customerAccount);
             // finished creating products for provider
             if (!buyProducts) return;
