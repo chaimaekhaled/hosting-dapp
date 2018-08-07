@@ -200,7 +200,6 @@ class App extends Component {
         let footer = <div>
             <Jumbotron style={{marginBottom: "0px"}}>
                 <Container>
-                    <div>Curent account: {this.state.selectedAccount}</div>
                     <InputGroup>
                         <InputGroupAddon addonType="append"><InputGroupText>Contract
                             address</InputGroupText></InputGroupAddon>
@@ -209,6 +208,13 @@ class App extends Component {
                         <InputGroupAddon addonType="prepend">
                             <Button color="primary" onClick={this.instantiateContract}>Submit</Button>
                         </InputGroupAddon>
+                    </InputGroup>
+                    <InputGroup>
+                        <InputGroupAddon addonType="append"><InputGroupText>Your
+                            address</InputGroupText></InputGroupAddon>
+                        <Input id="inputContractAddress" style={{textAlign: 'right',}}
+                               onChange={() => {
+                               }} value={this.state.selectedAccount} disabled/>
                     </InputGroup>
                 </Container>
             </Jumbotron>
