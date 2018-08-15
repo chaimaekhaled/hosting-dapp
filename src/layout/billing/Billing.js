@@ -7,6 +7,10 @@ import LabeledInput from '../../components/LabeledInput';
 
 const contract = require('truffle-contract');
 
+/*
+    This file contains the Billing view of the web application.
+ */
+
 const BillCalculation = (props) => {
     return (
         <Container>

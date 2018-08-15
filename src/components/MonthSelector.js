@@ -2,18 +2,19 @@ import React, {Component} from 'react';
 import {Col, Container, Row} from 'reactstrap';
 import LabeledInput from './LabeledInput';
 
+/*
+    This component allows the selection of dates
+ */
+
 class MonthSelector extends Component {
     render() {
         //TODO: move badgeStyle and rowGrid to CSS
         const rowGrid = {marginBottom: 15 + 'px'};
 
-        //const uniqueMonths = [...new Set(this.props.data.map(item => item.month))];
-        //const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         const xl = {size: 5};
         const lg = {size: 6};
         const md = {size: 6};
         const xs = {size: 12};
-        //const today = new Date().toISOString().slice(0, 10);
         const maxDate = new Date(new Date(this.props.selectedService.startDate).getTime() + this.props.selectedService.availability.length * 86400000).toISOString().slice(0, 10);
 
         return (

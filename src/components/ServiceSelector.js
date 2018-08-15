@@ -3,6 +3,10 @@ import {Button, Col, Container, Input, InputGroup, InputGroupAddon, InputGroupTe
 import LabeledInput from './LabeledInput';
 import DaysInput from './DaysInput';
 
+/*
+    This component is used in the billing view to select a service.
+ */
+
 class ServiceSelector extends Component {
     constructor(props) {
         super(props);

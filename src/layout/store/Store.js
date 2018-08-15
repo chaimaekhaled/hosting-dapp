@@ -19,6 +19,9 @@ import {
 import StoreCard from '../../components/StoreCard';
 import DaysInput from '../../components/DaysInput';
 
+/*
+    This file contains the Store view.
+ */
 const Sla = (props) => {
     if (props.service == null) {
         return (<Container><Alert>Select a service to show the SLA terms.</Alert></Container>)
@@ -170,7 +173,6 @@ class Store extends Component {
                     {this.state.selectedProduct.costPerDay * this.state.selectedDays + " wei - Buy"}
                 </Button>;
         }
-        //TODO: move rowGrid to CSS
         const rowGrid = {marginBottom: 15 + 'px'};
 
         let modal = "";

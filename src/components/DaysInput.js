@@ -1,27 +1,11 @@
 import React, {Component} from 'react';
 import {Button, Input, InputGroup, InputGroupAddon, InputGroupText} from 'reactstrap';
 
+
+/*
+    This component allows the selection of days with + and - buttons
+ */
 class DaysInput extends Component {
-
-    /*
-    props.selectedDays;
-    props.onClick();
-    props.onChange();
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            value: this.props.selectedDays !== undefined ? this.props.selectedDays : 0,
-        };
-        this.handleChange = this.handleChange.bind(this);
-    }
-
-    handleChange(e) {
-        this.setState({
-            value: parseInt(e.target.value, 10),
-        });
-        this.props.onChange(this.state.value);
-    }*/
 
     render() {
         let info = {

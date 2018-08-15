@@ -1,6 +1,9 @@
 import React, {Component} from 'react';
 import {Card, CardBody, CardImg, CardText, CardTitle, Table} from 'reactstrap';
 
+/*
+    This component offers the look of a storecard for the store view
+ */
 class StoreCard extends Component {
 
     constructor(props) {

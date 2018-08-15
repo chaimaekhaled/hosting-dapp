@@ -1,11 +1,11 @@
 import React, {Component} from 'react';
 import {Col, Input, Label, Row} from 'reactstrap';
 
+/*
+    This helps to format inputs of the web application in a similar look
+ */
+
 class LabeledInput extends Component {
-    /*  constructor(props) {
-          super(props);
-      };
-  */
     render() {
         let options = null;
         if (this.props.type === "select" && typeof this.props.options !== undefined && this.props.options.length > 0) {
