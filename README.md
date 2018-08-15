@@ -22,7 +22,7 @@ use cases, sequence diagrams and architectural overviews.
 ## Run the application (dev server):
 In project root execute:
 1. truffle develop (Windows: truffle.cmd develop)
-2. npm run migrate (Windows: truffle.cmd migrate --reset --compile-all && npm run contracts)
+2. npm run migrate
 3. node ./src/utils/SetMockData.js (optional, adds fake data, e.g., service offerings and contracts)
 4. npm run start (starts dev webserver which server's react app)
 5. Open http://localhost:3000 in browser
@@ -52,7 +52,6 @@ Customer Account: (1) 0xf17f52151ebef6c7334fad080c5704d77216b732
 
 ├-  test                        # contains tests for distributed application  
 ├-  README.md                   # this file  
-├-  package-lock.json           # required for npm  
 ├-  package.json                # required for npm  
 ├-  truffle-config.js           # Truffle configuration file for Windows  
 └-  truffle.js                  # Truffle configuration file
