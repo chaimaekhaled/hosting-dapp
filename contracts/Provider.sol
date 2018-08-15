@@ -4,6 +4,11 @@ import "./Hosting.sol";
 import "./Service.sol";
 import "./ProviderLogic.sol";
 
+/*
+    This file contains the Provider smart contract. It provides the constructor, getter, and setter methods. The
+    Provider smart contracts inherits from ProviderLogic, which inherits from ProviderDatabase. Deploy this smart
+    contract to create a new instance of a provider.
+*/
 contract Provider is ProviderLogic {
 
     constructor() public {
@@ -28,6 +33,7 @@ contract Provider is ProviderLogic {
         monitoringAgent = _agent;
     }
 
+    // Function that returns products by id
     function getProduct(uint _id) public view returns (string, uint, uint, uint[], uint[]){
         require(_id < products.length && _id >= 0);
         return (
@@ -39,7 +45,11 @@ contract Provider is ProviderLogic {
         );
     }
 
-
+    /*
+    getAllContractsOfCustomer return the service contracts depending on who calls the function.
+    If the provider calls this function, it returns all contracts of all customers.
+    If a customer calls this function, it returns all contracts of the customer specified in the parameter (_customer)
+    */
     function getAllContractsOfCustomer(address _customer) public view onlyOwnerOrCustomer returns (address[]) {
         if (msg.sender == owner) {
             // Return all contracts from all customers as this function is called by provider

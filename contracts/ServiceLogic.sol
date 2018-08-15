@@ -1,14 +1,23 @@
 pragma solidity ^0.4.19;
 
 import "./ServiceDatabase.sol";
-//import "./Hosting.sol";
+
+/*
+    This file contains the ServiceLogic smart contract. It provides the business logic for the Service smart
+    contract, such as the functionality for the state channel / oracle, compliance checking of the SLA and the
+    calculation of reimbursements. It also includes the withdrawal-pattern to allow the service provider to collect
+    its service fee.
+*/
+
 
 contract ServiceLogic is ServiceDatabase {
-    // State channel logic by https://github.com/mattdf/payment-channel/blob/master/channel.sol
-    // This function is part of the state channel pattern. Customer, provider and monitoringAgent exchange
-    // the service performance data (availabilityData) off-chain to reduce transaction costs. The provider collects
-    // the service fee by calling this function once with his signed transaction of the availabilityData and once
-    // with the monitoringsAgent's or customer's signed transaction
+    /*
+     State channel logic by https://github.com/mattdf/payment-channel/blob/master/channel.sol
+     This function is part of the state channel pattern. Customer, provider and monitoringAgent exchange
+     the service performance data (availabilityData) off-chain to reduce transaction costs. The provider collects
+     the service fee by calling this function once with his signed transaction of the availabilityData and once
+     with the monitoringsAgent's or customer's signed transaction
+    */
     function addAvailabilityData(bytes32 h, uint8 v, bytes32 r, bytes32 s, uint[] availabilityData) public {
         address signer;
         bytes32 proof;
@@ -22,22 +31,13 @@ contract ServiceLogic is ServiceDatabase {
         // get who signed hash of (contract_address, values)
         signer = ecrecover(h, v, r, s);
 
-        //emit LogBytes(h);
-        //emit LogNumber(v);
-        //emit LogBytes(r);
-        //emit LogBytes(s);
-        //emit LogUintArray(availabilityData);
-        //emit LogAddress(signer);
-
         // check if signer is either provider, customer or monitoringAgent
         require(signer == provider || signer == customer || signer == monitoringAgent || signer2 == provider || signer2 == customer || signer2 == monitoringAgent, "You are not a valid signer!");
 
         proof = keccak256(abi.encodePacked(address(this), availabilityData));
-        //emit LogBytes(proof);
 
         // hash of contract's address and value equals provided hash h
         require(proof == h, "Provided hash h and calculated proof do not match!");
-        //emit Log("proof == h, check");
 
         if (signatures[proof] == 0) {
             signatures[proof] = signer;
@@ -47,7 +47,6 @@ contract ServiceLogic is ServiceDatabase {
             // Append to availabilityHistory, check compliance with SLA and
             // payout provider accordingly (by adding the amount to withdrawableForProvider & update lastBillDate afterwards)
             require(availabilityData.length <= ((now - lastBillDate) / 1 days), "You cannot add performance data for the future!");
-            //emit Log("Came this far, only one more call to make.");
             paymentToProvider(availabilityData);
         }
     }
@@ -73,6 +72,7 @@ contract ServiceLogic is ServiceDatabase {
         emit WithdrawalForProviderChanged(withdrawableForProvider);
     }
 
+    // helper function that checks the SLOs of the SLA
     function calculatePenalty(uint _achievedServiceQuality) public view returns (uint){
         require(slaSet, "SLA has not been set yet, cannot calculate quality");
         uint penalty = sla[4];
@@ -81,7 +81,6 @@ contract ServiceLogic is ServiceDatabase {
         //set penalty to refundMiddle (achieved middleGoal - highGoal)
         if (_achievedServiceQuality >= sla[1]) penalty = 0;
         // SLA was adhered to -> no penalty
-        //emit PenaltyCalculated(_achievedServiceQuality, penalty);
         return penalty;
     }
 
@@ -113,10 +112,11 @@ contract ServiceLogic is ServiceDatabase {
     }
 
     function terminateContract() public onlyPartners {
-        require(endDate < now, "Cannot terminate contract for it's endDate!");
+        require(endDate < now, "Cannot terminate contract before its endDate!");
         selfdestruct(customer);
     }
 
+    // function that allows the provider to withdraw its service fee
     function withdrawProvider() public onlyProvider {
         // Transfers payout to provider
         msg.sender.transfer(withdrawableForProvider);

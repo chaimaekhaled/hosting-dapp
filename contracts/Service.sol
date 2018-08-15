@@ -2,10 +2,21 @@ pragma solidity ^0.4.21;
 
 import "./ServiceLogic.sol";
 
+/*
+    This file contains the Service smart contract, that inherits ServiceLogic, which in turn inherits ServiceDatabase
+    . This Service smart contract offers the constructor, getter, setter, and helping functions for Service contracts.
+*/
+
 contract Service is ServiceLogic {
 
+    /*
+    Example for parameters of the constructor:
+
+    1,"0xf17f52151ebef6c7334fad080c5704d77216b732","0x627306090abab3a6e1400e9345bc60c78a8bef57","0xca35b7d915458ef540ade6068dfe2f44e8fa733c","0xca35b7d915458ef540ade6068dfe2f44e8fa733c","pubKey","vServerSmall", 2, 0
+*/
+
     constructor(
-        uint _serviceId,
+        uint _serviceId, // ID of this service contract
         address _provider,
         address _customer,
         address _monitoringAgent,
@@ -13,7 +24,7 @@ contract Service is ServiceLogic {
         string _customerPublicKey,
         string _name,
         uint _costPerDay,
-        uint _productId)
+        uint _productId) // ID of the service offering
     public {
         serviceId = _serviceId;
         provider = _provider;
@@ -70,7 +81,9 @@ contract Service is ServiceLogic {
 
 
     /*
-        setSla is called by the provider contract when a service is bought.
+        setSla is called by the provider contract when a service is bought. this is to require less parameters in the
+        constructor. We sadly cannot use structs as parameters, as this was an experimental feature at the time of
+        development and deemed as too risky.
     */
     function setSla(
         uint _metric,
@@ -85,7 +98,9 @@ contract Service is ServiceLogic {
     }
 
     /*
-        setServiceDetails is called by the provider contract when a service is bought.
+        setServiceDetails is called by the provider contract when a service is bought. this is to require less
+        parameters in the constructor. We sadly cannot use structs as parameters, as this was an experimental feature
+        at the time of development and deemed as too risky.
     */
     function setServiceDetails(
         uint _cpu,
@@ -97,8 +112,27 @@ contract Service is ServiceLogic {
         specsSet = true;
     }
 
-    //TODO Remove for prod
 
+
+    // recoverAddr is used for state channel functionality. It allows the validation of the input parameters
+    function recoverAddr(bytes32 msgHash, uint8 v, bytes32 r, bytes32 s) public pure returns (address) {
+        return ecrecover(msgHash, v, r, s);
+    }
+
+    // TODO remove for produtive use
+    /*
+        Remove setProvider for productive use. It's useful for development and testing.
+    */
+    function setProvider() public {
+        provider = msg.sender;
+    }
+
+    //TODO Remove for productive use
+    /*
+     this helper function serves development purposes and should be removed for productive use
+     it allows to "fake" the startDate, endDate, date of last bill calculation and the array of service performance
+     measurements
+    */
     function setMockData(
         uint _endDate,
         uint[] _availabilities,
@@ -106,36 +140,9 @@ contract Service is ServiceLogic {
         uint _lastBillDate)
     public {
         endDate = _endDate;
-        //        for(uint i = 0; i < _availabilities.length;i++){
-        //            availabilityHistory.push(_availabilities[i]);
-        //        }
         availabilityHistory = _availabilities;
         startDate = _startDate;
         lastBillDate = _lastBillDate;
     }
 
-    function calcHash(string _prefix, address _addr, uint[] _data) public returns (bytes32){
-        bytes32 hash = keccak256(abi.encodePacked(_prefix, _addr, _data));
-        emit LogBytes(hash);
-        return hash;
-    }
-
-    function recoverAddr(bytes32 msgHash, uint8 v, bytes32 r, bytes32 s) public pure returns (address) {
-        return ecrecover(msgHash, v, r, s);
-    }
-
-    function getParticipants() public view returns (address, address, address){
-        return (customer, provider, monitoringAgent);
-    }
-
-    // TODO remove for prod
-    function setProvider() public {
-        provider = msg.sender;
-    }
-
-
 }
-/*
-1,"0xf17f52151ebef6c7334fad080c5704d77216b732","0x627306090abab3a6e1400e9345bc60c78a8bef57","0xca35b7d915458ef540ade6068dfe2f44e8fa733c","0xca35b7d915458ef540ade6068dfe2f44e8fa733c","pubKey","vServerSmall", 2, 0
-
-*/

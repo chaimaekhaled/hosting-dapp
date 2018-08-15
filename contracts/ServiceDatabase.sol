@@ -1,7 +1,9 @@
 pragma solidity ^0.4.21;
 
-//import "./Hosting.sol";
-
+/*
+    This file contains the ServiceDatabase smart contract that provides all necessary data, modifiers and events for
+    the Service smart contract.
+*/
 contract ServiceDatabase {
 
     event LogNumber(uint n);
@@ -17,9 +19,9 @@ contract ServiceDatabase {
     // Roles & identities
     address provider;
     address customer;
-    address monitoringAgent;
-    address providerContract;
-    string customerPublicKey; // not really required as not utilized.
+    address monitoringAgent; // allows this address to add performance data via state channel logic
+    address providerContract; // reference back to the Provider smart contract
+    string customerPublicKey; // not really required as not utilized. could be used to automate server deployment
 
     // Service meta information
     string name; // name of the service
@@ -43,15 +45,6 @@ contract ServiceDatabase {
     // Flag to prevent SLA and Specs to be changed after they have been set
     bool slaSet = false;
     bool specsSet = false;
-
-
-    /*
-    "0xca35b7d915458ef540ade6068dfe2f44e8fa733c","0xca35b7d915458ef540ade6068dfe2f44e8fa733c","0xca35b7d915458ef540ade6068dfe2f44e8fa733c","pubKey","vServerSmall", 2
-    */
-
-    /*constructor(address _provider, address _customer, address _providerContract, string _customerPublicKey, string _name, uint _costPerDay) public payable {
-
-    }*/
 
     modifier onlyPartners(){
         require(msg.sender == provider || msg.sender == customer || msg.sender == providerContract, "OnlyPartners!");
