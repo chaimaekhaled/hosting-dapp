@@ -1,9 +1,9 @@
 # Distributed application for server hosting providers
 This application was developed during my master's thesis. It is a design science artifact to
-solve problems in the domain of digital services, with a focus on service level agreements (SLA).
+solve problems in the domain of SLAs of digital services.
 
-The design and development of this application is described in more detail in Dev_Info.pdf, which
-use cases, sequence diagrams and architectural overviews.
+Information (sequence diagrams, architecture, class diagrams) can be found in the diagrams folder for more 
+information on this application.  
 
 ## Requirements:
 
