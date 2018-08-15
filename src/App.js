@@ -23,12 +23,16 @@ import Home from "./layout/home/Home";
 import Billing from "./layout/billing/Billing";
 import Store from "./layout/store/Store";
 // Import css
-import './App.css';
+import './css/App.css';
 // Import contracts and web3
 import Provider from "./contracts/Provider.json";
 import Service from './contracts/Service.json';
 import getWeb3 from './utils/getWeb3';
 
+/*
+    App is the heart of the web application. Its state contains all necessary data and the web3 connection to a
+     blockchain node.
+ */
 class App extends Component {
 
     constructor(props) {
@@ -49,11 +53,10 @@ class App extends Component {
         this.handleContractAddressChanged = this.handleContractAddressChanged.bind(this);
     }
 
+    /*
+        load web3 when component did mount. successfull loading of web3 will call instantiateContract()
+     */
     componentDidMount() {
-        /*const addr = sessionStorage.getItem("providerContractAddress");
-        if(addr){
-            this.setState({providerContractAddress: addr});
-        }*/
         getWeb3
             .then(results => {
                 this.setState({web3: results.web3}, this.instantiateContract);
@@ -62,12 +65,17 @@ class App extends Component {
             .catch(() => console.log('Error finding web3'));
     }
 
+    // toggle for navigation bar
     toggle() {
         this.setState({
             isOpen: !this.state.isOpen
         });
     }
 
+    /*
+        instantiateContract() connects to the Provider and Service smart contracts to retrieve all necessary data
+         for the web application. Data is stored in this.state
+     */
     instantiateContract() {
 
 
@@ -107,19 +115,22 @@ class App extends Component {
         this.setState({serviceContracts: []});
 
         this.state.web3.eth.getAccounts((error, accounts) => {
-            const customerAccount = accounts[0];
+            const customerAccount = accounts[0]; // customer account is the one selected in MetaMask
             this.setState({selectedAccount: customerAccount});
+            // 'connect' to Provider smart contract
             ProviderC.at(this.state.providerContractAddress)
                 .then((instance) => {
                     this.setState({providerInstance: instance}, () => {
                         let providerInstance = this.state.providerInstance;
                         sessionStorage.setItem("providerContractAddress", this.state.providerContractAddress);
 
+                        // Get provider's name
                         providerInstance.getName.call()
                             .then((name) => this.setState({providerName: name}))
-                            .then(() => providerInstance.countProducts.call())
+                            .then(() => providerInstance.countProducts.call()) // get the count of service offerings
                             .then(async countOfProducts => {
                                 let products = [];
+                                // for each service offering, retrieve its data
                                 for (let i = 0; i < countOfProducts; i++) {
                                     await providerInstance.getProduct.call(i).then(getProduct => {
                                         console.log("Received product from blockchain:");
@@ -138,14 +149,16 @@ class App extends Component {
                                 console.log("Now returning products...");
                                 return await products;
                             })
-                            .then(products => this.setState({products: products}))
+                            .then(products => this.setState({products: products})) // add all service offerings to state
                             .then(() => {
+                                // retrieve all contracts of the user (the selected account in metamask)
                                 return providerInstance.getAllContractsOfCustomer.call(customerAccount, {from: customerAccount})
                                     .catch(() => {
                                         this.setState({serviceContracts: "invalidRequestToGetAllContractsOfCustomer"});
                                         return "invalidRequestToGetAllContractsOfCustomer";
                                     })
                             })
+                            // add the data of the retrieved contract to the web application
                             .then(async allContracts => {
                                 if (allContracts === undefined || allContracts === "invalidRequestToGetAllContractsOfCustomer") return;
                                 console.log("Retreiving all contracts from customer " + customerAccount);
@@ -166,29 +179,13 @@ class App extends Component {
                                         })
                                 });
 
-                                /*
-                                 return await allContracts.map(async contract => {
-                                                                   let serviceInstance = ServiceC.at(contract);
-                                                                   console.log("Get data for: " + contract);
-                                                                   let data = await serviceInstance.getData.call().then(data => serviceData2object(data));
-                                                                   console.log(data);
-                                                                   return data;
-                                                               })
-                                                           })
-                                                           .then(serviceContracts => this.setState(
-                                                               {serviceContracts: serviceContracts},
-                                                               () => {
-                                                                   console.log("Wrote ServiceContracts to App.state");
-                                                                   console.log(serviceContracts);
-                                                               })
-                                                           )
-                                                           */
                             });
                     })
                 })
         })
     }
 
+    // this function handles changes to the address of the Provider smart contract
     handleContractAddressChanged(e) {
         this.setState({providerContractAddress: e.target.value});
     }
